@@ -1,5 +1,20 @@
 {
     "version": "0.2",
+    "language": "en,en-US",
+    "ignorePaths": [
+        "**/node_modules/**",
+        "**/.git/**",
+        ".vscode",
+        "package-lock.json"
+    ],
+    "allowCompoundWords": true,
+    "dictionaries": [
+        "en_US",
+        "en-gb",
+        "softwareTerms",
+        "node",
+        "npm"
+    ],
     "words": [
         "Analyse",
         "datacenter",
