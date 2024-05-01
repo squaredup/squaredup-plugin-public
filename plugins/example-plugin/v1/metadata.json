@@ -1,0 +1,35 @@
+{
+    "name": "examplehybrid",
+    "displayName": "Example Hybrid",
+    "version": "1.0.0",
+    "author": "Someone",
+    "description": "Demonstrates the structure of a hybrid plugin.",
+    "category": "Miscellaneous",
+    "type": "hybrid",
+    "supportsConfigValidation": true,
+    "links": [
+        {
+            "url": "https://yourCompany.com/docs/plugin/pluginsetup-examplehybrid",
+            "label": "Help adding this plugin"
+        }
+    ],
+    "keywords": [
+        "additional",
+        "search",
+        "terms"
+    ],
+    "objectTypes": [
+        "app",
+        "and",
+        "other",
+        "imported",
+        "object",
+        "types"
+    ],
+    "actions": {
+        "__testConfig":        { "connector": "NodeJS", "version": "1.6.0", "config": { "scriptPath": "handler.js", "entryPoint": "testConfig" } },
+        "import":              { "connector": "NodeJS", "version": "1.6.0", "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" }, "isImportAction": true },
+        "datasourceUnscoped":  { "connector": "NodeJS", "version": "1.6.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
+        "appScopedProperties": { "connector": "NodeJS", "version": "1.6.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } }
+    }
+}
