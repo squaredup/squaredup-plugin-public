@@ -677,9 +677,12 @@ FodyWeavers.xsd
 # Generated files
 serverless.yml
 wrappedHandler.js
+handlerCloud.js
+handlerOnPrem.js
 
 # Test files
 testConfig.json
+env-testConfig.json
 testDatastreamConfig.json
 junit.xml
 pluginUnitTests/test_output/
@@ -693,3 +696,9 @@ testResults.datastreamResults.json
 pluginsIntegrationTestUtils/reports/html/
 pluginsIntegrationTestUtils/reports/junit/
 pluginsIntegrationTestUtils/configs/env-Config.json
+pluginsIntegrationTestUtils/configs/env-testConfig.json
+testTargetNodeConfig.json
+testDataSourceConfig.json
+
+# CI files
+PluginsToUpload/*

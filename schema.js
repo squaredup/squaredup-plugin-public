@@ -9,7 +9,7 @@ export const metadataSchema = {
             type: 'string'
         },
         type: {
-            enum: ['cloud', 'onprem', 'hybrid']
+            enum: ['cloud', 'onprem', 'hybrid', 'declarative']
         },
         supportsConfigValidation: {
             type: 'boolean'
@@ -19,7 +19,8 @@ export const metadataSchema = {
         },
         version: {
             type: 'string',
-            pattern: '(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?'
+            pattern:
+                '(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?'
         },
         description: {
             type: 'string',
@@ -60,7 +61,7 @@ export const metadataSchema = {
                 type: 'string',
                 maxLength: 50
             }
-        },        
+        },
         screenshots: {
             type: 'array',
             items: {
@@ -69,8 +70,13 @@ export const metadataSchema = {
         },
         actions: {
             type: 'object'
+        },
+        restrictedToPlatforms: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
         }
-
     },
     required: ['type', 'name', 'version', 'description', 'author'],
     additionalProperties: false
@@ -113,14 +119,16 @@ export const scopesSchema = {
         properties: {
             name: { type: 'string' }, // name must be a string
             matches: {
-                oneOf: [ // matches should match either schema
+                oneOf: [
+                    // matches should match either schema
                     { type: 'string', const: 'all' }, // a string of value 'all'
                     {
                         type: 'object', // an object
                         minProperties: 1, // at least 1 property
                         patternProperties: {
                             // '.*': { // properties can have any name ADD BACK LATER
-                            '^type$': { // property must be type
+                            '^type$': {
+                                // property must be type
                                 type: 'object',
                                 properties: {
                                     type: { type: 'string', enum: ['equals', 'oneOf'] }, // a string of value 'equals' or 'oneOf'
@@ -132,7 +140,8 @@ export const scopesSchema = {
                                     values: { properties: { type: { const: 'oneOf' } } } // if values is used, type must be 'oneOf'
                                 },
                                 required: ['type'], // type is always required
-                                oneOf: [ // either value or values is required
+                                oneOf: [
+                                    // either value or values is required
                                     { required: ['value'] },
                                     { required: ['values'] }
                                 ]
@@ -161,10 +170,10 @@ export const codsSchema = {
                     dataSourceConfig: { type: 'object' },
                     description: { type: 'string' }
                 },
-                required: ['displayName', 'dataSourceConfig'] 
+                required: ['displayName', 'dataSourceConfig']
             }
         },
-        required: ['tplName', 'index'] 
+        required: ['tplName', 'index']
     }
 };
 
@@ -185,7 +194,7 @@ export const timeframesSchema = {
     ]
 };
 
-export const dashboardsSchema =  {
+export const dashboardsSchema = {
     type: 'object',
     properties: {
         name: { type: 'string' },
@@ -290,7 +299,7 @@ export const uiSchema = {
             },
             fields: {
                 type: 'array',
-                items: { '$ref': '#/items' }
+                items: { $ref: '#/items' }
             }
         },
         if: {
@@ -358,8 +367,8 @@ export const payloadSchema = {
                         }
                     },
                     state: {
-                        'type': 'string',
-                        'enum': ['success', 'error', 'warning', 'unknown']
+                        type: 'string',
+                        enum: ['success', 'error', 'warning', 'unknown']
                     },
                     id: false,
                     __endpoint: false,
@@ -399,10 +408,7 @@ export const payloadSchema = {
         configSubType: { type: 'string' },
         configId: { type: 'string' }
     },
-    anyOf: [
-        { required: ['vertices'] },
-        { required: ['vertices', 'edges'] }
-    ]
+    anyOf: [{ required: ['vertices'] }, { required: ['vertices', 'edges'] }]
 };
 
 export const datastreamSupportedTimeframesSchema = {
@@ -472,7 +478,7 @@ export const dataStreamsSchema = {
                 },
                 {
                     const: 'all'
-                },              
+                },
                 {
                     type: 'object',
                     patternProperties: {
@@ -594,7 +600,7 @@ export const dataStreamsSchema = {
                         required: ['name', 'dataSourceConfig', 'rowPath', 'matches'],
                         dependencies: {
                             metadata: { not: { required: ['rowType'] } },
-                            rowType: { not: { required: ['metadata'] } },
+                            rowType: { not: { required: ['metadata'] } }
                         },
                         properties: {
                             name: { type: 'string' },
@@ -734,6 +740,46 @@ export const dataStreamsSchema = {
                             }
                         },
                         timeframes: datastreamSupportedTimeframesSchema
+                    }
+                }
+            }
+        }
+    }
+};
+
+
+export const jiraSchema = {
+    type: 'object',
+    properties: {
+        tier: {
+            type: 'number'
+        },
+        fixed: {
+            type: 'array',
+            uniqueItems: true,
+            items: {
+                type: 'object',
+                properties: {
+                    id: {
+                        type: 'string'
+                    },
+                    PR: {
+                        type: ['integer', 'string']
+                    }
+                }
+            }
+        },
+        na: {
+            type: 'array',
+            uniqueItems: true,
+            items: {
+                type: 'object',
+                properties: {
+                    id: {
+                        type: 'string'
+                    },
+                    comment: {
+                        type: 'string'
                     }
                 }
             }

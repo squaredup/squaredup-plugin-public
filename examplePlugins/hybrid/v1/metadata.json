@@ -6,6 +6,7 @@
     "description": "Demonstrates the structure of a hybrid plugin.",
     "category": "Miscellaneous",
     "type": "hybrid",
+    "restrictedToPlatforms": [],
     "supportsConfigValidation": true,
     "links": [
         {
@@ -27,9 +28,9 @@
         "types"
     ],
     "actions": {
-        "__testConfig":        { "connector": "NodeJS", "version": "1.6.0", "config": { "scriptPath": "handler.js", "entryPoint": "testConfig" } },
-        "import":              { "connector": "NodeJS", "version": "1.6.0", "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" }, "isImportAction": true },
-        "datasourceUnscoped":  { "connector": "NodeJS", "version": "1.6.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
-        "appScopedProperties": { "connector": "NodeJS", "version": "1.6.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } }
+        "__testConfig":        { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "testConfig" } },
+        "import":              { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" }, "isImportAction": true },
+        "datasourceUnscoped":  { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
+        "appScopedProperties": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } }
     }
 }

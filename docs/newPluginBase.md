@@ -21,6 +21,7 @@ This section explains the changes you need to make just to make the plugin appea
     "description": "Demonstrates the structure of a hybrid plugin.",
     "category": "Miscellaneous",
     "type": "hybrid",
+    "restrictedToPlatforms": [],
     "supportsConfigValidation": true,
     "links": [{
         "url": "https://yourCompany.com/docs/plugin/pluginsetup-examplehybrid",
@@ -60,9 +61,16 @@ You should set `name` to be the same as the name you chose in your `plugins/`_pl
 - Version Control
 
 `type` defines where your plugin code will execute. Choose one of the following values:
+
 - `cloud` - your code executes in the cloud
 - `onprem` - your code executes inside the customers premises on a machine with the relay agent installed
 - `hybrid` - your code can run in either (two separate plugins appear in the Data Source Gallery UI, one with " On-Premise" appended to the display name value).
+
+`restrictedToPlatforms` An array which defines which on premise agent platforms the plugin can execute on:
+
+- `[]` - your code can execute on any agent platform (currently Windows and Linux are supported)
+- `[ "windows" ]` - your code can only run on Windows based agents.
+- `[ "windows", "linux" ]` - your code can execute on Windows or Linux agents.
 
 `supportsConfigValidation` should be set to true and you should define a `testConfig()` function in `handlerConfig.js`.
 
