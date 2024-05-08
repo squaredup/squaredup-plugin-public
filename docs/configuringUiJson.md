@@ -10,6 +10,7 @@ Available field types (controls) are currently:
 - [`checkbox`](#checkbox)
 - [`fieldGroup`](#fieldgroup)
 - [`key-value`](#key-value)
+- [`markdown`](#markdown)
 
 ## The `pluginConfig` Object
 
@@ -189,3 +190,18 @@ The `key-value` field allows the user to add an arbitrary number of key-value pa
 ![uiJsonObjectDiscoverySettings](images/uiJsonObjectDiscoverySettings.jpg)
 
 The property for this control in `pluginConfig` is an array of objects, each with `key` and `value` properties containing the users selection.
+
+### markdown
+
+The `markdown` field allows the developer to provide guidance to the user in the UI.
+
+```json
+    {
+        "type": "markdown",
+        "content": "### Welcome to Azure\n\nTo get help adding this `plugin` visit [squaredup.com](https://squaredup.com).\n\n---\n\n```\nconst test=1\nconst test2=3;\n```\n> This is some new content https://squaredup.com.\n* Test list\n* Test list 2\n\nNew content\n\n1. Test list\n1. Test list 2"
+    }
+```
+
+![uiJsonMarkdown](images/uiJsonMarkdown.jpg)
+
+This component uses the same markdown variant as Remarkable.

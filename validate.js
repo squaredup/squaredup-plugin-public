@@ -1,7 +1,14 @@
 import Ajv from 'ajv';
 import chalk from 'chalk';
 import cp from 'child_process';
-import { combineTextAndLanguageSettings, finalizeSettings, getDefaultSettings, mergeSettings, readSettings, validateText } from 'cspell-lib';
+import {
+    combineTextAndLanguageSettings,
+    finalizeSettings,
+    getDefaultSettings,
+    mergeSettings,
+    readSettings,
+    validateText
+} from 'cspell-lib';
 import {
     differenceInHours,
     endOfMonth,
@@ -20,7 +27,7 @@ import {
 } from 'date-fns';
 import fs from 'fs';
 import inquirer from 'inquirer';
-import os, { type } from 'os';
+import os from 'os';
 import path, { dirname } from 'path';
 import { exit } from 'process';
 import requestPromise from 'request-promise';
@@ -28,7 +35,16 @@ import slugify from 'slugify';
 import { titleCase } from 'title-case';
 import { fileURLToPath, pathToFileURL } from 'url';
 import util from 'util';
-import { codsSchema, customTypesSchema, dashboardsSchema, dataStreamsSchema, metadataSchema, payloadSchema, scopesSchema, uiSchema } from './schema.js';
+import {
+    codsSchema,
+    customTypesSchema,
+    dashboardsSchema,
+    dataStreamsSchema,
+    metadataSchema,
+    payloadSchema,
+    scopesSchema,
+    uiSchema
+} from './schema.js';
 import open from 'open';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -43,6 +59,8 @@ const directoryPath = path.join(__dirname, 'plugins');
 
 const maxImportPayloadSize = 2 * 1024 * 1024;
 const prodEnvPluginsRefUrl = 'https://squaredup.com/cloud/pluginexport';
+// build up an array of any errors as the integration tests run
+export const automationErrors = [];
 
 let pluginPath;
 let warningCount = 0;
@@ -52,27 +70,21 @@ let handler;
 let metadata;
 let pluginConfig;
 let globalNodeId = 0;
+let pluginName;
+let intTestRun = false;
+export let testResult;
 const importedGraph = {
     vertices: [],
     edges: []
 };
 
-
 const handlerFileName = 'handler.js';
 const packageFileName = 'package.json';
 // Files required for plugin to work
-const requiredFiles = [
-    'metadata.json',
-    'ui.json',
-    'data_streams.json'
-];
+const requiredFiles = ['metadata.json', 'ui.json', 'data_streams.json'];
 
 // Optional configuration files
-const optionalFiles = [
-    handlerFileName,
-    'custom_types.json',
-    'default_content.json'
-];
+const optionalFiles = [handlerFileName, 'custom_types.json', 'default_content.json'];
 
 const jsonSchemas = {
     'metadata.json': metadataSchema,
@@ -85,21 +97,38 @@ const jsonSchemas = {
 const getPluginFilePath = (file) => path.join(pluginPath, file);
 
 // Return JSON from loaded file
-const loadJsonFromFile = (filePath) => {
+export const loadJsonFromFile = (filePath) => {
     const rawdata = fs.readFileSync(filePath);
     return JSON.parse(rawdata);
 };
 
 // Log any warnings passed
 const logWarnings = (warnings) => {
-    warnings.forEach(warning => console.warn(warning));
+    if (!intTestRun) {
+        warnings.forEach((warning) => console.warn(warning));
+    }
     warningCount += warnings.length;
 };
 
 // Log any errors passed
 const logErrors = (errors) => {
-    errors.forEach(error => console.log(error));
+    let errorsArr = [];
     errorCount += errors.length;
+    // if integration test run, push errors to automationErrors array
+    if (intTestRun) {
+        errors.forEach((error) => errorsArr.push(error));
+        const foundIndex = automationErrors.findIndex((entry) => entry.pluginName === pluginName);
+        if (foundIndex !== -1) {
+            automationErrors[foundIndex].errors = automationErrors[foundIndex].errors.concat(errorsArr);
+        } else {
+            automationErrors.push({
+                pluginName: pluginName,
+                errors: errorsArr
+            });
+        }
+    } else {
+        errors.forEach((error) => console.log(error));
+    }
 };
 
 // Log any errors passed and exit validation process
@@ -138,13 +167,14 @@ async function spellCheck(pluginName, textName, text, file = 'metadata.json') {
         const spellChecker = await spellCheckerFactory();
         const typos = await spellChecker(text);
         for (const typo of typos) {
-            logErrors([chalk.bgRed(`The ${file} file for plugin name "${pluginName}" has typo in ${textName}: "${typo.text}"`)]);
+            logErrors([
+                chalk.bgRed(`The ${file} file for plugin name "${pluginName}" has typo in ${textName}: "${typo.text}"`)
+            ]);
         }
     } else {
         logErrors([chalk.bgRed(`The ${file} file for plugin name "${pluginName}" has missing ${textName}`)]);
     }
 }
-
 
 // Produce Mermaid source for import JSON
 const mermaidForImportObjects = (importJson) => {
@@ -160,14 +190,21 @@ const mermaidForImportObjects = (importJson) => {
             nodeIdsBySourceId.set(vertex.sourceId, nodeId);
             let type = '';
             if (vertex.type) {
-                if (typeof (vertex.type) === 'string') {
+                if (typeof vertex.type === 'string') {
                     type = vertex.type.replace('"', '#quot;');
                 }
                 if (Array.isArray(vertex.type)) {
-                    type = vertex.type.reduce((prev, current) => { return `${prev.replace('"', '#quot;')}, ${current.replace('"', '#quot;')}`; });
+                    type = vertex.type.reduce((prev, current) => {
+                        return `${prev.replace('"', '#quot;')}, ${current.replace('"', '#quot;')}`;
+                    });
                 }
             }
-            lines.push(`    ${nodeId}["${type} (${vertex.sourceType.replace('"', '#quot;')})<br>${vertex.name.replace('"', '#quot;')}"]`);
+            lines.push(
+                `    ${nodeId}["${type} (${vertex.sourceType.replace('"', '#quot;')})<br>${vertex.name.replace(
+                    '"',
+                    '#quot;'
+                )}"]`
+            );
         }
     }
     for (const edge of importJson.edges) {
@@ -190,10 +227,10 @@ const mermaidForImportObjects = (importJson) => {
 const validateJson = (file, jsonSchema = null) => {
     let filePath, json;
     if (!jsonSchema) {
-        jsonSchema = jsonSchemas[file]; 
+        jsonSchema = jsonSchemas[file];
     }
 
-    if(!path.isAbsolute(file)) {
+    if (!path.isAbsolute(file)) {
         filePath = getPluginFilePath(file);
         json = loadJsonFromFile(filePath);
     } else {
@@ -202,13 +239,26 @@ const validateJson = (file, jsonSchema = null) => {
 
     const validate = ajv.compile(jsonSchema);
 
-    !validate(json) ?
-        logErrorsAndExit([
-            chalk.bgRed(`${file} is invalid`),
-            ...validate.errors.map(error => chalk.red(`path ${error.instancePath}: ${error.message}`))
-        ])
-        :
-        console.log(chalk.green(`${file} matches schema`));
+    switch (intTestRun) {
+        case intTestRun === true:
+            !validate(json)
+                ? logErrors([
+                    chalk.bgRed(`${file} is invalid`),
+                    ...validate.errors.map((error) => chalk.red(`path ${error.instancePath}: ${error.message}`))
+                ])
+                : console.log(chalk.green(`${file} matches schema`));
+            break;
+        case intTestRun === false:
+            !validate(json)
+                ? logErrorsAndExit([
+                    chalk.bgRed(`${file} is invalid`),
+                    ...validate.errors.map((error) => chalk.red(`path ${error.instancePath}: ${error.message}`))
+                ])
+                : console.log(chalk.green(`${file} matches schema`));
+            break;
+        default:
+            break;
+    }
 };
 
 // Returns loaded import handler
@@ -222,7 +272,9 @@ const loadHandler = async () => {
         process.chdir(pluginPath);
         await exec('npm i');
         process.chdir(prevWd);
-        const { testConfig, importObjects, readDataSource } = await import(pathToFileURL(getPluginFilePath(handlerFileName)));
+        const { testConfig, importObjects, readDataSource } = await import(
+            pathToFileURL(getPluginFilePath(handlerFileName))
+        );
         return { testConfig, importObjects, readDataSource };
     } else {
         return false;
@@ -263,9 +315,13 @@ const getInquirerQuestion = (field) => {
                 return true;
             }
         }),
-        filter: (val) => { // Hack for allowing arrays to be generated by ending answer with a ','
+        filter: (val) => {
+            // Hack for allowing arrays to be generated by ending answer with a ','
             if (val.endsWith(',')) {
-                return val.split(',').filter(item => item).map((val) => ({ value: val })); // (Mimics autocomplete UI component output)
+                return val
+                    .split(',')
+                    .filter((item) => item)
+                    .map((val) => ({ value: val })); // (Mimics autocomplete UI component output)
             }
             return val;
         }
@@ -278,7 +334,7 @@ const buildHandlerQuestions = async () => {
     const handlerFields = loadJsonFromFile(uiPath);
 
     return [
-        ...handlerFields.map(field => getInquirerQuestion(field)),
+        ...handlerFields.map((field) => getInquirerQuestion(field)),
         {
             type: 'confirm',
             name: 'logHandlerOutput',
@@ -291,13 +347,17 @@ async function validateMetadata() {
     const helpLink = 'Help adding this plugin';
     metadata = loadJsonFromFile(getPluginFilePath('metadata.json'));
 
-    if (!Array.isArray(metadata.links) || !metadata.links.some(l => l.label === helpLink)) {
+    if (!Array.isArray(metadata.links) || !metadata.links.some((l) => l.label === helpLink)) {
         if (metadata.author === 'SquaredUp') {
-            logErrors([chalk.bgRed(`The metadata.json file for plugin name "${metadata.name}" is missing the required "${helpLink}" link.`)]);
+            logErrors([
+                chalk.bgRed(
+                    `The metadata.json file for plugin name "${metadata.name}" is missing the required "${helpLink}" link.`
+                )
+            ]);
         }
     } else {
         if (metadata.author === 'SquaredUp') {
-            const link = metadata.links.find(l => l.label === helpLink);
+            const link = metadata.links.find((l) => l.label === helpLink);
             const name = metadata.name.toLowerCase().replace(/ /g, '');
             const baseName = name.replace(/onpremise$/, '');
 
@@ -305,7 +365,11 @@ async function validateMetadata() {
             const expectUrl2 = `https://squaredup.com/cloud/pluginsetup-${baseName}`;
             if (link.url !== expectUrl1 && link.url !== expectUrl2) {
                 const expectUrl = expectUrl1 === expectUrl2 ? expectUrl1 : `${expectUrl1} or ${expectUrl2}`;
-                logErrors([chalk.bgRed(`The metadata.json file for plugin name "${metadata.name}" has the wrong URL for "${helpLink}" link - "${link.url}" should be "${expectUrl}"`)]);
+                logErrors([
+                    chalk.bgRed(
+                        `The metadata.json file for plugin name "${metadata.name}" has the wrong URL for "${helpLink}" link - "${link.url}" should be "${expectUrl}"`
+                    )
+                ]);
             }
         }
         for (const link of metadata.links) {
@@ -314,20 +378,56 @@ async function validateMetadata() {
     }
 
     await spellCheck(metadata.name, 'description', metadata.description);
+
+    // Additional checks for on-prem
+    if (['onprem', 'hybrid', 'declarative'].includes(metadata.type)) {
+        if (typeof metadata.actions !== 'object' || metadata.actions === null) {
+            logErrors([
+                chalk.bgRed(
+                    `The metadata.json file for plugin name "${metadata.name}" is missing the required "actions" object.`
+                )
+            ]);
+        } else {
+            const actionNames = new Set(Object.keys(metadata.actions));
+            const dataStreams = loadJsonFromFile(getPluginFilePath('data_streams.json'));
+            for (const dataSource of dataStreams.dataSources) {
+                if (!actionNames.has(dataSource.name)) {
+                    logErrors([
+                        chalk.bgRed(
+                            `The metadata.json file for plugin name "${metadata.name}" is missing the required action "${dataSource.name}"`
+                        )
+                    ]);
+                }
+            }
+        }
+    }
+
     return metadata;
 }
 
 async function validateUi(pluginName) {
     const ui = loadJsonFromFile(getPluginFilePath('ui.json'));
-    for (const item of ui) {
-        await spellCheck(pluginName, `label for UI item "${item.name}"`, item.label);
-        if (item.title) {
-            await spellCheck(pluginName, `title for UI item "${item.name}"`, item.title);
-        }
-        if (item.help) {
-            await spellCheck(pluginName, `help for UI item "${item.name}"`, item.help);
+
+    async function spellCheckItem(pluginName, item) {
+        if (item.type === 'fieldGroup') {
+            for (const subItem of item.fields) {
+                await spellCheckItem(pluginName, subItem);
+            }
+        } else {
+            await spellCheck(pluginName, `label for UI item "${item.name}"`, item.label, 'ui.json');
+            if (item.title) {
+                await spellCheck(pluginName, `title for UI item "${item.name}"`, item.title, 'ui.json');
+            }
+            if (item.help) {
+                await spellCheck(pluginName, `help for UI item "${item.name}"`, item.help, 'ui.json');
+            }
         }
     }
+
+    for (const item of ui) {
+        await spellCheckItem(pluginName, item);
+    }
+
     return ui;
 }
 
@@ -364,14 +464,7 @@ const validShapes = new Set([
     'url'
 ]);
 
-const validRoles = new Set([
-    'id',
-    'label',
-    'link',
-    'timestamp',
-    'unitLabel',
-    'value'
-]);
+const validRoles = new Set(['id', 'label', 'link', 'timestamp', 'unitLabel', 'value']);
 
 async function validateDataStreamMetadata(pluginName, name, metadata) {
     let stateColNum;
@@ -383,39 +476,80 @@ async function validateDataStreamMetadata(pluginName, name, metadata) {
         let shapeName;
         if (Array.isArray(col.shape)) {
             if (col.shape.length != 2) {
-                logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with invalid 'shape': "${col.shape.join(', ')}"`)]);
+                logErrors([
+                    chalk.bgRed(
+                        `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${
+                            col.name
+                        }" with invalid 'shape': "${col.shape.join(', ')}"`
+                    )
+                ]);
             } else {
-                if (typeof col.shape[0] !== 'string' || !validShapes.has(col.shape[0]) || (typeof col.shape[1] !== 'object' || Array.isArray(col.shape[1]))) {
-                    logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with invalid 'shape': "${col.shape.join(', ')}"`)]);
+                if (
+                    typeof col.shape[0] !== 'string' ||
+                    !validShapes.has(col.shape[0]) ||
+                    typeof col.shape[1] !== 'object' ||
+                    Array.isArray(col.shape[1])
+                ) {
+                    logErrors([
+                        chalk.bgRed(
+                            `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${
+                                col.name
+                            }" with invalid 'shape': "${col.shape.join(', ')}"`
+                        )
+                    ]);
                 }
             }
             shapeName = col.shape[0];
         } else {
             if (typeof col.name !== 'string' || col.name.match(/^\s*$/)) {
                 // The absence of 'name' is acceptable if a pattern is provided.  Pattern doesn't require displayName or shape
-                if ((typeof col.pattern !== 'string' || col.pattern.match(/^\s*$/))) {
-                    logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column with no 'name' or 'pattern'`)]);
+                if (typeof col.pattern !== 'string' || col.pattern.match(/^\s*$/)) {
+                    logErrors([
+                        chalk.bgRed(
+                            `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column with no 'name' or 'pattern'`
+                        )
+                    ]);
                 }
             } else {
                 if (Object.prototype.hasOwnProperty.call(col, 'visible') && typeof col.visible !== 'boolean') {
-                    logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with invalid 'visible' - must be boolean`)]);
+                    logErrors([
+                        chalk.bgRed(
+                            `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with invalid 'visible' - must be boolean`
+                        )
+                    ]);
                 }
                 if (typeof col.visible !== 'boolean' || col.visible !== false) {
-                    if ((typeof col.displayName !== 'string' || col.displayName.match(/^\s*$/))) {
-                        logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with missing 'displayName'`)]);
+                    if (typeof col.displayName !== 'string' || col.displayName.match(/^\s*$/)) {
+                        logErrors([
+                            chalk.bgRed(
+                                `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with missing 'displayName'`
+                            )
+                        ]);
                     } else {
                         const tc = titleCase(col.displayName.replace('_', ' '));
                         if (col.displayName !== tc) {
-                            logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with bad 'displayName' = "${col.displayName}" should be "${tc}"`)]);
+                            logErrors([
+                                chalk.bgRed(
+                                    `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with bad 'displayName' = "${col.displayName}" should be "${tc}"`
+                                )
+                            ]);
                         }
                         await spellCheck(pluginName, `displayName column "${col.name}" in "${name}"`, col.displayName);
                     }
                 }
-                if ((typeof col.shape !== 'string' || col.shape.match(/^\s*$/))) {
-                    logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with missing 'shape'`)]);
+                if (typeof col.shape !== 'string' || col.shape.match(/^\s*$/)) {
+                    logErrors([
+                        chalk.bgRed(
+                            `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with missing 'shape'`
+                        )
+                    ]);
                 } else {
                     if (!validShapes.has(col.shape)) {
-                        logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with invalid 'shape': "${col.shape}"`)]);
+                        logErrors([
+                            chalk.bgRed(
+                                `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with invalid 'shape': "${col.shape}"`
+                            )
+                        ]);
                     }
                 }
             }
@@ -423,7 +557,11 @@ async function validateDataStreamMetadata(pluginName, name, metadata) {
         }
         if (shapeName === 'state') {
             if (typeof stateColNum === 'number') {
-                logWarnings([chalk.yellow(`Warning: The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with multiple state columns`)]);
+                logWarnings([
+                    chalk.yellow(
+                        `Warning: The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with multiple state columns`
+                    )
+                ]);
             } else {
                 stateColNum = colNum;
                 expectedLabelColsStart = 1;
@@ -431,7 +569,11 @@ async function validateDataStreamMetadata(pluginName, name, metadata) {
         }
         if (col.role) {
             if (typeof col.role !== 'string' || !validRoles.has(col.role)) {
-                logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with invalid 'role': "${col.role}"`)]);
+                logErrors([
+                    chalk.bgRed(
+                        `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${col.name}" with invalid 'role': "${col.role}"`
+                    )
+                ]);
             }
         }
         if (col.role === 'label') {
@@ -439,14 +581,28 @@ async function validateDataStreamMetadata(pluginName, name, metadata) {
         }
     }
     if (typeof stateColNum === 'number' && stateColNum !== 0) {
-        logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has state column at index ${stateColNum} - should be 0`)]);
+        logErrors([
+            chalk.bgRed(
+                `The data_streams.json file for plugin name "${pluginName}" "${name}" has state column at index ${stateColNum} - should be 0`
+            )
+        ]);
     }
     if (labelColNumbers.length > 0) {
         if (labelColNumbers[0] !== expectedLabelColsStart) {
-            logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has label column at index ${labelColNumbers[0]} - should be ${expectedLabelColsStart}`)]);
+            logErrors([
+                chalk.bgRed(
+                    `The data_streams.json file for plugin name "${pluginName}" "${name}" has label column at index ${labelColNumbers[0]} - should be ${expectedLabelColsStart}`
+                )
+            ]);
         }
-        if ((labelColNumbers[labelColNumbers.length - 1] - labelColNumbers[0]) !== labelColNumbers.length - 1) {
-            logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" "${name}" has non-contiguous label columns ${labelColNumbers.join(', ')}`)]);
+        if (labelColNumbers[labelColNumbers.length - 1] - labelColNumbers[0] !== labelColNumbers.length - 1) {
+            logErrors([
+                chalk.bgRed(
+                    `The data_streams.json file for plugin name "${pluginName}" "${name}" has non-contiguous label columns ${labelColNumbers.join(
+                        ', '
+                    )}`
+                )
+            ]);
         }
     }
 }
@@ -466,25 +622,49 @@ async function validateDataStreams(pluginName) {
     }
     const dataSourceNames = dataStreams.dataSources.reduce((acc, val) => {
         if (acc.has(val.name)) {
-            logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" has duplicate data source name: "${val.name}"`)]);
+            logErrors([
+                chalk.bgRed(
+                    `The data_streams.json file for plugin name "${pluginName}" has duplicate data source name: "${val.name}"`
+                )
+            ]);
         }
         acc.add(val.name);
         return acc;
     }, new Set());
     for (const dataStream of dataStreams.dataStreams) {
         if (!dataSourceNames.has(dataStream.dataSourceName)) {
-            logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" has data stream "${dataStream.definition.name}" referencing non-existent data source: "${dataStream.dataSourceName}"`)]);
+            logErrors([
+                chalk.bgRed(
+                    `The data_streams.json file for plugin name "${pluginName}" has data stream "${dataStream.definition.name}" referencing non-existent data source: "${dataStream.dataSourceName}"`
+                )
+            ]);
         }
         if (Array.isArray(dataStream.definition.metadata)) {
-            await validateDataStreamMetadata(pluginName, `STREAM:${dataStream.definition.name}`, dataStream.definition.metadata);
+            await validateDataStreamMetadata(
+                pluginName,
+                `STREAM:${dataStream.definition.name}`,
+                dataStream.definition.metadata
+            );
         } else {
             if (!dataStream.definition.rowType) {
-                logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" has no metadata for data stream "${dataStream.definition.name}"`)]);
+                logErrors([
+                    chalk.bgRed(
+                        `The data_streams.json file for plugin name "${pluginName}" has no metadata for data stream "${dataStream.definition.name}"`
+                    )
+                ]);
             }
         }
-        await spellCheck(pluginName, `display name for data stream "${dataStream.definition.name}"`, dataStream.displayName);
+        await spellCheck(
+            pluginName,
+            `display name for data stream "${dataStream.definition.name}"`,
+            dataStream.displayName
+        );
         if (dataStream.description) {
-            await spellCheck(pluginName, `description for data stream "${dataStream.definition.name}"`, dataStream.description);
+            await spellCheck(
+                pluginName,
+                `description for data stream "${dataStream.definition.name}"`,
+                dataStream.description
+            );
         }
     }
     return dataStreams;
@@ -562,12 +742,12 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
         }
     });
 
-    const allScopes = defaultScopes.map(s => s.name);
-    const allDataStreams = dataStreams.dataStreams.map(ds => ds.definition.name);
+    const allScopes = defaultScopes.map((s) => s.name);
+    const allDataStreams = dataStreams.dataStreams.map((ds) => ds.definition.name);
     defaultCods.forEach((cods) => {
         allDataStreams.push(`${cods.tplName}___${cods.index}`);
     });
-    const allTypes = Array.from(validTypes).concat(customTypes.map(t => t.type));
+    const allTypes = Array.from(validTypes).concat(customTypes.map((t) => t.type));
 
     for (const scope of defaultScopes) {
         await spellCheck(pluginName, 'Scope name in default content', scope.name, 'scopes.json');
@@ -575,7 +755,11 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
         if (typeof scope.matches === 'object') {
             if (scope.matches.type.type === 'equals') {
                 if (!allTypes.includes(scope.matches.type.value)) {
-                    logErrors([chalk.yellow(`The default_content.json file for plugin name "${pluginName}" has scope "${scope.name}" with invalid type: "${scope.matches.type.value}"`)]);
+                    logErrors([
+                        chalk.yellow(
+                            `The default_content.json file for plugin name "${pluginName}" has scope "${scope.name}" with invalid type: "${scope.matches.type.value}"`
+                        )
+                    ]);
                 }
             } else {
                 const nonMatchingTypes = [];
@@ -585,7 +769,15 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
                     }
                 }
                 if (nonMatchingTypes.length > 0) {
-                    logErrors([chalk.yellow(`The default_content.json file for plugin name "${pluginName}" has scope "${scope.name}" with invalid type${nonMatchingTypes.length == 1 ? '' : 's'}: "${nonMatchingTypes.join('", "')}"`)]);
+                    logErrors([
+                        chalk.yellow(
+                            `The default_content.json file for plugin name "${pluginName}" has scope "${
+                                scope.name
+                            }" with invalid type${nonMatchingTypes.length == 1 ? '' : 's'}: "${nonMatchingTypes.join(
+                                '", "'
+                            )}"`
+                        )
+                    ]);
                 }
             }
         }
@@ -596,7 +788,12 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
         for (const tile of dashboard.dashboard.contents) {
             await spellCheck(pluginName, 'Tile title in default content', tile.config.title, dashboard.filePath);
             if (tile.config.description) {
-                await spellCheck(pluginName, 'Tile description in default content', tile.config.description, dashboard.filePath);
+                await spellCheck(
+                    pluginName,
+                    'Tile description in default content',
+                    tile.config.description,
+                    dashboard.filePath
+                );
             }
             checkTileValue(pluginName, dashboard.name, tile.config.title, tile.config, allScopes, allDataStreams);
             checkTileVizConfig(pluginName, dashboard, tile.config.title, tile.config);
@@ -606,15 +803,26 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
 }
 
 const checkTileVizConfig = (pluginName, dashboard, tileName, config) => {
-    if(config?.visualisation?.config && Object.keys(config.visualisation?.config).filter(k => k !== config?.visualisation.type).length > 0) {
-        logWarnings([chalk.yellow(`The tile "${tileName}" on dashboard "${dashboard.filePath}" in plugin "${pluginName}" contains redundant visualization configuration.`)]);
+    if (
+        config?.visualisation?.config &&
+        Object.keys(config.visualisation?.config).filter((k) => k !== config?.visualisation.type).length > 0
+    ) {
+        logWarnings([
+            chalk.yellow(
+                `The tile "${tileName}" on dashboard "${dashboard.filePath}" in plugin "${pluginName}" contains redundant visualization configuration.`
+            )
+        ]);
     }
 };
 
 const checkTileTimeframes = (pluginName, dashboard) => {
     const tiles = dashboard.dashboard.contents;
-    if(tiles.every(t => Boolean(t.config.timeframe) && t.config.timeframe === tiles[0].config.timeframe)) {
-        logErrors([chalk.bgRed(`The ${dashboard.filePath} file for plugin "${pluginName}" uses the same timeframe for all tiles, use a dashboard timeframe instead.`)]);
+    if (tiles.every((t) => Boolean(t.config.timeframe) && t.config.timeframe === tiles[0].config.timeframe)) {
+        logErrors([
+            chalk.bgRed(
+                `The ${dashboard.filePath} file for plugin "${pluginName}" uses the same timeframe for all tiles, use a dashboard timeframe instead.`
+            )
+        ]);
     }
 };
 
@@ -632,16 +840,37 @@ const checkTileValue = (pluginName, dashboardName, tileName, value, allScopes, a
         }
     } else if (typeof value === 'string') {
         if (value.startsWith('config-') && value !== 'config-00000000000000000000') {
-            logErrors([chalk.bgRed(`The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with raw config ID: ${value}`)]);
+            logErrors([
+                chalk.bgRed(
+                    `The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with raw config ID: ${value}`
+                )
+            ]);
         }
         if (value.startsWith('space-')) {
-            logErrors([chalk.bgRed(`The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with raw workspace ID: "${value}"`)]);
+            logErrors([
+                chalk.bgRed(
+                    `The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with raw workspace ID: "${value}"`
+                )
+            ]);
         }
         if (value.startsWith('scope-')) {
-            logErrors([chalk.bgRed(`The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with raw scope ID: "${value}"`)]);
+            logErrors([
+                chalk.bgRed(
+                    `The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with raw scope ID: "${value}"`
+                )
+            ]);
         }
-        if (value.startsWith('datastream-') && value !== 'datastream-health' && value !== 'datastream-properties' && value !== 'datastream-sql') {
-            logErrors([chalk.bgRed(`The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with raw data stream ID: "${value}"`)]);
+        if (
+            value.startsWith('datastream-') &&
+            value !== 'datastream-health' &&
+            value !== 'datastream-properties' &&
+            value !== 'datastream-sql'
+        ) {
+            logErrors([
+                chalk.bgRed(
+                    `The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with raw data stream ID: "${value}"`
+                )
+            ]);
         }
 
         if (value.startsWith('{{{{raw}}}}') && value.endsWith('{{{{/raw}}}}')) {
@@ -664,10 +893,18 @@ const checkTileValue = (pluginName, dashboardName, tileName, value, allScopes, a
                 }
 
                 if (!allScopes.includes(value)) {
-                    logErrors([chalk.bgRed(`The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with non-existent scope name: "${value}"`)]);
+                    logErrors([
+                        chalk.bgRed(
+                            `The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with non-existent scope name: "${value}"`
+                        )
+                    ]);
                 }
                 if (value.includes(' ') && !hasSquareBrackets) {
-                    logErrors([chalk.bgRed(`The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with scope name containing spaces without square brackets: "${originalValue}"`)]);
+                    logErrors([
+                        chalk.bgRed(
+                            `The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with scope name containing spaces without square brackets: "${originalValue}"`
+                        )
+                    ]);
                 }
             } else if (value.startsWith('dataStreams.')) {
                 value = value.replace('dataStreams.', '');
@@ -675,11 +912,19 @@ const checkTileValue = (pluginName, dashboardName, tileName, value, allScopes, a
                     value = value.substring(1, value.length - 1);
                 }
                 if (!allDataStreams.includes(value)) {
-                    logErrors([chalk.bgRed(`The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with non-existent data stream name: "${value}"`)]);
+                    logErrors([
+                        chalk.bgRed(
+                            `The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with non-existent data stream name: "${value}"`
+                        )
+                    ]);
                 }
             } else {
                 if (!['configId', 'workspaceId'].includes(value)) {
-                    logErrors([chalk.bgRed(`The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with invalid handlebar value: "${originalValue}"`)]);
+                    logErrors([
+                        chalk.bgRed(
+                            `The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with invalid handlebar value: "${originalValue}"`
+                        )
+                    ]);
                 }
             }
         }
@@ -689,25 +934,30 @@ const checkTileValue = (pluginName, dashboardName, tileName, value, allScopes, a
 // Validate plugin configuration/JSON files
 const checkPluginFiles = async () => {
     const allPluginFiles = await readDir(pluginPath);
-    const missingFiles = requiredFiles.filter(file => !allPluginFiles.includes(file));
+    const missingFiles = requiredFiles.filter((file) => !allPluginFiles.includes(file));
 
     if (missingFiles.length) {
-        // Failure here ends validation process
-        logErrorsAndExit([
-            chalk.bgRed('Your plugin is missing the following required files:'),
-            chalk.red(missingFiles.join(', '))
-        ]);
+        // Failure here ends validation process if intTestRun is false
+        intTestRun === true
+            ? logErrors([
+                chalk.bgRed('Your plugin is missing the following required files:'),
+                chalk.red(missingFiles.join(', '))
+            ])
+            : logErrorsAndExit([
+                chalk.bgRed('Your plugin is missing the following required files:'),
+                chalk.red(missingFiles.join(', '))
+            ]);
     }
 
-    const filesToCheck = [...requiredFiles, ...optionalFiles.filter(file => allPluginFiles.includes(file))];
-    const jsonFilesToCheck = filesToCheck.filter(file => file.endsWith('.json'));
+    const filesToCheck = [...requiredFiles, ...optionalFiles.filter((file) => allPluginFiles.includes(file))];
+    const jsonFilesToCheck = filesToCheck.filter((file) => file.endsWith('.json'));
 
     // Validate JSON files against respective schema
-    jsonFilesToCheck.forEach(file => validateJson(file));
+    jsonFilesToCheck.forEach((file) => validateJson(file));
 
     // Check the metadata file
     const metadata = await validateMetadata();
-    if (metadata.type !== 'onprem') {
+    if (['cloud', 'hybrid'].includes(metadata.type)) {
         if (!allPluginFiles.includes(handlerFileName)) {
             logErrorsAndExit([
                 chalk.bgRed('Your plugin is missing the following required files:'),
@@ -731,14 +981,24 @@ const checkPluginFiles = async () => {
 
 // log functions (part of the api object passed to plugin entry points).
 const log = {
-    error: function (msg) { console.log(`Plugin ERROR: ${msg}`); },
-    warn: function (msg) { console.log(`Plugin  WARN: ${msg}`); },
-    info: function (msg) { console.log(`Plugin  INFO: ${msg}`); },
-    debug: function (msg) { console.log(`Plugin DEBUG: ${msg}`); }
+    error: function (msg) {
+        console.log(`Plugin ERROR: ${msg}`);
+    },
+    warn: function (msg) {
+        console.log(`Plugin  WARN: ${msg}`);
+    },
+    info: function (msg) {
+        console.log(`Plugin  INFO: ${msg}`);
+    },
+    debug: function (msg) {
+        console.log(`Plugin DEBUG: ${msg}`);
+    }
 };
 
 const report = {
-    warning: function (text) { console.log(`plugin reports warning: ${text}`); },
+    warning: function (text) {
+        console.log(`plugin reports warning: ${text}`);
+    },
     error: function (text) {
         console.log('plugin reports error: ' + text);
         const err = new Error(text);
@@ -759,14 +1019,30 @@ const validateHandlerData = async (handler, payload) => {
         const patchConfig = (propertyName, value, encryption) => {
             handlerEvent.pluginConfig[propertyName] = value;
         };
+
+        const startMs = performance.now();
+        const timeoutMs = 12 * 60 * 1000;
+        const runtimeContext = {
+            getRemainingTimeMs: () => {
+                return timeoutMs - (performance.now() - startMs);
+            }
+        };
+
         const api = { log, report, patchConfig };
+
+        if (metadata.type === 'cloud') {
+            api.runtimeContext = runtimeContext;
+        }
+
         do {
             handlerEvent.body.pagingContext = handlerEvent.pagingContext = pagingContext;
             const handlerResponse = await handler(handlerEvent, api);
 
             const handlerResponseJson = JSON.stringify(handlerResponse);
             if (handlerResponseJson.length > maxImportPayloadSize) {
-                logErrorsAndExit([chalk.bgRed(`handler returned payload ${handlerResponseJson.length} characters long`)]);
+                logErrorsAndExit([
+                    chalk.bgRed(`handler returned payload ${handlerResponseJson.length} characters long`)
+                ]);
             }
 
             pagingContext = handlerResponse.pagingContext;
@@ -783,13 +1059,13 @@ const validateHandlerData = async (handler, payload) => {
             if (!validate(handlerResponse)) {
                 logErrorsAndExit([
                     chalk.bgRed('payload data is invalid'),
-                    ...validate.errors.map(error => chalk.red(error.message))
+                    ...validate.errors.map((error) => chalk.red(error.message))
                 ]);
             }
 
             if (handlerResponse.vertices) {
                 for (const node of handlerResponse.vertices) {
-                    importedGraph.vertices.push({ ...node, id: `node-${globalNodeId}`});
+                    importedGraph.vertices.push({ ...node, id: `node-${globalNodeId}` });
                     globalNodeId++;
                 }
             }
@@ -817,7 +1093,6 @@ const validateHandlerData = async (handler, payload) => {
             console.log(mermaid.join('\n'));
             console.log('================================================');
         }
-
     } catch (err) {
         console.log(chalk.red(err));
     }
@@ -825,23 +1100,26 @@ const validateHandlerData = async (handler, payload) => {
 
 /**
  * TODO: Import shared copy of this function when SAAS repo exports it as an npm package
- * 
+ *
  * Patches the supplied metadata as directed by the patch object.
- * 
+ *
  * @param {*} metadata - the metadata to patch (an array of column definitions)
  * @param {*} colPatch - the patch to apply
- * 
+ *
  * @returns a new metadata array with the patch applied
  */
 const applyColumnPatch = (metadata, colPatch) => {
     const colNames = new Set(colPatch.names || [colPatch.name]);
 
     if (colPatch.remove) {
-        const filtered = metadata.filter(col => !colNames.has(col.name));
+        const filtered = metadata.filter((col) => !colNames.has(col.name));
         return filtered;
     }
     if (typeof colPatch.override === 'object') {
-        const patched = metadata.reduce((acc, col) => (acc.push(colNames.has(col.name) ? Object.assign({}, col, colPatch.override) : col), acc), []);
+        const patched = metadata.reduce(
+            (acc, col) => (acc.push(colNames.has(col.name) ? Object.assign({}, col, colPatch.override) : col), acc),
+            []
+        );
         return patched;
     }
     return metadata;
@@ -849,14 +1127,14 @@ const applyColumnPatch = (metadata, colPatch) => {
 
 /**
  * TODO: Import shared copy of this function when SAAS repo exports it as an npm package
- * 
+ *
  * This routine takes the POJO created from the contents of the data_streams.json files which
  * contains syntactic sugar to make it easier to write and maintain and expands it out into the
  * form expected by the routines above for insertion into DynamoDB.
- * 
+ *
  * Notably metadata from rowTypes is copied into the data streams that reference them
- * 
- * @param {any} dataStreamsFile 
+ *
+ * @param {any} dataStreamsFile
  */
 const preProcessDataStreams = (dataStreamsFile) => {
     if (!Array.isArray(dataStreamsFile.content.rowTypes)) {
@@ -866,14 +1144,19 @@ const preProcessDataStreams = (dataStreamsFile) => {
 
     // Clone the file contents and extract the rowTypes into a Map
     const newDataStreamsFile = JSON.parse(JSON.stringify(dataStreamsFile));
-    const rowTypesByName = newDataStreamsFile.content.rowTypes.reduce((acc, val) => (acc.set(val.name, val), acc), new Map());
+    const rowTypesByName = newDataStreamsFile.content.rowTypes.reduce(
+        (acc, val) => (acc.set(val.name, val), acc),
+        new Map()
+    );
     delete newDataStreamsFile.content.rowTypes;
 
     // Iterate through the data streams, replacing any rowType references with the row's metadata
     for (const dataStream of newDataStreamsFile.content.dataStreams) {
         if (dataStream.definition?.rowType) {
             if (rowTypesByName.has(dataStream.definition.rowType.name)) {
-                let metadata = JSON.parse(JSON.stringify(rowTypesByName.get(dataStream.definition.rowType.name).metadata));
+                let metadata = JSON.parse(
+                    JSON.stringify(rowTypesByName.get(dataStream.definition.rowType.name).metadata)
+                );
                 if (Array.isArray(dataStream.definition.rowType.column)) {
                     for (const colPatch of dataStream.definition.rowType.column) {
                         metadata = applyColumnPatch(metadata, colPatch);
@@ -882,7 +1165,9 @@ const preProcessDataStreams = (dataStreamsFile) => {
                 dataStream.definition.metadata = metadata;
                 delete dataStream.definition.rowType;
             } else {
-                throw new Error(`Datastream "${dataStream.definition.name}" references non-existent rowType "${dataStream.definition.rowType.name}"`);
+                throw new Error(
+                    `Datastream "${dataStream.definition.name}" references non-existent rowType "${dataStream.definition.rowType.name}"`
+                );
             }
         }
     }
@@ -921,6 +1206,9 @@ const checkPluginSourceCode = async () => {
     } catch (err) {
         if (err.stderr && !err.stderr.match(/No files matching the pattern/)) {
             console.log(chalk.red.bold(err.stderr));
+            if (intTestRun === true) {
+                automationErrors.push({ eslintError: err.stderr });
+            }
         }
         const lineNumbersByPath = new Map();
         let path, matches;
@@ -938,16 +1226,23 @@ const checkPluginSourceCode = async () => {
         }
         if (lineNumbersByPath.size > 0) {
             logWarnings([chalk.yellow('Warning: plugin uses console functions:')]);
-            for (const path of (Array.from(lineNumbersByPath.keys()).sort())) {
+            for (const path of Array.from(lineNumbersByPath.keys()).sort()) {
                 const lineNumbers = lineNumbersByPath.get(path);
-                console.warn(chalk.yellow(`    ${path} - line${lineNumbers.size === 1 ? '' : 's'} ${Array.from(lineNumbers).sort((a, b) => a - b).join(', ')}`));
+                console.warn(
+                    chalk.yellow(
+                        `    ${path} - line${lineNumbers.size === 1 ? '' : 's'} ${Array.from(lineNumbers)
+                            .sort((a, b) => a - b)
+                            .join(', ')}`
+                    )
+                );
             }
         }
     }
 };
 
-const byName = (a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);
-const byStreamName = (a, b) => (a.definition.name > b.definition.name) ? 1 : ((b.definition.name > a.definition.name) ? -1 : 0);
+const byName = (a, b) => (a.name > b.name ? 1 : b.name > a.name ? -1 : 0);
+const byStreamName = (a, b) =>
+    a.definition.name > b.definition.name ? 1 : b.definition.name > a.definition.name ? -1 : 0;
 
 const checkProdEnvConsistency = async () => {
     const prodEnvPluginsRef = await getProdEnvPluginsRef();
@@ -962,16 +1257,21 @@ const checkProdEnvConsistency = async () => {
     const versionInfo = parseVersionString(metadata.version);
 
     const lambdaRE = new RegExp(`^plugin-${safeName}-${versionInfo.major}-prod$`);
-    const prodRef = prodEnvPluginsRef.find(pr => lambdaRE.test(pr.name || pr.lambdaName));  // lambdaName is stored as "name" when redacted
+    const prodRef = prodEnvPluginsRef.find((pr) => lambdaRE.test(pr.name || pr.lambdaName)); // lambdaName is stored as "name" when redacted
 
     if (!prodRef) {
-        console.log(chalk.yellow(`Plugin "${metadata.name}" v${versionInfo.major} is not installed on the PROD environment`));
+        console.log(
+            chalk.yellow(`Plugin "${metadata.name}" v${versionInfo.major} is not installed on the PROD environment`)
+        );
         return;
     }
 
     const dataStreamsRaw = loadJsonFromFile(getPluginFilePath('data_streams.json'));
     const dataStreams = preProcessDataStreams({ content: dataStreamsRaw }).content;
-    const streamsByName = dataStreams.dataStreams.reduce((acc, val) => (acc.set(val.definition.name, val), acc), new Map());
+    const streamsByName = dataStreams.dataStreams.reduce(
+        (acc, val) => (acc.set(val.definition.name, val), acc),
+        new Map()
+    );
 
     for (const dataStreamRef of prodRef.dataStreams.sort(byStreamName)) {
         const dataStream = streamsByName.get(dataStreamRef.definition.name);
@@ -979,36 +1279,54 @@ const checkProdEnvConsistency = async () => {
             const matchesRefJson = JSON.stringify(dataStreamRef.definition.matches).replace(/"(\w+)\.0"/gu, '"$1"');
             const matchesJson = JSON.stringify(dataStream.definition.matches).replace(/"(\w+)\.0"/gu, '"$1"');
             if (matchesJson !== matchesRefJson) {
-                logWarnings([chalk.yellow(`Data stream "${dataStreamRef.definition.name}" is present in the PROD cloud environment with matches: "${matchesRefJson}", but matches is now "${matchesJson}".`)]);
+                logWarnings([
+                    chalk.yellow(
+                        `Data stream "${dataStreamRef.definition.name}" is present in the PROD cloud environment with matches: "${matchesRefJson}", but matches is now "${matchesJson}".`
+                    )
+                ]);
             }
-            const colsByName = Array.isArray(dataStream.definition.metadata) ? dataStream.definition.metadata.reduce((acc, val) => (acc.set(val.name, val), acc), new Map()) : new Map();
+            const colsByName = Array.isArray(dataStream.definition.metadata)
+                ? dataStream.definition.metadata.reduce((acc, val) => (acc.set(val.name, val), acc), new Map())
+                : new Map();
             for (const colRef of (dataStreamRef.definition.metadata ?? []).sort(byName)) {
                 const col = colsByName.get(colRef.name);
                 if (!col) {
-                    logWarnings([chalk.yellow(`Data stream "${dataStreamRef.definition.name}" is present in the PROD cloud environment with column called: "${colRef.name}", but the column is no longer in this version of the plugin.`)]);
+                    logWarnings([
+                        chalk.yellow(
+                            `Data stream "${dataStreamRef.definition.name}" is present in the PROD cloud environment with column called: "${colRef.name}", but the column is no longer in this version of the plugin.`
+                        )
+                    ]);
                 }
             }
         } else {
-            logWarnings([chalk.yellow(`Data stream "${dataStreamRef.definition.name}" is present in the PROD cloud environment, but is no longer in this version of the plugin.`)]);
+            logWarnings([
+                chalk.yellow(
+                    `Data stream "${dataStreamRef.definition.name}" is present in the PROD cloud environment, but is no longer in this version of the plugin.`
+                )
+            ]);
         }
     }
 };
 
-const getConfig = async () => {
+export const getConfig = async () => {
     const testConfigPath = getPluginFilePath('testConfig.json');
 
     // If a testConfig file exists, invoke handler importObjects using its config
     if (fs.existsSync(testConfigPath)) {
         const testConfig = loadJsonFromFile(testConfigPath);
         if (Array.isArray(testConfig)) {
-            await inquirer.prompt([{
-                type: 'list',
-                name: 'config',
-                message: 'Choose a config:',
-                choices: testConfig.map((c, i) => ({ name: c.name, value: i }))
-            }]).then(async (answers) => {
-                pluginConfig = testConfig[answers.config].config;
-            });
+            await inquirer
+                .prompt([
+                    {
+                        type: 'list',
+                        name: 'config',
+                        message: 'Choose a config:',
+                        choices: testConfig.map((c, i) => ({ name: c.name, value: i }))
+                    }
+                ])
+                .then(async (answers) => {
+                    pluginConfig = testConfig[answers.config].config;
+                });
         } else {
             pluginConfig = testConfig;
         }
@@ -1027,7 +1345,7 @@ const getConfig = async () => {
 };
 
 // Gather user configuration and invoke the handler
-const checkHandler = async (handlerAlreadyLoaded = false) => {
+const checkHandler = async (handlerAlreadyLoaded) => {
     if (!handlerAlreadyLoaded) {
         handler = await loadHandler();
     }
@@ -1042,20 +1360,22 @@ const checkHandler = async (handlerAlreadyLoaded = false) => {
 
 const validatePlugin = async () => {
     if (!pluginPath) {
-        inquirer.prompt([
-            {
-                type: 'list',
-                name: 'plugin',
-                message: 'What plugin do you want to validate?',
-                choices: () => getPluginFolders()
-            }
-        ]).then(async ({ plugin }) => {
-            pluginPath = path.join(directoryPath, plugin);
-            await checkPluginFiles();
-            await checkPluginSourceCode();
-            await checkProdEnvConsistency();
-            await checkHandler();
-        });
+        inquirer
+            .prompt([
+                {
+                    type: 'list',
+                    name: 'plugin',
+                    message: 'What plugin do you want to validate?',
+                    choices: () => getPluginFolders()
+                }
+            ])
+            .then(async ({ plugin }) => {
+                pluginPath = path.join(directoryPath, plugin);
+                await checkPluginFiles();
+                await checkPluginSourceCode();
+                await checkProdEnvConsistency();
+                await checkHandler();
+            });
     } else {
         await checkPluginFiles();
         await checkPluginSourceCode();
@@ -1065,20 +1385,22 @@ const validatePlugin = async () => {
 };
 
 const getPluginFolders = async () => {
-    const mainFolders = (await readDir(directoryPath)).filter(item =>
-        !['.gitignore', '.DS_Store', 'package.json', 'package-lock.json'].includes(item)
+    const mainFolders = (await readDir(directoryPath)).filter(
+        (item) => !['.gitignore', '.DS_Store', 'package.json', 'package-lock.json'].includes(item)
     );
 
     const allFolders = [];
-    await Promise.all(mainFolders.map(async (folder) => {
-        const subFolders = await readDir(path.join(directoryPath, folder));
+    await Promise.all(
+        mainFolders.map(async (folder) => {
+            const subFolders = await readDir(path.join(directoryPath, folder));
 
-        subFolders.map((subFolder) => {
-            if (/^v\d+$/gm.test(subFolder)) {
-                allFolders.push(path.join(folder, subFolder));
-            }
-        });
-    }));
+            subFolders.map((subFolder) => {
+                if (/^v\d+$/gm.test(subFolder)) {
+                    allFolders.push(path.join(folder, subFolder));
+                }
+            });
+        })
+    );
 
     return allFolders.map((path) => {
         const pathParts = path.split('\\');
@@ -1089,7 +1411,7 @@ const getPluginFolders = async () => {
     });
 };
 
-const staticAnalyseAll = async () => {
+export const staticAnalyseAll = async () => {
     const plugins = await getPluginFolders();
     for (const plugin of plugins) {
         pluginPath = path.join(directoryPath, plugin.value);
@@ -1115,17 +1437,81 @@ const staticAnalyseAll = async () => {
     process.exit(1);
 };
 
-const processTargetNodes = (trgObjs) => trgObjs.map(trgObj => {
-    const result = {};
-    for (const [key, value] of Object.entries(trgObj)) {
-        if (key === 'links') {
-            result[key] = [JSON.stringify(value)];
-        } else {
-            result[key] = Array.isArray(value) ? value : [value];
-        }
+export const staticAnalyseIntegrationTest = async (plugin) => {
+    let testConfigResults;
+    let needsPrepAndClean = false;
+    intTestRun = true; // switch flag to disable excess logging - rename
+
+    pluginName = plugin.Name;
+    pluginPath = path.join(directoryPath, plugin.Name);
+    if (!fs.existsSync(path.join(pluginPath, 'metadata.json'))) {
+        console.log(chalk.yellow(`Skipping ${pluginPath} which has no metadata.json file`));
     }
-    return result;
-});
+
+    //run testPrep script if needed
+    const pluginFilePath = path.join(pluginPath, 'testPrep.js');
+    if (fs.existsSync(pluginFilePath)) {
+        needsPrepAndClean = true;
+        exec(`node ${pluginFilePath} -p`);
+    }
+
+    await checkPluginFiles();
+    await checkPluginSourceCode();
+    handler = await loadHandler();
+    pluginConfig = plugin.Credentials;
+    testConfigResults = await testConfig();
+    let successMsgCount = 0,
+        warningMsgCount = 0,
+        errorMsgCount = 0;
+    if (Array.isArray(testConfigResults?.messages)) {
+        testConfigResults.messages.forEach((val) => {
+            switch (val.status) {
+                case 'error':
+                    errorMsgCount++;
+                    break;
+                case 'warning':
+                    warningMsgCount++;
+                    break;
+                case 'success':
+                    successMsgCount++;
+                    break;
+                default:
+                    logErrors([`Unknown message status: ${val.status}`]);
+            }
+        });
+    } else {
+        logErrors(['No messages returned from testConfig.']);
+    }
+
+    if (successMsgCount <= 0) {
+        logWarnings(['Received no success message']); //this should be a warning, but logWarning would not currently show up in the test results
+    }
+    if (warningMsgCount > 0) {
+        console.log(chalk.yellow(`${warningCount} warning${warningCount === 1 ? '' : 's'}`));
+    }
+    if (errorMsgCount > 0) {
+        console.log(chalk.red(`${errorCount} error${errorCount === 1 ? '' : 's'}`));
+    }
+    //run cleanup script
+    if (needsPrepAndClean) {
+        exec(`node ${pluginPath}/testPrep.js -c`);
+    }
+
+    return testConfigResults;
+};
+
+const processTargetNodes = (trgObjs) =>
+    trgObjs.map((trgObj) => {
+        const result = {};
+        for (const [key, value] of Object.entries(trgObj)) {
+            if (key === 'links') {
+                result[key] = [JSON.stringify(value)];
+            } else {
+                result[key] = Array.isArray(value) ? value : [value];
+            }
+        }
+        return result;
+    });
 
 const testSingleCriterion = (fieldName, criterion, tn) => {
     if (typeof criterion === 'string') {
@@ -1136,25 +1522,28 @@ const testSingleCriterion = (fieldName, criterion, tn) => {
     }
     switch (criterion.type) {
         case 'oneOf': {
-            if (Object.keys(criterion).length !== 2  || !Object.hasOwn(criterion, 'values' || !Array.isArray(criterion.values))) {
+            if (
+                Object.keys(criterion).length !== 2 ||
+                !Object.hasOwn(criterion, 'values' || !Array.isArray(criterion.values))
+            ) {
                 throw new Error(`Invalid match criterion: ${JSON.stringify(criterion)}`);
             }
             return criterion.values.includes(tn[fieldName]);
         }
         case 'contains': {
-            if (Object.keys(criterion).length !== 2  || !Object.hasOwn(criterion, 'value')) {
+            if (Object.keys(criterion).length !== 2 || !Object.hasOwn(criterion, 'value')) {
                 throw new Error(`Invalid match criterion: ${JSON.stringify(criterion)}`);
             }
-            return typeof(tn[fieldName]) === 'string' && tn[fieldName].includes(criterion.value);
+            return typeof tn[fieldName] === 'string' && tn[fieldName].includes(criterion.value);
         }
         case 'equals': {
-            if (Object.keys(criterion).length !== 2  || !Object.hasOwn(criterion, 'value')) {
+            if (Object.keys(criterion).length !== 2 || !Object.hasOwn(criterion, 'value')) {
                 throw new Error(`Invalid match criterion: ${JSON.stringify(criterion)}`);
             }
             return tn[fieldName] == criterion.value;
         }
         case 'regex': {
-            if (Object.keys(criterion).length !== 2  || !Object.hasOwn(criterion, 'pattern')) {
+            if (Object.keys(criterion).length !== 2 || !Object.hasOwn(criterion, 'pattern')) {
                 throw new Error(`Invalid match criterion: ${JSON.stringify(criterion)}`);
             }
             return new RegExp(criterion.pattern).test(tn[fieldName]);
@@ -1185,8 +1574,12 @@ const testSingleMatch = (singleMatch, tn) => {
 };
 
 const testMatch = (matches, tn) => {
-    if (matches === 'all') { return true; }
-    if (matches === 'none') { return false; }
+    if (matches === 'all') {
+        return true;
+    }
+    if (matches === 'none') {
+        return false;
+    }
     if (Array.isArray(matches)) {
         for (const singleMatch of matches) {
             if (testSingleMatch(singleMatch, tn)) {
@@ -1204,7 +1597,8 @@ const getMatchesFilter = (matches) => {
 
 const resolveTimeframeInterval = (timeframe) => {
     // Remove one hour as it will round seconds to the whole hour
-    const timeDifference = Math.abs(differenceInHours(fromUnixTime(timeframe.unixEnd), fromUnixTime(timeframe.unixStart))) - 1;
+    const timeDifference =
+        Math.abs(differenceInHours(fromUnixTime(timeframe.unixEnd), fromUnixTime(timeframe.unixStart))) - 1;
     let interval = timeframe.interval;
 
     if (!interval) {
@@ -1295,26 +1689,27 @@ const getTimeframe = async (supportedTimeframes = undefined) => {
             type: 'list',
             name: 'timeframe',
             message: 'What timeframe do you want to test with?',
-            choices: () => [
-                { name: 'last1hour', value: timeframes.last1hour},
-                { name: 'last12hours', value: timeframes.last12hours},
-                { name: 'last24hours', value: timeframes.last24hours},
-                { name: 'last7days', value: timeframes.last7days},
-                { name: 'last30days', value: timeframes.last30days},
-                { name: 'thisMonth', value: timeframes.thisMonth},
-                { name: 'thisQuarter', value: timeframes.thisQuarter},
-                { name: 'thisYear', value: timeframes.thisYear},
-                { name: 'lastMonth', value: timeframes.lastMonth},
-                { name: 'lastQuarter', value: timeframes.lastQuarter},
-                { name: 'lastYear', value: timeframes.lastYear}
-            ].filter((tf) => supportedTimeframes === undefined || supportedTimeframes.includes(tf.name))
+            choices: () =>
+                [
+                    { name: 'last1hour', value: timeframes.last1hour },
+                    { name: 'last12hours', value: timeframes.last12hours },
+                    { name: 'last24hours', value: timeframes.last24hours },
+                    { name: 'last7days', value: timeframes.last7days },
+                    { name: 'last30days', value: timeframes.last30days },
+                    { name: 'thisMonth', value: timeframes.thisMonth },
+                    { name: 'thisQuarter', value: timeframes.thisQuarter },
+                    { name: 'thisYear', value: timeframes.thisYear },
+                    { name: 'lastMonth', value: timeframes.lastMonth },
+                    { name: 'lastQuarter', value: timeframes.lastQuarter },
+                    { name: 'lastYear', value: timeframes.lastYear }
+                ].filter((tf) => supportedTimeframes === undefined || supportedTimeframes.includes(tf.name))
         }
     ]);
 
     return answer.timeframe();
 };
 
-const testDataStream = async(dataStream,dataSource) => {
+const testDataStream = async (dataStream, dataSource) => {
     console.log(`Testing ${dataStream.definition.name} - matches: ${JSON.stringify(dataStream.definition.matches)}`);
     const filterFn = getMatchesFilter(dataStream.definition.matches);
     let targetNodes = importedGraph.vertices.filter(filterFn);
@@ -1324,7 +1719,9 @@ const testDataStream = async(dataStream,dataSource) => {
             {
                 type: 'list',
                 name: 'targetNodes',
-                message: `Do you want to select targetNodes individually or use all ${targetNodes.length} node${targetNodes.length === 1 ? '' : 's'}?`,
+                message: `Do you want to select targetNodes individually or use all ${targetNodes.length} node${
+                    targetNodes.length === 1 ? '' : 's'
+                }?`,
                 choices: () => [
                     'Select targetNodes individually',
                     `Use all ${targetNodes.length} node${targetNodes.length === 1 ? '' : 's'}?`
@@ -1333,7 +1730,10 @@ const testDataStream = async(dataStream,dataSource) => {
         ]);
         if (tnAnswer.targetNodes === 'Select targetNodes individually') {
             let selectedNodes = [];
-            const availableNodesByName = targetNodes.reduce((acc, tn) => acc.set(`${tn.name} (${tn.type}|${tn.sourceType})`, tn), new Map());
+            const availableNodesByName = targetNodes.reduce(
+                (acc, tn) => acc.set(`${tn.name} (${tn.type}|${tn.sourceType})`, tn),
+                new Map()
+            );
             let done = false;
             do {
                 const selectAnswer = await inquirer.prompt([
@@ -1354,7 +1754,7 @@ const testDataStream = async(dataStream,dataSource) => {
                     selectedNodes.push(tn);
                     availableNodesByName.delete(`${tn.name} (${tn.type}|${tn.sourceType})`);
                 }
-            } while(!done && availableNodesByName.size > 0);
+            } while (!done && availableNodesByName.size > 0);
             targetNodes = selectedNodes;
         }
     }
@@ -1363,17 +1763,18 @@ const testDataStream = async(dataStream,dataSource) => {
     targetNodes = processTargetNodes(targetNodes);
 
     // Prompt for timeframe if needed
-    const timeframe = dataStream.definition.timeframes === false
-        ? undefined
-        : Array.isArray(dataStream.definition.timeframes)
-            ? await getTimeframe(dataStream.definition.timeframes)
-            : await getTimeframe();
+    const timeframe =
+        dataStream.definition.timeframes === false
+            ? undefined
+            : Array.isArray(dataStream.definition.timeframes)
+                ? await getTimeframe(dataStream.definition.timeframes)
+                : await getTimeframe();
 
     // Prompt for configurable dataSourceConfig items if needed.
     const dataSourceConfig = { ...dataStream.definition.dataSourceConfig };
     if (Array.isArray(dataStream.template) && dataStream.template.length > 0) {
         console.log('Configure data stream request:');
-        const codsAnswer = await inquirer.prompt(dataStream.template.map(field => getInquirerQuestion(field)));
+        const codsAnswer = await inquirer.prompt(dataStream.template.map((field) => getInquirerQuestion(field)));
         Object.assign(dataSourceConfig, codsAnswer);
     }
 
@@ -1394,14 +1795,22 @@ const testDataStream = async(dataStream,dataSource) => {
     switch (dataSource.supportedScope) {
         case 'none': {
             if (dataStream.definition.matches !== 'none') {
-                throw new Error(`data source ${dataSource.definition.name} has matches mismatch: supportedScope=${dataSource.supportedScope} but matches=${JSON.stringify(dataStream.definition.matches)}`);
+                throw new Error(
+                    `data source ${dataSource.definition.name} has matches mismatch: supportedScope=${
+                        dataSource.supportedScope
+                    } but matches=${JSON.stringify(dataStream.definition.matches)}`
+                );
             }
             results = await handler.readDataSource(handlerEvent, api);
             break;
         }
         case 'single': {
             if (dataStream.definition.matches === 'none') {
-                throw new Error(`data source ${dataSource.definition.name} has matches mismatch: supportedScope=${dataSource.supportedScope} but matches=${JSON.stringify(dataStream.definition.matches)}`);
+                throw new Error(
+                    `data source ${dataSource.definition.name} has matches mismatch: supportedScope=${
+                        dataSource.supportedScope
+                    } but matches=${JSON.stringify(dataStream.definition.matches)}`
+                );
             }
             results = [];
             for (const targetNode of targetNodes) {
@@ -1411,20 +1820,26 @@ const testDataStream = async(dataStream,dataSource) => {
         }
         case 'list': {
             if (dataStream.definition.matches === 'none') {
-                throw new Error(`data source ${dataSource.definition.name} has matches mismatch: supportedScope=${dataSource.supportedScope} but matches=${JSON.stringify(dataStream.definition.matches)}`);
+                throw new Error(
+                    `data source ${dataSource.definition.name} has matches mismatch: supportedScope=${
+                        dataSource.supportedScope
+                    } but matches=${JSON.stringify(dataStream.definition.matches)}`
+                );
             }
             results = await handler.readDataSource({ ...handlerEvent, targetNodes }, api);
             break;
         }
         default: {
-            throw new Error(`data source ${dataSource.definition.name} has invalid supportedScope: ${dataSource.supportedScope}`);
+            throw new Error(
+                `data source ${dataSource.definition.name} has invalid supportedScope: ${dataSource.supportedScope}`
+            );
         }
     }
     console.log(results);
     console.log('');
 };
 
-const testConfig = async() => {
+export const testConfig = async () => {
     console.log('\nTesting testConfig()');
     const handlerEvent = { pluginConfig };
 
@@ -1434,8 +1849,9 @@ const testConfig = async() => {
     };
     const api = { log, report, patchConfig };
 
-    const testResult = await handler.testConfig(handlerEvent, api);
+    testResult = await handler.testConfig(handlerEvent, api);
     console.log(testResult);
+    return testResult;
 };
 
 const testPlugin = async () => {
@@ -1455,12 +1871,9 @@ const testPlugin = async () => {
     // Import
     console.log('\nTesting importObjects()');
     await checkHandler(true);
-    const verticesMessage = importedGraph.vertices.length === 1
-        ? '1 vertex'
-        : `${importedGraph.vertices.length} vertices`;
-    const edgesMessage = importedGraph.edges.length === 1
-        ? '1 edge'
-        : `${importedGraph.edges.length} edges`;
+    const verticesMessage =
+        importedGraph.vertices.length === 1 ? '1 vertex' : `${importedGraph.vertices.length} vertices`;
+    const edgesMessage = importedGraph.edges.length === 1 ? '1 edge' : `${importedGraph.edges.length} edges`;
     console.log(`Imported ${verticesMessage} and ${edgesMessage}:`);
     const countsPerType = importedGraph.vertices.reduce((acc, val) => {
         if (!acc.has(val.type)) {
@@ -1470,23 +1883,32 @@ const testPlugin = async () => {
         return acc;
     }, new Map());
     for (const type of Array.from(countsPerType.keys()).sort()) {
-        const countMessage = countsPerType.get(type) === 1
-            ? `1 vertex of type ${type}`
-            : `${countsPerType.get(type)} vertices of type ${type}`;
+        const countMessage =
+            countsPerType.get(type) === 1
+                ? `1 vertex of type ${type}`
+                : `${countsPerType.get(type)} vertices of type ${type}`;
         console.log(`    ${countMessage}`);
     }
 
     // Dump mermaid
     const source = mermaidForImportObjects(importedGraph).join('\n');
-    console.log('=========================== Mermaid Source ===================================================================');
+    console.log(
+        '=========================== Mermaid Source ==================================================================='
+    );
     console.log(source);
-    console.log('=========================== Copy/Paste the above into https://mermaid.live/edit ==============================');
+    console.log(
+        '=========================== Copy/Paste the above into https://mermaid.live/edit =============================='
+    );
     const mmUrl = `https://mermaid.ink/img/${Buffer.from(source).toString('base64')}`;
     console.log(`...or visit: ${mmUrl}`);
 
-    const mmAnswer = await inquirer.prompt([{
-        name: 'showMmd', type: 'confirm', message: 'visit Mermaid URL now (opens in default browser)?'
-    }]);
+    const mmAnswer = await inquirer.prompt([
+        {
+            name: 'showMmd',
+            type: 'confirm',
+            message: 'visit Mermaid URL now (opens in default browser)?'
+        }
+    ]);
     if (mmAnswer.showMmd) {
         open(mmUrl);
     }
@@ -1495,7 +1917,10 @@ const testPlugin = async () => {
     console.log('\nTesting readDataSource()');
     const dataStreamsRaw = loadJsonFromFile(getPluginFilePath('data_streams.json'));
     const dataStreams = preProcessDataStreams({ content: dataStreamsRaw }).content;
-    const streamsByName = dataStreams.dataStreams.reduce((acc, val) => (acc.set(val.definition.name, val), acc), new Map());    
+    const streamsByName = dataStreams.dataStreams.reduce(
+        (acc, val) => (acc.set(val.definition.name, val), acc),
+        new Map()
+    );
 
     do {
         const quit = '(Quit)';
@@ -1504,7 +1929,7 @@ const testPlugin = async () => {
                 type: 'list',
                 name: 'dataStreamName',
                 message: 'Which dataStreamName do you want to test?',
-                choices: () => [ quit, ...Array.from(streamsByName.keys()).sort() ]
+                choices: () => [quit, ...Array.from(streamsByName.keys()).sort()]
             }
         ]);
 
@@ -1519,11 +1944,13 @@ const testPlugin = async () => {
         const dataStream = streamsByName.get(answer.dataStreamName);
         const dataSource = dataStreams.dataSources.find((src) => src.name === dataStream.dataSourceName);
         if (!dataSource) {
-            throw new Error(`Data stream ${answer.dataStreamName} references non-existent data source ${dataStream.dataSourceName}`);
+            throw new Error(
+                `Data stream ${answer.dataStreamName} references non-existent data source ${dataStream.dataSourceName}`
+            );
         }
         await testDataStream(dataStream, dataSource);
 
-    // eslint-disable-next-line no-constant-condition
+        // eslint-disable-next-line no-constant-condition
     } while (true);
 };
 
@@ -1565,9 +1992,15 @@ const args = process.argv;
             }
             break;
         }
+        // break if arg length is 6 which is the case when automation is executed
+        // revisit to find a better way to handle this
+        case 6: {
+            break;
+        }
         default: {
             await validatePlugin();
             break;
         }
     }
 })();
+
