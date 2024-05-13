@@ -46,7 +46,7 @@ jobs:
                 $changes = git diff --name-only origin/main... ./plugins
                 $pluginsToTest = $changes -replace $pattern | Sort-Object -Unique
                 
-                Set-Location "../squaredup-plugin-repostiory"
+                Set-Location "..\squaredup-plugin-repository"
                 if ( $null -eq $pluginsToTest ) {
                     Write-Output "Nothing to Test as no changes were found in plugins folder..."
                     exit 0
