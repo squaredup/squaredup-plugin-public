@@ -6,6 +6,7 @@
   "description": "This repository contains third-party/community plugins for the SquaredUp Cloud product.",
   "type": "module",
   "scripts": {
+    "lint": "eslint .",
     "validate": "node validate"
   },
   "repository": {
@@ -37,6 +38,8 @@
     "title-case": "^3.0.3"
   },
   "devDependencies": {
-    "eslint": "^7.32.0"
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.5"
   }
 }
