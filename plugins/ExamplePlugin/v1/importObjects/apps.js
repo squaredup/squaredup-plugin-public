@@ -62,7 +62,7 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
     }
     return ({
         paging: {
-            totalLength: totalNApps,
+            totalLength: totalNApps
         },
         data: {
             apps

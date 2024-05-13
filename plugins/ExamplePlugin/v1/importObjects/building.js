@@ -14,7 +14,7 @@ export async function stageBuildings(context) {
             addVertexForBuilding(context, building);
 
             const createEdgeFrom = (bn, an) => context.edges.push({
-                label: 'monitors', outV: `app_${an}`, inV: `building_${bn}`,
+                label: 'monitors', outV: `app_${an}`, inV: `building_${bn}`
             });
 
             // Create a monitoring edge from some random(ish) app to this building
@@ -66,7 +66,7 @@ async function GetBuildingObjectsFromExternalApi(context, buildingIndex, apiLimi
     }
     return ({
         paging: {
-            totalLength: totalNBuildings,
+            totalLength: totalNBuildings
         },
         data: {
             buildings
