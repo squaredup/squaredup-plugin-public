@@ -30,7 +30,6 @@ export default async () => {
         coveragePathIgnorePatterns: ['node_modules', '.mock.ts', 'Mocks.ts'],
 
         testMatch: [
-            '<rootDir>/**/pluginCommonUnitTests/**/*.{spec,test}.{js,jsx,ts,tsx}',
             '<rootDir>/**/pluginUnitTests/**/*.{spec,test}.{js,jsx,ts,tsx}'
         ],
 
