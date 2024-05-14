@@ -1,0 +1,9 @@
+[
+    {
+        "name": "building",
+        "type": "Building",
+        "icon": "building",
+        "singular": "Building",
+        "plural": "Buildings"
+    }
+]
