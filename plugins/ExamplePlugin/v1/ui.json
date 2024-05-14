@@ -1,0 +1,106 @@
+[
+    {
+        "type": "text",
+        "name": "serverUrl",
+        "label": "Server URL",
+        "title": "Server URL",
+        "help": "The URL to use",
+        "validation": {
+            "required": true
+         },
+        "placeholder": "https://your.server.net/api/v1"
+    },
+    {
+        "type": "password",
+        "name": "apiKey",
+        "label": "API Key",
+        "title": "API Key",
+        "help": "Provide your API Key",
+        "validation": {
+            "required": true
+        }
+    },
+    {
+        "type": "autocomplete",
+        "name": "fruitChoice",
+        "label": "Fruit Endpoint",
+        "title": "Fruit Endpoint",
+        "help": "Select your required fruit endpoint",
+        "validation": { "required": true },
+        "placeholder": "Fruit...",
+        "isMulti": false,
+        "data": {
+          "source": "fixed",
+          "values": [
+            { "value":"https://api.apple.com", "label": "api.apple.com"},
+            { "value":"https://api.banana.com", "label": "api.banana.com"}
+          ]
+        },
+        "defaultValue": ""
+      },
+      {
+        "name": "fruitCount",
+        "type": "number",
+        "label": "Fruit Count",
+        "title": "Fruit Count",
+        "help": "Pick X items of your fruit choice.",
+        "defaultValue": 100,
+        "validation": { "required": false, "min": 1, "max": 1000 }
+      },
+      {
+        "type": "radio",
+        "name": "fruitType",
+        "label": "Fruit type",
+        "title": "Fruit type",
+        "help": "Select 'Apple' or 'Banana'",
+        "validation": { "required": true },
+        "defaultValue": "apple",
+        "options": [
+          {
+            "value": "apple",
+            "label": "Apple",
+            "description": "An apple!"
+          },
+          {
+            "value":"banana",
+            "label": "Banana",
+            "description": "A banana!"
+          }]
+      },
+      {
+        "type": "checkbox",
+        "name": "advancedLabels",
+        "label": "Advanced Options",
+        "title": "Advanced Options",
+        "help": "Configure custom object types",
+        "defaultValue": false,
+        "value": "show"
+    },
+    {
+        "type": "fieldGroup",
+        "name": "advancedLabelsGroup",
+        "label": "Advanced Options",
+        "visible": {
+            "advancedLabels": "show"
+        },
+        "fields": [
+            {
+                "type": "key-value",
+                "name": "labelSetting",
+                "label": "Object Discovery Settings",
+                "title": "Object Discovery Settings",
+                "help": "Enter the label setting for your object creation",
+                "verb": "->",
+                "displayName": "object type",
+                "keyInput": {
+                    "title": "Object Type",
+                    "placeholder": "Server Cpu"
+                },
+                "valueInput": {
+                    "title": "Object Labels",
+                    "placeholder": "servername, cpu"
+                }
+            }
+        ]
+    }
+]
