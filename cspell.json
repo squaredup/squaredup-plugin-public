@@ -21,6 +21,8 @@
         "datacenters",
         "Geolocation",
         "IMAP",
+        "onprem",
+        "onpremise",
         "squaredup",
         "subfolder",
         "subfolders",
