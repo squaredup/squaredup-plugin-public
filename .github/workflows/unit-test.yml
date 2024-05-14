@@ -15,7 +15,6 @@ jobs:
             - name: Self Checkout
               uses: actions/checkout@v2
               with:
-                  path: 'squaredup-plugin-public'
                   fetch-depth: 0
 
             - name: Setup NodeJs20.x
@@ -25,7 +24,6 @@ jobs:
 
             - name: Install Dependencies
               run: npm ci
-              working-directory: squaredup-plugin-public
               timeout-minutes: 5
 
             - name: Run Unit Tests
@@ -53,7 +51,6 @@ jobs:
                         Write-Output "Tested $plugin"
                     }
                 }
-              working-directory: squaredup-plugin-public
               shell: pwsh
               timeout-minutes: 10
 
