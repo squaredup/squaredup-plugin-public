@@ -6,7 +6,7 @@
     "description": "Demonstrates the structure of a hybrid plugin.",
     "category": "Miscellaneous",
     "type": "hybrid",
-    "restrictedToPlatforms": ["windows"],
+    "restrictedToPlatforms": [],
     "supportsConfigValidation": true,
     "links": [
         {
