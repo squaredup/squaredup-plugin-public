@@ -45,12 +45,13 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
     // information thus obtained.
     let appNum = appIndex;
     const apps = [];
-    while(appNum < totalNApps && apps.length < apiLimit) {
-        const appType = (appNum & 7) === 0
-            ? 'Hybrid'
-            : (appNum & 7) === 5
-                ? 'ThinClient'
-                : (appNum & 7) === 3
+    while (appNum < totalNApps && apps.length < apiLimit) {
+        const appType =
+            (appNum & 7) === 0
+                ? 'Hybrid'
+                : (appNum & 7) === 5
+                  ? 'ThinClient'
+                  : (appNum & 7) === 3
                     ? 'FatClient'
                     : 'Web';
         apps.push({
@@ -60,12 +61,12 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
         });
         appNum++;
     }
-    return ({
+    return {
         paging: {
-            totalLength: totalNApps,
+            totalLength: totalNApps
         },
         data: {
             apps
         }
-    });
+    };
 }
