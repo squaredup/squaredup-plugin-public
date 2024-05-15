@@ -12,36 +12,32 @@ export async function testConfig(context) {
 
     if (typeof context.pluginConfig.serverUrl === 'string' && context.pluginConfig.serverUrl.startsWith('https:')) {
         messages.push({
-            'status': 'success',
-            'message': 'Testing passed'
+            status: 'success',
+            message: 'Testing passed'
         });
     } else {
         messages.push({
-            'status': 'warning',
-            'message': 'serverUrl is invalid'
+            status: 'warning',
+            message: 'serverUrl is invalid'
         });
         messages.push({
-            'status': 'error',
-            'message': 'nothing works!'
+            status: 'error',
+            message: 'nothing works!'
         });
     }
 
-    const result =  {
+    const result = {
         link: 'https://yourCompany.com/docs/plugin/pluginsetup-examplehybrid',
         messages: messages
     };
     return result;
-
 }
 
 // ============================================================================
 //
 // importObjects
 //
-export const importStages = [
-    stageApps,
-    stageBuildings
-];
+export const importStages = [stageApps, stageBuildings];
 
 export const defaultApiLimits = {
     apps: 10,

@@ -13,9 +13,12 @@ export async function stageBuildings(context) {
         for (const building of response.data.buildings) {
             addVertexForBuilding(context, building);
 
-            const createEdgeFrom = (bn, an) => context.edges.push({
-                label: 'monitors', outV: `app_${an}`, inV: `building_${bn}`,
-            });
+            const createEdgeFrom = (bn, an) =>
+                context.edges.push({
+                    label: 'monitors',
+                    outV: `app_${an}`,
+                    inV: `building_${bn}`
+                });
 
             // Create a monitoring edge from some random(ish) app to this building
             createEdgeFrom(buildingIndex, (buildingIndex * 53) % totalNApps);
@@ -57,19 +60,19 @@ async function GetBuildingObjectsFromExternalApi(context, buildingIndex, apiLimi
     // information thus obtained.
     let buildingNum = buildingIndex;
     const buildings = [];
-    while(buildingNum < totalNBuildings && buildings.length < apiLimit) {
+    while (buildingNum < totalNBuildings && buildings.length < apiLimit) {
         buildings.push({
             buildingName: `Building #${buildingNum}`,
             buildingNum
         });
         buildingNum++;
     }
-    return ({
+    return {
         paging: {
-            totalLength: totalNBuildings,
+            totalLength: totalNBuildings
         },
         data: {
             buildings
         }
-    });
+    };
 }
