@@ -1,0 +1,62 @@
+name: Deploy Plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      prNumber:
+        description: 'Pull Request Number'
+        required: true
+        type: number
+      pluginSuffix:
+        description: 'Plugin Suffix'
+        required: true
+        type: string
+      pluginPath:
+        description: 'Path for Plugin to Install From (AWS/v1)'
+        required: true
+        type: string
+      tenantToRestrictTo:
+        description: 'Tenants display name to restrict plugin installation to'
+        required: true
+        type: string
+      deploymentRegion:
+        description: 'Deployment Region (EU/US)'
+        required: true
+        type: choice
+        default: 'US'
+        options:
+          - 'EU'
+          - 'US'
+
+jobs:
+    Deploy_Plugin:
+        runs-on: ubuntu-latest
+        steps:
+            - run: |
+                Write-Output "Fetching PR Info..."
+                $prNumber = ${{ github.event.inputs.prNumber }}
+            
+                $url = "https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/$prNumber"
+                $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "token ${{ secrets.GITHUB_TOKEN }}"}
+            
+                $repoUrl = $response.head.repo.html_url
+                $branchName = $response.head.ref
+                Write-Output "Repo URL: $repoUrl | Branch Name: $branchName"
+
+                Write-Output "REPO_URL=$repoUrl" >> $GITHUB_ENV
+                Write-Output "BRANCH_NAME=$branchName" >> $GITHUB_ENV
+              shell: pwsh
+              timeout-minutes: 10
+
+            - run: |
+                Write-Ouput "Deploying Plugin..."
+                $pluginSuffix = ${{ github.event.inputs.pluginSuffix }}
+                $pluginPath = ${{ github.event.inputs.pluginPath }}
+                $tenantToRestrictTo = ${{ github.event.inputs.tenantToRestrictTo }}
+                $deploymentRegion = ${{ github.event.inputs.deploymentRegion }}
+
+                Write-Output "Deploying Plugin with suffix $pluginSuffix from $pluginPath to $tenantToRestrictTo tenant in $deploymentRegion region..."
+                Write-Output "Repo URL: ${{ env.REPO_URL }} | Branch Name: ${{ env.BRANCH_NAME }}"
+
+              shell: pwsh
+              timeout-minutes: 10
