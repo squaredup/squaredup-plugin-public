@@ -1,10 +1,7 @@
 name: Unit Test
 
 on:
-    push:
-      branches-ignore:
-        - 'main'
-    pull_request_target:
+    pull_request:
     workflow_dispatch:
 
 jobs:
@@ -15,16 +12,7 @@ jobs:
             - name: Self Checkout
               uses: actions/checkout@v2
               with:
-                  path: 'squaredup-plugin-public'
                   fetch-depth: 0
-
-            - name: Checkout Plugins Repository
-              uses: actions/checkout@v2
-              with:
-                  repository: 'squaredup/squaredup-plugin-repository'
-                  path: 'squaredup-plugin-repository'
-                  ref: 'main'
-                  token: ${{ secrets.PLUGINS_REPO_TOKEN }}
 
             - name: Setup NodeJs20.x
               uses: actions/setup-node@v2
@@ -33,12 +21,6 @@ jobs:
 
             - name: Install Dependencies
               run: npm ci
-              working-directory: squaredup-plugin-public
-              timeout-minutes: 5
-
-            - name: Install Main Plugins Dependencies
-              run: npm ci
-              working-directory: squaredup-plugin-repository
               timeout-minutes: 5
 
             - name: Run Unit Tests
@@ -46,8 +28,7 @@ jobs:
                 $pattern = '(?<=\/[v][0-9]\/).*'
                 $changes = git diff --name-only origin/main... ./plugins
                 $pluginsToTest = $changes -replace $pattern | Sort-Object -Unique
-                
-                Set-Location "..\squaredup-plugin-repository"
+
                 if ( $null -eq $pluginsToTest ) {
                     Write-Output "Nothing to Test as no changes were found in plugins folder..."
                     exit 0
@@ -55,7 +36,7 @@ jobs:
                 elseif ( $pluginsToTest.Count -eq 1 ) {
                     $pluginName = ($pluginsToTest.TrimEnd('/')) -replace "plugins/" -replace "/", "-"
                     Write-Output "Only Testing $pluginsToTest"
-                    npm test -- --ci  --path="../squaredup-plugin-public/$pluginsToTest" --pluginName="$pluginName"
+                    npm test -- --ci  --path="./$pluginsToTest" --pluginName="$pluginName"
                     Write-Output "Tested $pluginsToTest"
                 }
                 else {
@@ -63,11 +44,10 @@ jobs:
                     foreach ( $plugin in $pluginsToTest ) {
                         Write-Output "Testing $plugin"
                         $pluginName = ($plugin.TrimEnd('/')) -replace "plugins/" -replace "/", "-"
-                        npm test -- --ci  --path="../squaredup-plugin-public/$plugin" --pluginName="$pluginName"
+                        npm test -- --ci  --path="./$plugin" --pluginName="$pluginName"
                         Write-Output "Tested $plugin"
                     }
                 }
-              working-directory: squaredup-plugin-public
               shell: pwsh
               timeout-minutes: 10
 
@@ -77,5 +57,5 @@ jobs:
               with:
                   name: test-results
                   path: |
-                      squaredup-plugin-repository/pluginUnitTests/test_output/*.xml
-                      squaredup-plugin-repository/pluginUnitTests/test_output/html/*.html
+                      pluginUnitTests/test_output/*.xml
+                      pluginUnitTests/test_output/html/*.html

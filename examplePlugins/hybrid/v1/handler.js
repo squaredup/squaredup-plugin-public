@@ -1,4 +1,11 @@
-import { testConfig as testConfigImpl, importStages, defaultApiLimits, initialPagingContext, reportImportProblem, dataSourceFns } from './handlerConfig.js';
+import {
+    testConfig as testConfigImpl,
+    importStages,
+    defaultApiLimits,
+    initialPagingContext,
+    reportImportProblem,
+    dataSourceFns
+} from './handlerConfig.js';
 
 // ============================================================================
 //
@@ -11,7 +18,9 @@ export async function testConfig(event, api) {
     const context = {
         pluginConfig,
 
-        log, report, patchConfig
+        log,
+        report,
+        patchConfig
     };
 
     return testConfigImpl(context);
@@ -26,26 +35,33 @@ export async function importObjects(event, api) {
     const { log, report, patchConfig } = api;
 
     const context = {
-        vertices: [], edges: [],
+        vertices: [],
+        edges: [],
 
-        pluginConfig, pagingContext,
+        pluginConfig,
+        pagingContext,
 
-        log, report, patchConfig,
+        log,
+        report,
+        patchConfig,
 
         apiLimits: Object.assign({}, defaultApiLimits, pluginConfig.testSettings?.apiLimits ?? {})
     };
     const pageAPI = (context) => {
         return {
             get: (key) => context.pagingContext[key],
-            set: (key, value) => { context.pagingContext[key] = value; },
-            clear: () => { context.pagingContext = {}; }
+            set: (key, value) => {
+                context.pagingContext[key] = value;
+            },
+            clear: () => {
+                context.pagingContext = {};
+            }
         };
     };
     context.pageAPI = pageAPI(context);
     context.reportImportProblem = reportImportProblem(context);
 
     if (!context.pageAPI.get('squaredUp_isInit')) {
-
         // Set initial paging context values
         context.pageAPI.set('squaredUp_stage', 0);
         for (const [key, value] of Object.entries(initialPagingContext)) {
@@ -58,11 +74,13 @@ export async function importObjects(event, api) {
     const maxElapsedTimeMSecs = pluginConfig.testSettings?.maxElapsedTimeMSecs ?? 10 * 60 * 1000;
     const maxPayloadSize = pluginConfig.testSettings?.maxPayloadSize ?? 2 * 1024 * 1024;
     let stage = context.pageAPI.get('squaredUp_stage');
-    context.log.debug('importObjects starts: ' +
-        `stage=${stage}, ` +
-        `apiLimits=${JSON.stringify(context.apiLimits)}, ` +
-        `maxElapsedTimeMSecs=${maxElapsedTimeMSecs}, ` +
-        `maxPayloadSize=${maxPayloadSize}`);
+    context.log.debug(
+        'importObjects starts: ' +
+            `stage=${stage}, ` +
+            `apiLimits=${JSON.stringify(context.apiLimits)}, ` +
+            `maxElapsedTimeMSecs=${maxElapsedTimeMSecs}, ` +
+            `maxPayloadSize=${maxPayloadSize}`
+    );
     const start = Date.now();
     let elapsed;
     let payloadSize;
@@ -81,8 +99,14 @@ export async function importObjects(event, api) {
         }
         elapsed = Date.now() - start;
         const pagingContextSize = JSON.stringify(context.pagingContext).length;
-        payloadSize = JSON.stringify({ vertices: context.vertices, edges: context.edges, pagingContext: context.pagingContext }).length;
-        context.log.debug(`importObjects looping: elapsed = ${elapsed}, payloadSize=${payloadSize}, pagingContextSize=${pagingContextSize}`);
+        payloadSize = JSON.stringify({
+            vertices: context.vertices,
+            edges: context.edges,
+            pagingContext: context.pagingContext
+        }).length;
+        context.log.debug(
+            `importObjects looping: elapsed = ${elapsed}, payloadSize=${payloadSize}, pagingContextSize=${pagingContextSize}`
+        );
     } while (elapsed < maxElapsedTimeMSecs && payloadSize < maxPayloadSize);
     context.log.debug('importObjects loop ends');
 
@@ -93,7 +117,6 @@ export async function importObjects(event, api) {
         pagingContext: context.pagingContext
     };
     return result;
-
 }
 
 // ============================================================================
@@ -105,8 +128,14 @@ export async function readDataSource(event, api) {
     const { log, report, patchConfig } = api;
 
     const context = {
-        pluginConfig, dataSource, dataSourceConfig, targetNodes, timeframe,
-        log, report, patchConfig
+        pluginConfig,
+        dataSource,
+        dataSourceConfig,
+        targetNodes,
+        timeframe,
+        log,
+        report,
+        patchConfig
     };
 
     const dataSourceFn = dataSourceFns[dataSource.name];
