@@ -50,7 +50,7 @@ jobs:
               timeout-minutes: 10
 
             - run: |
-                Write-Ouput "Deploying Plugin..."
+                Write-Output "Deploying Plugin..."
                 $pluginSuffix = "${{ github.event.inputs.pluginSuffix }}"
                 $pluginPath = "${{ github.event.inputs.pluginPath }}"
                 $tenantToRestrictTo = "${{ github.event.inputs.tenantToRestrictTo }}"
