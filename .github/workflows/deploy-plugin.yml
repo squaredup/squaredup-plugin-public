@@ -85,7 +85,6 @@ jobs:
                     Write-Output "Access token acquired successfully!"
                 
                     $buildQueueBody = @{
-                        appendCommitMessageToRunName = $false
                         definition         = @{
                             id = $buildDefinitionId
                         }
