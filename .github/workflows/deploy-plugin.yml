@@ -1,7 +1,6 @@
 name: Deploy Plugin
 
 on:
-  pull_request:
   workflow_dispatch:
     inputs:
       prNumber:
