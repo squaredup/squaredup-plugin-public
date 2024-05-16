@@ -16,7 +16,7 @@ on:
         required: true
         type: string
       tenantToRestrictTo:
-        description: 'Tenants display name to restrict plugin installation to'
+        description: 'Tenant display name to restrict plugin installation to'
         required: true
         type: string
       deploymentRegion:
