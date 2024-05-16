@@ -105,10 +105,10 @@ jobs:
                         Authorization  = "Bearer $accessToken"
                         "Content-Type" = "application/json"
                     }
-                    Write-Output "Queueing build..."
+                    Write-Output "Queueing deployment..."
                     $queueResponse = Invoke-RestMethod -Method Post -Uri $buildUrl -Headers $headers -Body $buildQueueBody
                     $buildId = $queueResponse.id
-                    Write-Output "Build queued with ID: $buildId"
+                    Write-Output "Deployment queued with ID: $buildId"
                     # Check the status of the build every 30 seconds for 20 minutes
                     $timeout = 20
                     $interval = 30
@@ -116,15 +116,15 @@ jobs:
                     for ($i = 0; $i -lt $timeout; $i++) {
                         $buildStatus = Invoke-RestMethod -Method Get -Uri $statusUrl -Headers $headers
                         $status = $buildStatus.status
-                        Write-Output "Build status: $status"
+                        Write-Output "Deployment status: $status"
                         if ($status -eq "completed") {
                             $result = $buildStatus.result
-                            Write-Output "Build result: $result"
+                            Write-Output "Deployment result: $result"
                             if ($result -eq "succeeded") {
-                                Write-Output "Build $buildId succeeded!"
+                                Write-Output "Deployment $buildId succeeded!"
                                 break
                             } else {
-                                Write-Output "Build failed with result: $result!"
+                                Write-Output "Deployment failed with result: $result!"
                                 exit 1
                             }
                         }
