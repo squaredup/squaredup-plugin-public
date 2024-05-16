@@ -1,0 +1,139 @@
+name: Deploy Plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      prNumber:
+        description: 'Pull Request Number'
+        required: true
+        type: number
+      pluginSuffix:
+        description: 'Plugin Suffix'
+        required: true
+        type: string
+      pluginPath:
+        description: 'Path for Plugin to Install From (AWS/v1)'
+        required: true
+        type: string
+      tenantToRestrictTo:
+        description: 'Tenant display name to restrict plugin installation to'
+        required: true
+        type: string
+      deploymentRegion:
+        description: 'Deployment Region (EU/US)'
+        required: true
+        type: choice
+        default: 'US'
+        options:
+          - 'EU'
+          - 'US'
+
+jobs:
+    Deploy_Plugin:
+        runs-on: ubuntu-latest
+        steps:
+            - run: |
+                Write-Output "Fetching PR Info..."
+                $prNumber = ${{ github.event.inputs.prNumber }}
+            
+                $url = "https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/$prNumber"
+                $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "token ${{ secrets.GITHUB_TOKEN }}"}
+            
+                $repoUrl = $response.head.repo.html_url + ".git"
+                $branchName = $response.head.ref
+                Write-Output "Repo URL: $repoUrl | Branch Name: $branchName"
+
+                Write-Output "REPO_URL=$repoUrl" >> $GITHUB_ENV
+                Write-Output "BRANCH_NAME=$branchName" >> $GITHUB_ENV
+              shell: pwsh
+              name: Fetch PR Info
+              timeout-minutes: 10
+
+            - run: |
+                Write-Ouput "Deploying Plugin..."
+                $pluginSuffix = "${{ github.event.inputs.pluginSuffix }}"
+                $pluginPath = "${{ github.event.inputs.pluginPath }}"
+                $tenantToRestrictTo = "${{ github.event.inputs.tenantToRestrictTo }}"
+                $deploymentRegion = "${{ github.event.inputs.deploymentRegion }}"
+                $repoUrl = "${{ env.REPO_URL }}"
+                $branchName = "${{ env.BRANCH_NAME }}"
+                $sourceBranch = "${{ env.PLUGINS_SOURCE_BRANCH2 }}"
+                
+                Write-Output "Deploying Plugin with suffix $pluginSuffix from $pluginPath to $tenantToRestrictTo tenant in $deploymentRegion region..."
+                Write-Output "Repo URL: $repoUrl | Branch Name: $branchName | Source Branch: $sourceBranch"
+                
+                $organizationUrl = "${{ secrets.ORG_URL }}"
+                $buildDefinitionId = "${{ secrets.COMMUNITY_RESTRICTED_DEFINTION_ID }}"
+                
+                $tenantId = "${{ secrets.TENANT_ID }}"
+                $clientId = "${{ secrets.COMMUNITY_RESTRICTED_CLIENT_ID }}"
+                $clientSecret = "${{ secrets.COMMUNITY_RESTRICTED_CLIENT_SECRET }}"
+                
+                $tokenUrl = "https://login.microsoftonline.com/$tenantId/oauth2/v2.0/token"
+                $scope = "499b84ac-1321-427f-aa17-267ca6975798/.default"
+                
+                try {
+                    $tokenBody = @{
+                        client_id     = $clientId
+                        client_secret = $clientSecret
+                        scope         = $scope
+                        grant_type    = "client_credentials"
+                    }
+                
+                    $tokenResponse = Invoke-RestMethod -Method Post -Uri $tokenUrl -Body $tokenBody
+                    $accessToken = $tokenResponse.access_token
+                    Write-Output "Access token acquired successfully!"
+                
+                    $buildQueueBody = @{
+                        definition         = @{
+                            id = $buildDefinitionId
+                        }
+                        sourceBranch       = "$sourceBranch"
+                        templateParameters = @{
+                            forkedRepoWebUrl         = "$repoUrl"
+                            forkedRepoBranch         = "$branchName"
+                            pluginSuffix             = "$pluginSuffix"
+                            pluginPath               = "$pluginPath"
+                            tenantName               = "$tenantToRestrictTo"
+                            deploymentRegion         = "$deploymentRegion"
+                            saasRepoBranch           = "master"
+                        }
+                    } | ConvertTo-Json
+                
+                    $buildUrl = "$organizationUrl/_apis/build/builds?api-version=7.1-preview.7"
+                    $headers = @{
+                        Authorization  = "Bearer $accessToken"
+                        "Content-Type" = "application/json"
+                    }
+                    Write-Output "Queueing build..."
+                    $queueResponse = Invoke-RestMethod -Method Post -Uri $buildUrl -Headers $headers -Body $buildQueueBody
+                    $buildId = $queueResponse.id
+                    Write-Output "Build queued with ID: $buildId"
+                    # Check the status of the build every 30 seconds for 20 minutes
+                    $timeout = 20
+                    $interval = 30
+                    $statusUrl = "$organizationUrl" + "/_apis/build/builds/" + "$buildId" + "?api-version=7.1-preview.7"
+                    for ($i = 0; $i -lt $timeout; $i++) {
+                        $buildStatus = Invoke-RestMethod -Method Get -Uri $statusUrl -Headers $headers
+                        $status = $buildStatus.status
+                        Write-Output "Build status: $status"
+                        if ($status -eq "completed") {
+                            $result = $buildStatus.result
+                            Write-Output "Build result: $result"
+                            if ($result -eq "succeeded") {
+                                Write-Output "Build $buildId succeeded!"
+                                break
+                            } else {
+                                Write-Output "Build failed with result: $result!"
+                                exit 1
+                            }
+                        }
+                        Start-Sleep -Seconds $interval
+                    }
+                } catch {
+                    Write-Host "Error: $($_.Exception.Message)"
+                    exit 1
+                }
+              shell: pwsh
+              name: Deploy Plugin
+              timeout-minutes: 30
