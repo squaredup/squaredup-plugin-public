@@ -43,8 +43,8 @@ jobs:
                 $branchName = $response.head.ref
                 Write-Output "Repo URL: $repoUrl | Branch Name: $branchName"
 
-                Write-Output "REPO_URL=$repoUrl" >> $GITHUB_ENV
-                Write-Output "BRANCH_NAME=$branchName" >> $GITHUB_ENV
+                Write-Output "PR_REPO_URL=$repoUrl" >> $GITHUB_ENV
+                Write-Output "PR_BRANCH_NAME=$branchName" >> $GITHUB_ENV
               shell: pwsh
               name: Fetch PR Info
               timeout-minutes: 10
@@ -55,9 +55,9 @@ jobs:
                 $pluginPath = "${{ github.event.inputs.pluginPath }}"
                 $tenantToRestrictTo = "${{ github.event.inputs.tenantToRestrictTo }}"
                 $deploymentRegion = "${{ github.event.inputs.deploymentRegion }}"
-                $repoUrl = "${{ env.REPO_URL }}"
-                $branchName = "${{ env.BRANCH_NAME }}"
-                $sourceBranch = "${{ env.PLUGINS_SOURCE_BRANCH2 }}"
+                $repoUrl = "${{ vars.PR_REPO_URL }}"
+                $branchName = "${{ vars.PR_BRANCH_NAME }}"
+                $sourceBranch = "${{ vars.PLUGINS_SOURCE_BRANCH }}"
                 
                 Write-Output "Deploying Plugin with suffix $pluginSuffix from $pluginPath to $tenantToRestrictTo tenant in $deploymentRegion region..."
                 Write-Output "Repo URL: $repoUrl | Branch Name: $branchName | Source Branch: $sourceBranch"
