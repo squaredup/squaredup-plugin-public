@@ -57,9 +57,10 @@ jobs:
                 $deploymentRegion = "${{ github.event.inputs.deploymentRegion }}"
                 $repoUrl = "${{ env.REPO_URL }}"
                 $branchName = "${{ env.BRANCH_NAME }}"
+                $sourceBranch = "${{ env.PLUGINS_SOURCE_BRANCH2 }}"
                 
                 Write-Output "Deploying Plugin with suffix $pluginSuffix from $pluginPath to $tenantToRestrictTo tenant in $deploymentRegion region..."
-                Write-Output "Repo URL: $repoUrl | Branch Name: $branchName"
+                Write-Output "Repo URL: $repoUrl | Branch Name: $branchName | Source Branch: $sourceBranch"
                 
                 $organizationUrl = "${{ secrets.ORG_URL }}"
                 $buildDefinitionId = "${{ secrets.COMMUNITY_RESTRICTED_DEFINTION_ID }}"
@@ -87,7 +88,7 @@ jobs:
                         definition         = @{
                             id = $buildDefinitionId
                         }
-                        sourceBranch       = "refs/heads/work/ss/community-deployment" #TODO: Change this to main branch
+                        sourceBranch       = "$sourceBranch"
                         templateParameters = @{
                             forkedRepoWebUrl         = "$repoUrl"
                             forkedRepoBranch         = "$branchName"
