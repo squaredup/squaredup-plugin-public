@@ -1,0 +1,77 @@
+name: Deploy Plugin (PR)
+
+on:
+    workflow_dispatch:
+        inputs:
+            prNumber:
+                description: 'Pull Request Number'
+                required: true
+                type: number
+            pluginSuffix:
+                description: 'Suffix to Deploy the Plugin With'
+                required: true
+                type: string
+            pluginPath:
+                description: 'Path for Plugin to Install From (AWS/v1)'
+                required: true
+                type: string
+            tenantToRestrictTo:
+                description: 'Tenant display name to restrict plugin installation to'
+                required: true
+                type: string
+
+jobs:
+    Deploy_Plugin:
+        runs-on: ubuntu-latest
+        steps:
+            - run: |
+                  Write-Output "Fetching PR Info..."
+                  $prNumber = ${{ github.event.inputs.prNumber }}
+
+                  $url = "https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/$prNumber"
+                  $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "token ${{ secrets.GITHUB_TOKEN }}"}
+
+                  $repoUrl = $response.head.repo.html_url + ".git"
+                  $branchName = $response.head.ref
+                  Write-Output "Repo URL: $repoUrl | Branch Name: $branchName"
+
+                  Write-Output "PR_REPO_URL=$repoUrl" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+                  Write-Output "PR_BRANCH_NAME=$branchName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              shell: pwsh
+              name: Fetch PR Info
+              timeout-minutes: 10
+
+            - run: |
+                  Write-Output "Deploying Plugin..."
+                  $pluginSuffix = "${{ github.event.inputs.pluginSuffix }}"
+                  $pluginPath = "${{ github.event.inputs.pluginPath }}"
+                  $tenantToRestrictTo = "${{ github.event.inputs.tenantToRestrictTo }}"
+                  $repoUrl = "${{ env.PR_REPO_URL }}"
+                  $branchName = "${{ env.PR_BRANCH_NAME }}"
+
+                  Write-Output "Deploying Plugin with suffix $pluginSuffix from $pluginPath to $tenantToRestrictTo tenant..."
+                  Write-Output "Repo URL: $repoUrl | Branch Name: $branchName"
+
+                  try {
+                      Write-Output "Queueing deployment..."
+                      $requestBody = @{
+                          branchName = $branchName
+                          customerRelease = "false"
+                          pluginPath = $pluginPath
+                          pluginSuffix = $pluginSuffix
+                          repositoryUrl = $repoUrl
+                          tenantToDeployTo = $tenantToRestrictTo
+                      } | ConvertTo-Json
+                      $deployerUrl = "${{ secrets.DEPLOYER_BASE_URL }}/queuedeployment"
+                      $authHeader = "Bearer ${{ secrets.DEPLOYER_API_KEY }}"
+                      $response = Invoke-RestMethod -Uri $deployerUrl -Method Post -Headers @{Authorization=$authHeader} -Body $requestBody
+                        Write-Output "Deployment request sent successfully"
+                        Write-Output "Deployment ID: $($response.id)"
+                  } catch {
+                      Write-Output "Failed to deploy plugin"
+                      Write-Output "Error: $($_.Exception.Message)"
+                      exit 1
+                  }
+              shell: pwsh
+              name: Deploy Plugin
+              timeout-minutes: 30
