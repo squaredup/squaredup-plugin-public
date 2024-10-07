@@ -28,6 +28,12 @@ jobs:
                   }
                   $pattern = '(?<=\/[v][0-9]\/).*'
                   $pluginToDeploy = $changes -replace $pattern | Sort-Object -Unique | Select-Object -Last 1
+                  if ( $null -eq $pluginToDeploy ) {
+                      Write-Output "No plugin to deploy"
+                      Write-Output "SKIP_DEPLOYMENT=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+                      exit 0
+                  }
+                  $pluginToDeploy = $pluginToDeploy.TrimStart("plugins/").TrimEnd("/")
                   Write-Output "Plugin to Deploy: $pluginToDeploy"
                   Write-Output "PLUGIN_PATH=$pluginToDeploy" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
               shell: pwsh
@@ -52,6 +58,7 @@ jobs:
                   Write-Output "PR_NUMBER=$prNumber" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
               shell: pwsh
               name: Get PR Number
+              if: ${{ env. SKIP_DEPLOYMENT != 'true' }}
               timeout-minutes: 5
 
             - run: |
@@ -91,6 +98,7 @@ jobs:
                   Write-Output "TENANT_TO_RESTRICT_TO=$tenant" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
               shell: pwsh
               name: Fetch PR Info
+              if: ${{ env. SKIP_DEPLOYMENT != 'true' }}
               timeout-minutes: 10
               env:
                   GH_TOKEN: ${{ github.token }}
@@ -110,11 +118,12 @@ jobs:
                       Write-Output "Queueing deployment..."
                       $requestBody = @{
                           branchName = $branchName
-                          customerRelease = "false"
+                          customerRelease = $false
                           pluginPath = $pluginPath
                           pluginSuffix = $pluginSuffix
                           repositoryUrl = $repoUrl
                           tenantToDeployTo = $tenantToRestrictTo
+                          deploymentRequestedBy = "${{ github.actor }}"
                       } | ConvertTo-Json
                       $deployerUrl = "${{ secrets.DEPLOYER_BASE_URL }}/queuedeployment"
                       $authHeader = "Bearer ${{ secrets.DEPLOYER_API_KEY }}"
@@ -128,4 +137,5 @@ jobs:
                   }
               shell: pwsh
               name: Deploy Plugin
+              if: ${{ env. SKIP_DEPLOYMENT != 'true' }}
               timeout-minutes: 30
