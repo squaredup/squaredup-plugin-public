@@ -125,6 +125,7 @@ jobs:
                           tenantToDeployTo = $tenantToRestrictTo
                           deploymentRequestedBy = "${{ github.actor }}"
                       } | ConvertTo-Json
+                      Write-Output "Request Body: $requestBody"
                       $deployerUrl = "${{ secrets.DEPLOYER_BASE_URL }}/queuedeployment"
                       $authHeader = "Bearer ${{ secrets.DEPLOYER_API_KEY }}"
                       $response = Invoke-RestMethod -Uri $deployerUrl -Method Post -Headers @{Authorization=$authHeader} -Body $requestBody
