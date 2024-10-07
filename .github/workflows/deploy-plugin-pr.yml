@@ -92,6 +92,8 @@ jobs:
               shell: pwsh
               name: Fetch PR Info
               timeout-minutes: 10
+              env:
+                  GH_TOKEN: ${{ github.token }}
 
             - run: |
                   Write-Output "Deploying Plugin..."
