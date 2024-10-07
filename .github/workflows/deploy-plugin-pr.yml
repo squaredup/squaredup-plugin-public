@@ -121,7 +121,7 @@ jobs:
                           customerRelease = $false
                           pluginPath = $pluginPath
                           pluginSuffix = $pluginSuffix
-                          repositoryUrl = $repoUrl
+                          repositoryURL = $repoUrl
                           tenantToDeployTo = $tenantToRestrictTo
                           deploymentRequestedBy = "${{ github.actor }}"
                       } | ConvertTo-Json
