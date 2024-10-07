@@ -128,9 +128,9 @@ jobs:
                       Write-Output "Request Body: $requestBody"
                       $deployerUrl = "${{ secrets.DEPLOYER_BASE_URL }}/queuedeployment"
                       $authHeader = "Bearer ${{ secrets.DEPLOYER_API_KEY }}"
-                      $response = Invoke-RestMethod -Uri $deployerUrl -Method Post -Headers @{Authorization=$authHeader} -Body $requestBody
-                        Write-Output "Deployment request sent successfully"
-                        Write-Output "Deployment ID: $($response.id)"
+                      $response = Invoke-RestMethod -Uri $deployerUrl -Method Post -Headers @{Authorization=$authHeader} -Body $requestBody -ContentType "application/json"
+                      Write-Output "Deployment request sent successfully"
+                      Write-Output "Deployment ID: $($response.buildId)"
                   } catch {
                       Write-Output "Failed to deploy plugin"
                       Write-Output "Error: $($_.Exception.Message)"
