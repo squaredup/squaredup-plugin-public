@@ -1,35 +1,66 @@
 name: Deploy Plugin (PR)
 
 on:
+    pull_request:
+        types: [opened, edited, synchronize]
     workflow_dispatch:
         inputs:
             prNumber:
                 description: 'Pull Request Number'
                 required: true
                 type: number
-            pluginSuffix:
-                description: 'Suffix to Deploy the Plugin With'
-                required: true
-                type: string
-            pluginPath:
-                description: 'Path for Plugin to Install From (AWS/v1)'
-                required: true
-                type: string
-            tenantToRestrictTo:
-                description: 'Tenant display name to restrict plugin installation to'
-                required: true
-                type: string
 
 jobs:
     Deploy_Plugin:
         runs-on: ubuntu-latest
         steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            - run: |
+                  $changes = git diff --name-only origin/main... ./plugins
+                  if ( $null -eq $changes ) {
+                      Write-Output "Nothing to Deploy as no changes were found in plugins folder..."
+                  } else {
+                      Write-Output "Changes found in plugins folder: $changes"
+                  }
+                  $pattern = '(?<=\/[v][0-9]\/).*'
+                  $pluginToDeploy = $changes -replace $pattern | Sort-Object -Unique | Select-Object -Last 1
+                  Write-Output "Plugin to Deploy: $pluginToDeploy"
+                  Write-Output "PLUGIN_PATH=$pluginToDeploy" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              shell: pwsh
+              name: Get Plugin Path for Deployment
+              timeout-minutes: 5
+
+            - run: |
+                  Write-Output "Getting PR Number based on trigger event..."
+                  if ("${{ github.event_name }}" -eq "pull_request") {
+                      $prNumber = "${{ github.event.pull_request.number }}"
+                  } elseif ("${{ github.event_name }}" -eq "workflow_dispatch") {
+                      $prNumber = "${{ github.event.inputs.prNumber }}"
+                  } else {
+                      Write-Output "Unsupported event: ${{ github.event_name }}"
+                      exit -1
+                  }
+                  if (-not $prNumber) {
+                      Write-Output "PR Number is null or empty"
+                      exit -1
+                  }
+                  Write-Output "PR Number: $prNumber"
+                  Write-Output "PR_NUMBER=$prNumber" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              shell: pwsh
+              name: Get PR Number
+              timeout-minutes: 5
+
             - run: |
                   Write-Output "Fetching PR Info..."
-                  $prNumber = ${{ github.event.inputs.prNumber }}
+                  $prNumber = "${{ env.PR_NUMBER }}"
 
-                  $url = "https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/$prNumber"
-                  $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "token ${{ secrets.GITHUB_TOKEN }}"}
+                  $repository = "${{ github.repository_owner }}/${{ github.event.repository.name }}"
+                  $url = "https://api.github.com/repos/$repository/pulls/$prNumber"
+                  $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "token ${{ secrets.GITHUB_TOKEN }}" }
 
                   $repoUrl = $response.head.repo.html_url + ".git"
                   $branchName = $response.head.ref
@@ -37,15 +68,36 @@ jobs:
 
                   Write-Output "PR_REPO_URL=$repoUrl" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
                   Write-Output "PR_BRANCH_NAME=$branchName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+                  Write-Output "Getting tenant to restrict deployment to..."
+                  $repoBody = gh pr view $prNumber --json body --jq '.body' --repo $repository
+                  Write-Output "Repo Body: $repoBody"
+                  $tenantLine = $repoBody | Select-String -Pattern "^Tenant to Deploy to:.*"
+                  Write-Output "Tenant Line: $tenantLine"
+                  if ($tenantLine) {
+                      $tenant = $tenantLine -replace "Tenant to Deploy to:\s*", "" -replace "\s*$", ""
+                      if (-not [string]::IsNullOrWhiteSpace($tenant)) {
+                          Write-Output "Tenant to Deploy to: $tenant"
+                      }
+                      else {
+                          Write-Error "Error: 'Tenant to Deploy to' is blank."
+                          exit -1
+                      }
+                  }
+                  else {
+                      Write-Error "Error: 'Tenant to Deploy to' field not found."
+                      exit -1
+                  }
+                  Write-Output "TENANT_TO_RESTRICT_TO=$tenant" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
               shell: pwsh
               name: Fetch PR Info
               timeout-minutes: 10
 
             - run: |
                   Write-Output "Deploying Plugin..."
-                  $pluginSuffix = "${{ github.event.inputs.pluginSuffix }}"
-                  $pluginPath = "${{ github.event.inputs.pluginPath }}"
-                  $tenantToRestrictTo = "${{ github.event.inputs.tenantToRestrictTo }}"
+                  $pluginSuffix = "${{ env.PR_NUMBER }}"
+                  $pluginPath = "${{ env.PLUGIN_PATH }}"
+                  $tenantToRestrictTo = "${{ env.TENANT_TO_RESTRICT_TO }}"
                   $repoUrl = "${{ env.PR_REPO_URL }}"
                   $branchName = "${{ env.PR_BRANCH_NAME }}"
 
