@@ -134,6 +134,8 @@ jobs:
                   } catch {
                       Write-Output "Failed to deploy plugin"
                       Write-Output "Error: $($_.Exception.Message)"
+                      $errMessage = $_.ErrorDetails.Message | ConvertFrom-Json
+                      Write-Output "Error Message: $($errMessage.message)"
                       exit 1
                   }
               shell: pwsh
