@@ -1,0 +1,10 @@
+{
+  "name": "hybrid",
+  "version": "1.0.0",
+  "type": "module",
+  "author": "someone",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}

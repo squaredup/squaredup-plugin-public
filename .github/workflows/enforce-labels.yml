@@ -1,0 +1,21 @@
+name: Enforce PR labels
+
+on:
+    pull_request:
+        types: [labeled, unlabeled, opened, edited, synchronize]
+
+jobs:
+    enforce-label:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Enforce first set of labels
+              uses: yogevbd/enforce-label-action@2.2.2
+              with:
+                  REQUIRED_LABELS_ANY: 'breaking,non-breaking'
+                  REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['breaking','non-breaking']"
+
+            - name: Enforce second set of labels
+              uses: yogevbd/enforce-label-action@2.2.2
+              with:
+                  REQUIRED_LABELS_ANY: 'bug-fix,internal,enhancement,new-plugin'
+                  REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['bug-fix','internal','enhancement','new-plugin']"

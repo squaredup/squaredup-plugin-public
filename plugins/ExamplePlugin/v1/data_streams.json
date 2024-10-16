@@ -1,0 +1,80 @@
+{
+    "rowTypes": [
+        {
+            "name": "stuff",
+            "metadata": [
+                { "name": "enum",       "displayName": "Enum",        "shape": "string",  "role": "label" },
+                { "name": "start",      "displayName": "Start",       "shape": "date" },
+                { "name": "unixStart",  "displayName": "Unix Start",  "shape": ["number", { "decimalPlaces": 0 }] },
+                { "name": "end",        "displayName": "End",         "shape": "date" },
+                { "name": "unixEnd",    "displayName": "Unix End",    "shape": ["number", { "decimalPlaces": 0 }] },
+                { "name": "interval",   "displayName": "Interval",    "shape": "string" },
+                { "name": "top",        "displayName": "Top",         "shape": "string" }
+            ]
+        }
+    ],
+    "dataSources":[
+        {
+            "name": "dataSourceUnscoped",
+            "displayName": "Stuff (no scope)",
+            "description": "Return stuff",
+            "supportedScope": "none"
+        },
+        {
+            "name": "appScopedProperties",
+            "displayName": "App-scoped Properties",
+            "description": "Get selected properties for scoped apps",
+            "supportedScope": "list",
+            "targetNodesProperties": ["id", "name", "sourceId", "appType", "appStatus" ]
+        }
+    ],
+    "matches":{ "__configId": { "type": "equals", "value": "{{configId}}" } },
+    "dataStreams":[
+        {
+            "displayName": "Stuff",
+            "description": "Returns Stuff",
+            "dataSourceName": "dataSourceUnscoped",
+            "definition": {
+                "name": "stuffUnscoped",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "rowType": { "name": "stuff" }
+            },
+            "template": [
+                {
+                    "name": "top",
+                    "type": "text",
+                    "label": "Optional, list top n",
+                    "title": "Optional, list top n",
+                    "help": "Pick how many rows of data to return",
+                    "validation": { "required": false },
+                    "placeholder": "10"
+                }    
+            ]
+        },
+        {
+            "displayName": "App Health",
+            "description": "Returns Health for scoped Apps",
+            "dataSourceName": "appScopedProperties",
+            "provides": "health",
+            "definition": {
+                "name": "appHealth",
+                "timeframes": false,
+                "dataSourceConfig": { "properties": ["appStatus", "appType"] },
+                "rowPath": [],
+                "matches": {
+                    "sourceType": { "type": "equals", "value": "mySortOfApp" }
+                },
+                "metadata":  [
+                    { "name": "appStatus",                "displayName": "Status",                   "shape": ["state",
+                                                                                                   { "map": { "success": ["OK"], "warning": ["Degraded", "Installing"], "error": ["Broken"] } }
+                    ]},
+                    { "name": "name",                     "displayName": "Name",                     "shape": "string", "role": "label" },
+                    { "name": "id",                       "visible": false,                          "shape": "string", "role": "id" },
+                    { "name": "appType",                  "displayName": "App Type",                 "shape": "string" }
+                ]
+            }
+        }
+    ]
+}
