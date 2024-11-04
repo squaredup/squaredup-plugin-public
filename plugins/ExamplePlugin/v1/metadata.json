@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "author": "Someone",
     "description": "Demonstrates the structure of a hybrid plugin.",
-    "category": "SquaredUp Internal",
+    "category": "Miscellaneous",
     "type": "hybrid",
     "restrictedToPlatforms": [],
     "supportsConfigValidation": true,
