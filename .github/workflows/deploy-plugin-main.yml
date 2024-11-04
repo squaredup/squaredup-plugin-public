@@ -1,0 +1,44 @@
+name: Deploy Plugin (PR)
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths:
+            - plugins/*
+
+jobs:
+    Deploy_Plugin:
+        runs-on: ubuntu-latest
+        steps:
+            - run: |
+                  Write-Output "Deploying Plugin..."
+                  $repoURL = "https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}.git"
+
+                  Write-Output "Retrieving Git Author......"
+                  $email = git log -1 --pretty=format:'%ae'
+                  $trimmed = $email.Trim()
+                  Write-Output "Commit author determined as $trimmed"
+
+                  Write-Output "Starting deployment from $repoURL for $trimmed"
+                  try {
+                      $requestBody = @{
+                          "customerRelease" = "true"
+                          "repositoryURL" = $repoURL
+                          "deploymentRequestedBy" = $trimmed
+                          "branchName" = "main"
+                      } | ConvertTo-Json
+                      $authHeader = "Bearer ${{ secrets.DEPLOYER_API_KEY }}"
+                      $deployerUrl = "${{ secrets.DEPLOYER_BASE_URL }}/queuedeployment"
+                      $response = Invoke-RestMethod -Uri $deployerUrl -Method Post -Headers @{Authorization=$authHeader} -Body $requestBody -ContentType "application/json"
+                      Write-Output "Deployment request sent successfully"
+                      Write-Output "Deployment ID: $($response.id)"
+                  } catch {
+                      Write-Output "Failed to deploy plugin"
+                      Write-Output $_.Exception.Message
+                      exit 1
+                  }
+              shell: pwsh
+              name: Deploy Plugin
+              timeout-minutes: 10
