@@ -1,4 +1,4 @@
-# SquaredUp Plugin Repository
+# SquaredUp Community Plugins Repository
 
 This repository contains third-party/community plugins for the SquaredUp Observability Portal product.
 
@@ -11,11 +11,6 @@ This repository contains third-party/community plugins for the SquaredUp Observa
 Please read and adhere to our [Code of Conduct](./CODE_OF_CONDUCT.md) document before contributing to this repo in any way.
 
 ## Introduction
-
-This repository is a read-only copy of the documentation and test tools inside SquaredUp's main plugins repository. This contains the
-information you will need to understand the process involved in developing a plugin for the SquaredUp Observability Portal product.
-It contains tooling for you to make a start on developing a plugin. However, in order actually to install a plugin into the SquareUp
-product, you will need to engage with SquaredUp by emailing hello@squaredup.com.
 
 SquaredUp Cloud plugins are vital components of the SquaredUp Unified Observability Portal product. Each 
 plugin bundles up everything involved in the interaction with a specific third party system, namely:
@@ -30,8 +25,7 @@ Plugins are installed into the Observability Portal product as part of the produ
 ## Execution Environments
 
 A plugin may be executed in a cloud environment as part of the Observability Portal product or on a machine within a customer's premises (upon which the customer has installed a Relay Agent). If both environments are equally suitable for a plugin, it can
-be declared as "hybrid" (in which case, two separate plugins will appear in the Data Source Gallery, one with the suffix
-" On-Premise" automatically added).
+be declared as "hybrid" (in which case, two separate plugins will appear in the Data Source Gallery, one with the label "On-Prem" added).
 
 Javascript (NodeJS) is currently the implementation language/runtime with fullest capability, but PowerShell may be chosen for plugins which will only run On-Premise. We plan to support support other languages at some point in the future.
 
@@ -49,19 +43,44 @@ A plugin is a directory in this repo of the form `plugins/`_plugin-name_`/v1` co
 - `data_streams.json` - a file describing the streams of on demand data that the Observability Portal can request of the plugin.
 - `handler.js` and `package.json` the executable code of the plugin.
 
-## How to write a plugin
+## Writing a Plugin
 
-The suggested way to write a new plugin is to make a copy of the `examplePlugins/hybrid/v1` directory in your `plugins/`_plugin-name_`/v1` directory and then tailor the configuration and code to interact with the specific back end as required.
+1. **Clone the Repository:**
+    First, clone the repository to your local machine:
+    ```bash
+    git clone https://github.com/squaredup/squaredup-plugin-public.git
+    cd squaredup-plugin-public
+    ```
+2. **Create a New Branch:**
+    You will need to create a new branch for your changes:
+    ```bash
+    git checkout -b add-new-plugin # Replace Branch Name
+    ```
+3. **Creating the Plugin Folder:**
+    The suggested way to write a new plugin is to make a copy of the `examplePlugins/hybrid/v1` directory in your `plugins/`_plugin-name_`/v1` directory.
+   ```bash
+   # Replace 'ExamplePlugin' with your plugin name
+   mkdir -p 'plugins/ExamplePlugin/v1'
+   cp -r 'examplePlugins/hybrid/v1/*' 'plugins/ExamplePlugin/v1/'
+   ```
+4. **Tailoring the Example Plugin:**
+    You will need to tailor the configuration and code to interact with the specific back end as Required.
+    This process is described in more detail in [Writing a New Plugin](docs/writingANewPlugin.md).
+5. **Testing the Plugin:** There are two main ways to test your plugin.
+      1. Using the SquaredUp Test/Validation Script (`validate.js` at the root of this repo):
+          ```bash
+          npm ci
+          npm run validate
+          ```
+      2. Using the SquaredUp Unit Test Framework which can be executed by running:
+          ```bash
+          npm ci
+          # Replace 'ExamplePlugin' with your plugin name
+          npm test -- --pluginName="ExamplePlugin" --pluginPath="plugins/ExamplePlugin/v1"
+          ```
+      You should aim to do as much testing as possible with the `validate.js` script as the turn-around time is much quicker.
+      This process is described in more detail in [Testing a Plugin](docs/testingAPlugin.md).
 
-This process is described in more detail in [Writing a New Plugin](docs/writingANewPlugin.md).
+## Contributing
 
-## Testing your plugin
-
-There are 2 main ways to test your plugin:
-
-1. Using the SquaredUp Test/Validation Script (`validate.js` at the root of this repo)
-2. Testing within the SquaredUp Unified Observability Portal product. You would need to engage with SquaredUp to gain access to the private plugins repository before this means of testing is available to you. Contact hello@squaredup.com for more details.
-
-You should aim to do as much testing as possible with the `validate.js` script as the turn-around time is much quicker.
-
-This process is described in more detail in [Testing a Plugin](docs/testingAPlugin.md).
+We greatly appreciate your interest in contributing to this repository! To help you get started, please take a look at our detailed contribution guidelines in the [CONTRIBUTING](CONTRIBUTING.md) document.
