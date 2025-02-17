@@ -80,6 +80,9 @@ A plugin is a directory in this repo of the form `plugins/`_plugin-name_`/v1` co
           ```
       You should aim to do as much testing as possible with the `validate.js` script as the turn-around time is much quicker.
       This process is described in more detail in [Testing a Plugin](docs/testingAPlugin.md).
+6. **Installation**
+    The plugin is only installed when a Pull Request has been submitted. During PR creation you will be
+    asked for your Tenant (Organization) Name which can be retrieved from the [settings page](https://app.squaredup.com/settings/organization)
 
 ## Contributing
 

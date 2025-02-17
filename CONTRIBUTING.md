@@ -46,6 +46,7 @@ Before you submit your Pull Request (PR) consider the following guidelines:
 
 1. Search [GitHub](pulls) for an open or closed PR that relates to your submission. You don't want to duplicate effort.
 2. Read the [documentation](README.md) and explore the existing plugins for best practice guidance.
-3. Make sure you pull request is appropriately described, and contains all the required files and documentation for review.
+3. For creating pull requests see - [Creating a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
+4. Make sure you pull request is appropriately described, and contains all the required files and documentation for review.
 
 That's it, thank you for your contribution! :+1:
