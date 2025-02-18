@@ -12,7 +12,7 @@ Please read and adhere to our [Code of Conduct](./CODE_OF_CONDUCT.md) document b
 
 ## Introduction
 
-Plugins are vital components of the SquaredUp Unified Observability Portal product. Each 
+Plugins are vital components of SquaredUp. Each 
 plugin bundles up everything involved in the interaction with a specific third party system, namely:
 
 - The ability to import objects from an external system into the Observability Portal's Data Mesh.
