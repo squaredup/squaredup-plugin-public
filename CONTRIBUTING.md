@@ -19,7 +19,7 @@ As a contributor, here are the guidelines we would like you to follow:
 Help us keep SquaredUp Samples open and inclusive.
 Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## <a name="question"></a> Got a Question?
+## <a name="question"></a> Got a question?
 
 Please do not open issues for general support questions as we want to keep GitHub issues for bug reports and requests. 
 
@@ -36,7 +36,7 @@ If you find a bug or a problem, you can help us by:
 * Even better, create a Pull Request with a fix!
 
 ## <a name="request"></a> Suggesting features and ideas
-Is there a plugin you need, but aren't able to develop? Does a plugin need an enhancement? Then [submit an support ticket](https://docs.squaredup.com/submit-ticket), please provide lots of details to help us build it!
+Is there a plugin you need, but aren't able to develop? Does a plugin need an enhancement? Then [submit a feedback](https://feedback.squaredup.com/plugins), please provide lots of details to help us build it!
 
 ## <a name="contribute"></a>Contributing enhancements and plugins
 If there is an enhancement you want to make to an existing plugin or a cool new plugin you want to contribute then please submit a Pull Request with your work.

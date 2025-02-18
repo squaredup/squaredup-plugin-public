@@ -1,6 +1,6 @@
 # SquaredUp Community Plugins Repository
 
-This repository contains third-party/community plugins for the SquaredUp Observability Portal product.
+This repository contains third-party/community plugins for [SquaredUp](https://squaredup.com).
 
 ## License
 
@@ -12,7 +12,7 @@ Please read and adhere to our [Code of Conduct](./CODE_OF_CONDUCT.md) document b
 
 ## Introduction
 
-SquaredUp Cloud plugins are vital components of the SquaredUp Unified Observability Portal product. Each 
+Plugins are vital components of the SquaredUp Unified Observability Portal product. Each 
 plugin bundles up everything involved in the interaction with a specific third party system, namely:
 
 - The ability to import objects from an external system into the Observability Portal's Data Mesh.
@@ -24,8 +24,8 @@ Plugins are installed into the Observability Portal product as part of the produ
 
 ## Execution Environments
 
-A plugin may be executed in a cloud environment as part of the Observability Portal product or on a machine within a customer's premises (upon which the customer has installed a Relay Agent). If both environments are equally suitable for a plugin, it can
-be declared as "hybrid" (in which case, two separate plugins will appear in the Data Source Gallery, one with the label "On-Prem" added).
+A plugin may be executed within SquaredUp's SaaS environment or on a machine within a customer's premises (upon which the customer has installed a Relay Agent). If both environments are equally suitable for a plugin, it can
+be declared as "hybrid" (in which case, two separate plugins will appear in the Data Source list, one with the label "On-Prem" added).
 
 Javascript (NodeJS) is currently the implementation language/runtime with fullest capability, but PowerShell may be chosen for plugins which will only run On-Premise. We plan to support support other languages at some point in the future.
 
