@@ -12,15 +12,14 @@ Please read and adhere to our [Code of Conduct](./CODE_OF_CONDUCT.md) document b
 
 ## Introduction
 
-Plugins are vital components of SquaredUp. Each 
-plugin bundles up everything involved in the interaction with a specific third party system, namely:
+Plugins are vital components of SquaredUp. Each plugin bundles up everything involved in the interaction with a specific third party system, namely:
 
-- The ability to import objects from an external system into the Observability Portal's Data Mesh.
+- The ability to import objects from an external system into SquaredUp.
 - The ability to read data upon demand from an external system for displaying in dashboards and/or for use in the evaluation of monitors.
 
-Plugins are installed into the Observability Portal product as part of the product build process managed by SquaredUp. Once installed, they appear within the Data Source Gallery in the product:
+Plugins are installed into SquaredUp as part of the product build process. Once installed, they appear within the Data Source List in the product:
 
-![DataSourceGallery](docs/images/DataSourceGallery.jpg)
+![DataSourceList](docs/images/DataSourceGallery.jpg)
 
 ## Execution Environments
 
@@ -40,7 +39,7 @@ A plugin is a directory in this repo of the form `plugins/`_plugin-name_`/v1` co
 - `metadata.json` - a file containing high-level information about the plugin (for example: the execution location of the plugin, or the information that appears in the Data Source Gallery, above).
 - `ui.json` - a file describing the configuration that must be shown to a user who is in the process of adding the plugin to their tenant to connect with an instance of the back end system.
 - `custom_types.json` (Optional) - a file containing information about non-standard object types that will be imported by the plugin into the Data Mesh.
-- `data_streams.json` - a file describing the streams of on demand data that the Observability Portal can request of the plugin.
+- `data_streams.json` - a file describing the streams of on demand data that SquaredUp can request of the plugin.
 - `handler.js` and `package.json` the executable code of the plugin.
 
 ## Writing a Plugin
