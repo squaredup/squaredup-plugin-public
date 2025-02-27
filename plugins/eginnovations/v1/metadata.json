@@ -1,0 +1,35 @@
+{
+    "name": "eginnovations",
+    "displayName": "eG Innovations",
+    "version": "1.0.0",
+    "author": "eG Innovations Pvt Ltd",
+    "description": "Monitor key application metrics from your eG environment",
+    "category": "APM",
+    "type": "onprem",
+    "restrictedToPlatforms": [],
+    "supportsConfigValidation": true,
+    "links": [
+        {
+            "url": "https://www.eginnovations.com/documentation/eG-Enterprise-User-Guides.htm",
+            "label": "Help adding this plugin"
+        }
+    ],
+    "keywords": [
+        "eginnovations",
+        "monitor",
+        "APM"
+    ],
+    "objectTypes": [
+        "Account",
+        "Alerts information",
+        "Performance metics",
+        "Historical data"
+    ],
+    "actions": {
+        "__testConfig":        { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "handlerConfig.js" } },
+        "import":              { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" }, "isImportAction": true },
+        "dataSourceUnscoped":  { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
+        "appScopedProperties": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
+        "getAlerts": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } }
+    }
+}

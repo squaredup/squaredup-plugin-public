@@ -1,0 +1,34 @@
+[
+  {
+    "type": "text",
+    "name": "user",
+    "label": "Account UserName",
+    "title": "Account UserName",
+    "help": "The username for the account",
+    "validation": {
+        "required": true
+     },
+    "placeholder": "username"
+},
+  {
+      "type": "password",
+      "name": "pwd",
+      "label": "Account Password",
+      "title": "Account Password",
+      "help": "Provide your password",
+      "validation": {
+          "required": true
+      }
+  },
+  {
+    "type": "password",
+    "name": "accessID",
+    "label": "Access ID",
+    "title": "Access ID",
+    "help": "The Access ID to use",
+    "validation": {
+        "required": true
+     },
+    "placeholder": "https://companyname.com/api/v1"
+}
+]
