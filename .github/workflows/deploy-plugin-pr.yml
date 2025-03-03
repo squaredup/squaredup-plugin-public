@@ -127,6 +127,7 @@ jobs:
                       } | ConvertTo-Json
                       Write-Output "Request Body: $requestBody"
                       $deployerUrl = "${{ secrets.DEPLOYER_BASE_URL }}/queuedeployment"
+                      Write-Output "Deployer URL: $deployerUrl"
                       $authHeader = "Bearer ${{ secrets.DEPLOYER_API_KEY }}"
                       $response = Invoke-RestMethod -Uri $deployerUrl -Method Post -Headers @{Authorization=$authHeader} -Body $requestBody -ContentType "application/json"
                       Write-Output "Deployment request sent successfully"
