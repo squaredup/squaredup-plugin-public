@@ -143,3 +143,6 @@ jobs:
               name: Deploy Plugin
               if: ${{ env. SKIP_DEPLOYMENT != 'true' }}
               timeout-minutes: 30
+              env:
+                  DEPLOYER_BASE_URL: ${{ secrets.DEPLOYER_BASE_URL }}
+                  DEPLOYER_API_KEY: ${{ secrets.DEPLOYER_API_KEY }}
