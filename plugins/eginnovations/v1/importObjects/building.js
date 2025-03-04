@@ -1,3 +1,6 @@
+import fetch from 'node-fetch';
+import https from 'https';
+
 let totalNBuildings = 10;
 import { totalNApps } from './apps.js';
 
@@ -58,7 +61,7 @@ async function GetBuildingObjectsFromExternalApi(context, buildingIndex, apiLimi
     // the plugin configuration using fetch and creating vertices and edges using the
     // information thus obtained.
 
-    const url = "https://172.16.8.229:7077/api/eg/analytics/getComponentsDetails";
+    const url = 'https://172.16.8.229:7077/api/eg/analytics/getComponentsDetails';
 
     const agent = new https.Agent({
         rejectUnauthorized: false
@@ -66,14 +69,14 @@ async function GetBuildingObjectsFromExternalApi(context, buildingIndex, apiLimi
 
     // Define the body of the request
     const body = {
-        from: "squaredup"
+        from: 'squaredup'
     };
 
     const headers = {
 
         user: context.pluginConfig.user,
         pwd: Buffer.from(context.pluginConfig.pwd).toString('base64'),
-        managerurl: "https://172.16.8.229:7077",
+        managerurl: 'https://172.16.8.229:7077',
         accessID: context.pluginConfig.accessID
     };
     try {
@@ -121,12 +124,11 @@ async function GetBuildingObjectsFromExternalApi(context, buildingIndex, apiLimi
             data: {
                 buildings
             }
-        }
-
+        };
 
     } catch (error) {
         // Catch and log any errors
-        console.error('fetch error:', error);
+        throw new Error('HTTP error! status:'+error);
 
     }
 

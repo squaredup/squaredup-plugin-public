@@ -73,6 +73,18 @@
             ]
         },
         {
+            "name": "getComponentsByState",
+            "displayName": "Components By State",
+            "description": "Reporting and Non-reporting Components",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getAlarmCount",
+            "displayName": "Alarm Count",
+            "description": "Number of Alarms",
+            "supportedScope": "none"
+        },
+        {
             "name": "getAlerts",
             "displayName": "Alerts",
             "description": "Alerts for components filter",
@@ -189,27 +201,104 @@
             }
         },
         {
+            "displayName": "Components By State",
+            "description": "Reporting and Non-reporting Components",
+            "dataSourceName": "getComponentsByState",
+            "definition": {
+                "name": "getComponentsByState",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "metadata": [
+                    {
+                        "name": "componentType",
+                        "displayName": "Component Type",
+                        "shape": "string",
+                        "role": "label"
+                       
+                    },
+                    {
+                        "name": "componentName",
+                        "displayName": "Component Name",
+                        "shape": "string",
+                        "role": "label"
+                       
+                    },
+                    {
+                        "name": "priority",
+                        "displayName": "Priority",
+                        "shape": "string",
+                        "role": "label"
+                       
+                    }
+                ]
+               
+            }
+           
+        },
+        {
+            "displayName": "Alarm Count",
+            "description": "Numbers of Alarm",
+            "dataSourceName": "getAlarmCount",
+            "definition": {
+                "name": "getAlarmCount",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "metadata": [
+                    {
+                        "name": "componentType",
+                        "displayName": "Component Type",
+                        "shape": "string",
+                        "role": "label"
+                       
+                    },
+                    {
+                        "name": "total",
+                        "displayName": "Total",
+                        "shape": "string",
+                        "role": "label"
+                       
+                    },
+                    {
+                        "name": "critical",
+                        "displayName": "Critical",
+                        "shape": "string",
+                        "role": "label"
+                       
+                    },
+                    {
+                        "name": "major",
+                        "displayName": "Major",
+                        "shape": "string",
+                        "role": "label"
+                       
+                    },
+                    {
+                        "name": "minor",
+                        "displayName": "Minor",
+                        "shape": "string",
+                        "role": "label"
+                       
+                    }
+                ]
+               
+            }
+           
+        },
+        {
             "displayName": "Alerts",
             "description": "Returns Alerts for scoped components",
             "dataSourceName": "getAlerts",
-            "provides": "getAlerts",
+            "provides": "componentType",
             "definition": {
                 "name": "alerts",
                 "timeframes": false,
                 "dataSourceConfig": {
                     "properties": [
                         "componentType",
-                        "measure",
-                        "test",
-                        "service",
-                        "alarmID",
-                        "description",
-                        "startTime",
-                        "componentName",
-                        "priority",
-                        "layer",
-                        "appStatus",
-                        "appType"
+                        "componentName"
+                       
                     ]
                 },
                 "rowPath": [],
@@ -221,46 +310,66 @@
                 },
                 "metadata": [
                     {
-                        "name": "appStatus",
-                        "displayName": "Status",
-                        "shape": [
-                            "state",
-                            {
-                                "map": {
-                                    "success": [
-                                        "OK"
-                                    ],
-                                    "warning": [
-                                        "Degraded",
-                                        "Installing"
-                                    ],
-                                    "error": [
-                                        "Broken"
-                                    ]
-                                }
-                            }
-                        ]
+                        "name": "componentType",
+                        "displayName": "Component Type",
+                        "shape": "string",
+                        "role": "label"
+                       
                     },
                     {
-                        "name": "name",
-                        "displayName": "Name",
+                        "name": "measure",
+                        "displayName": "Measure",
+                        "shape": "string", 
+                        "role": "label"
+                    },
+                    {
+                        "name": "test",
+                        "displayName": "Test",
                         "shape": "string",
                         "role": "label"
                     },
                     {
-                        "name": "id",
-                        "visible": false,
+                        "name": "service",
+                       "displayName": "Service",
                         "shape": "string",
-                        "role": "id"
+                        "role": "label"
                     },
                     {
-                        "name": "appType",
-                        "displayName": "App Type",
-                        "shape": "string"
-                    },{
-                        "name": "measure",
-                        "displayName": "Measure",
-                        "shape": "string" 
+                        "name": "alarmID",
+                        "displayName": "Alarm ID",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "description",
+                        "displayName": "Description",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "startTime",
+                        "displayName": "Start Time",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "componentName",
+                        "displayName": "Component Name",
+                        "shape": "string",
+                        "role": "label"
+                    },
+
+                    {
+                        "name": "priority",
+                        "displayName": "Priority",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "layer",
+                        "displayName": "Layer",
+                        "shape": "string",
+                        "role": "label"
                     }
 
                 ]

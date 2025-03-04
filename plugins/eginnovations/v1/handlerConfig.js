@@ -6,6 +6,8 @@ import { getAlerts } from './readDataSource/getAlerts.js';
 
 import fetch from 'node-fetch';
 import https from 'https';
+import { getComponentsByState } from './readDataSource/getComponentsByState.js';
+import { getAlarmCount } from './readDataSource/getAlarmCount.js';
 
 // ============================================================================
 //
@@ -40,7 +42,7 @@ export async function testConfig(context) {
             // Parse the JSON response
             const data = await response.json();
 
-            if (data.output == "success") {
+            if (data.output === 'success') {
                 messages.push({
                     status: 'success',
                     message: 'Testing passed'
@@ -53,13 +55,13 @@ export async function testConfig(context) {
                 });
             }
             const result = {
-                link: 'https://yourCompany.com/docs/plugin/pluginsetup-examplehybrid',
+                link: 'https://www.eginnovations.com/documentation/eG-Enterprise-User-Guides.htm',
                 messages: messages
             };
             return result;
         } catch (error) {
             // Catch and log any errors
-            console.error('Login fetch error:', error);
+            throw new Error('HTTP error! status:'+error);
 
         }
     }
@@ -103,5 +105,7 @@ export function reportImportProblem(context) {
 export const dataSourceFns = {
     appScopedProperties,
     dataSourceUnscoped,
-    getAlerts
+    getAlerts,
+    getComponentsByState,
+    getAlarmCount
 };

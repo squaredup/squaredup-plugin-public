@@ -1,5 +1,5 @@
 {
-    "name": "eginnovations",
+    "name": "eGInnovations",
     "displayName": "eG Innovations",
     "version": "1.0.0",
     "author": "eG Innovations Pvt Ltd",
@@ -30,6 +30,10 @@
         "import":              { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" }, "isImportAction": true },
         "dataSourceUnscoped":  { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
         "appScopedProperties": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
-        "getAlerts": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } }
+        "getAlerts": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
+        "getComponentsByState": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
+        "getAlarmCount": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } }
+
+        
     }
 }
