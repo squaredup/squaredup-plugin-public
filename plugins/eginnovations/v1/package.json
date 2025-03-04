@@ -1,0 +1,14 @@
+{
+  "name": "squaredup-eginnovations",
+  "version": "1.0.0",
+  "description": "Connector plugin by eG innovations for squaredup dashboard integration.",
+  
+  "type": "module",
+ 
+  "author": "eG innovations Pvt Ltd",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.3.2"
+  }
+}
