@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import https from 'https';
 
 export let totalNApps = 10;
-export async function stageApps(context) {
+export async function stageComponents(context) {
     let finished = false;
     let apiLimit = context.apiLimits.apps;
 
@@ -36,7 +36,7 @@ async function addVertexForApp(context, appObject) {
         sourceName: 'eG Enterprise', // a readable identifier of the plug-in that imported the vertex
         name: appObject.appName, //the name of the vertex to be displayed in the UI.//componentName
         type: 'app', // a lowercase string identifying the overarching type of the vertex (this will determine the grouping and icon used when the vertex is viewed in the UI). See the list in custom_types.json. For example: “host”
-        sourceType: 'mySortOfApp', // a more specific type, name of relevance to the plug-in (e.g. for scoping purposes). For example: “myservicehost“.
+        sourceType: 'eGComponents', // a more specific type, name of relevance to the plug-in (e.g. for scoping purposes). For example: “myservicehost“.
         sourceId: appObject.appNum, //a unique id of this vertex within this instance of the plug-in.//componentID
         appType: appObject.appType//componentType
     };
@@ -51,7 +51,7 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
     // A real plugin would be making HTTP requests authenticated with information in
     // the plugin configuration using fetch and creating vertices and edges using the
     // information thus obtained.
-    const url = 'https://172.16.8.229:7077/api/eg/analytics/getComponentsDetails';
+    const url = 'https://172.16.8.112:7077/api/eg/analytics/getComponentsDetails';
 
     const agent = new https.Agent({
         rejectUnauthorized: false
@@ -66,7 +66,7 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
 
         user: context.pluginConfig.user,
         pwd: Buffer.from(context.pluginConfig.pwd).toString('base64'),
-        managerurl: 'https://172.16.8.229:7077',
+        managerurl: 'https://172.16.8.112:7077',
         accessID: context.pluginConfig.accessID
     };
     try {
@@ -85,6 +85,7 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
 
         const apps = [];
         const data = await response.json();
+        context.log.info(JSON.stringify(data));
 
         let appNum = appIndex;
 

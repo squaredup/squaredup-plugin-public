@@ -1,9 +1,12 @@
-// import _ from 'lodash';
 import fetch from 'node-fetch';
 import https from 'https';
 
-export async function getAlarmCount(context) {
-    const url = 'https://172.16.8.229:7077/api/eg/analytics/getAlarmCount';
+export async function eGClientRequest(context, endpoint) {
+
+    const serverUrl = context.pluginConfig.serverUrl;
+
+    const url = `${serverUrl}/api/eg/analytics/${endpoint}`;
+    context.log.info(url);
 
     const agent = new https.Agent({
         rejectUnauthorized: false
@@ -13,7 +16,7 @@ export async function getAlarmCount(context) {
 
         user: context.pluginConfig.user,
         pwd: Buffer.from(context.pluginConfig.pwd).toString('base64'),
-        managerurl: 'https://172.16.8.229:7077',
+        managerurl: `${serverUrl}`,
         accessID: context.pluginConfig.accessID
     };
     try {
@@ -30,10 +33,11 @@ export async function getAlarmCount(context) {
         }
 
 
-            let data = await response.json();
-
+        let data = await response.json();
         context.log.info(JSON.stringify(data));
+         return data;
         
+
     }
     catch (error) {
         // Catch and log any errors

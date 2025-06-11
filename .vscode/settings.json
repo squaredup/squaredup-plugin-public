@@ -5,6 +5,9 @@
     "prettier.requireConfig": true,
     "eslint.workingDirectories": [{ "directory": "." }],
     "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
     }
 }

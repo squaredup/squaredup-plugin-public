@@ -1,77 +1,36 @@
 {
     "rowTypes": [
         {
-            "name": "stuff",
+            "name": "Alarms",
             "metadata": [
                 {
-                    "name": "enum",
-                    "displayName": "Enum",
-                    "shape": "string",
+                    "name": "total",
+                    "displayName": "Total",
+                    "shape": "number",
                     "role": "label"
                 },
                 {
-                    "name": "start",
-                    "displayName": "Start",
-                    "shape": "date"
+                    "name": "critical",
+                    "displayName": "Critical",
+                    "shape": "number",
+                    "role": "label"
                 },
                 {
-                    "name": "unixStart",
-                    "displayName": "Unix Start",
-                    "shape": [
-                        "number",
-                        {
-                            "decimalPlaces": 0
-                        }
-                    ]
+                    "name": "major",
+                    "displayName": "Major",
+                    "shape": "number",
+                    "role": "label"
                 },
                 {
-                    "name": "end",
-                    "displayName": "End",
-                    "shape": "date"
-                },
-                {
-                    "name": "unixEnd",
-                    "displayName": "Unix End",
-                    "shape": [
-                        "number",
-                        {
-                            "decimalPlaces": 0
-                        }
-                    ]
-                },
-                {
-                    "name": "interval",
-                    "displayName": "Interval",
-                    "shape": "string"
-                },
-                {
-                    "name": "top",
-                    "displayName": "Top",
-                    "shape": "string"
+                    "name": "minor",
+                    "displayName": "Minor",
+                    "shape": "number",
+                    "role": "label"
                 }
             ]
         }
     ],
     "dataSources": [
-        {
-            "name": "dataSourceUnscoped",
-            "displayName": "Stuff (no scope)",
-            "description": "Return stuff",
-            "supportedScope": "none"
-        },
-        {
-            "name": "appScopedProperties",
-            "displayName": "App-scoped Properties",
-            "description": "Get selected properties for scoped apps",
-            "supportedScope": "list",
-            "targetNodesProperties": [
-                "id",
-                "name",
-                "sourceId",
-                "appType",
-                "appStatus"
-            ]
-        },
         {
             "name": "getComponentsByState",
             "displayName": "Components By State",
@@ -80,7 +39,7 @@
         },
         {
             "name": "getAlarmCount",
-            "displayName": "Alarm Count",
+            "displayName": "alarms",
             "description": "Number of Alarms",
             "supportedScope": "none"
         },
@@ -111,180 +70,19 @@
     },
     "dataStreams": [
         {
-            "displayName": "Stuff",
-            "description": "Returns Stuff",
-            "dataSourceName": "dataSourceUnscoped",
+            "displayName": "Alarms",
+            "description": "Numbers of Alarms",
+            "dataSourceName": "getAlarmCount",
             "definition": {
-                "name": "stuffUnscoped",
+                "timeframes": false,
+                "name": "Alarms",
                 "dataSourceConfig": {},
                 "rowPath": [],
                 "matches": "none",
                 "rowType": {
-                    "name": "stuff"
+                    "name": "Alarms"
                 }
-            },
-            "template": [
-                {
-                    "name": "top",
-                    "type": "text",
-                    "label": "Optional, list top n",
-                    "title": "Optional, list top n",
-                    "help": "Pick how many rows of data to return",
-                    "validation": {
-                        "required": false
-                    },
-                    "placeholder": "10"
-                }
-            ]
-        },
-        {
-            "displayName": "App Health",
-            "description": "Returns Health for scoped Apps",
-            "dataSourceName": "appScopedProperties",
-            "provides": "health",
-            "definition": {
-                "name": "appHealth",
-                "timeframes": false,
-                "dataSourceConfig": {
-                    "properties": [
-                        "appStatus",
-                        "appType"
-                    ]
-                },
-                "rowPath": [],
-                "matches": {
-                    "sourceType": {
-                        "type": "equals",
-                        "value": "mySortOfApp"
-                    }
-                },
-                "metadata": [
-                    {
-                        "name": "appStatus",
-                        "displayName": "Status",
-                        "shape": [
-                            "state",
-                            {
-                                "map": {
-                                    "success": [
-                                        "OK"
-                                    ],
-                                    "warning": [
-                                        "Degraded",
-                                        "Installing"
-                                    ],
-                                    "error": [
-                                        "Broken"
-                                    ]
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "name": "name",
-                        "displayName": "Name",
-                        "shape": "string",
-                        "role": "label"
-                    },
-                    {
-                        "name": "id",
-                        "visible": false,
-                        "shape": "string",
-                        "role": "id"
-                    },
-                    {
-                        "name": "appType",
-                        "displayName": "App Type",
-                        "shape": "string"
-                    }
-                ]
             }
-        },
-        {
-            "displayName": "Components By State",
-            "description": "Reporting and Non-reporting Components",
-            "dataSourceName": "getComponentsByState",
-            "definition": {
-                "name": "getComponentsByState",
-                "dataSourceConfig": {},
-                "rowPath": [],
-                "matches": "none",
-                "metadata": [
-                    {
-                        "name": "componentType",
-                        "displayName": "Component Type",
-                        "shape": "string",
-                        "role": "label"
-                       
-                    },
-                    {
-                        "name": "componentName",
-                        "displayName": "Component Name",
-                        "shape": "string",
-                        "role": "label"
-                       
-                    },
-                    {
-                        "name": "priority",
-                        "displayName": "Priority",
-                        "shape": "string",
-                        "role": "label"
-                       
-                    }
-                ]
-               
-            }
-           
-        },
-        {
-            "displayName": "Alarm Count",
-            "description": "Numbers of Alarm",
-            "dataSourceName": "getAlarmCount",
-            "definition": {
-                "name": "getAlarmCount",
-                "dataSourceConfig": {},
-                "rowPath": [],
-                "matches": "none",
-                "metadata": [
-                    {
-                        "name": "componentType",
-                        "displayName": "Component Type",
-                        "shape": "string",
-                        "role": "label"
-                       
-                    },
-                    {
-                        "name": "total",
-                        "displayName": "Total",
-                        "shape": "string",
-                        "role": "label"
-                       
-                    },
-                    {
-                        "name": "critical",
-                        "displayName": "Critical",
-                        "shape": "string",
-                        "role": "label"
-                       
-                    },
-                    {
-                        "name": "major",
-                        "displayName": "Major",
-                        "shape": "string",
-                        "role": "label"
-                       
-                    },
-                    {
-                        "name": "minor",
-                        "displayName": "Minor",
-                        "shape": "string",
-                        "role": "label"
-                       
-                    }
-                ]
-               
-            }
-           
         },
         {
             "displayName": "Alerts",
@@ -298,14 +96,13 @@
                     "properties": [
                         "componentType",
                         "componentName"
-                       
                     ]
                 },
                 "rowPath": [],
                 "matches": {
                     "sourceType": {
                         "type": "equals",
-                        "value": "mySortOfApp"
+                        "value": "eGComponents"
                     }
                 },
                 "metadata": [
@@ -314,12 +111,11 @@
                         "displayName": "Component Type",
                         "shape": "string",
                         "role": "label"
-                       
                     },
                     {
                         "name": "measure",
                         "displayName": "Measure",
-                        "shape": "string", 
+                        "shape": "string",
                         "role": "label"
                     },
                     {
@@ -330,7 +126,7 @@
                     },
                     {
                         "name": "service",
-                       "displayName": "Service",
+                        "displayName": "Service",
                         "shape": "string",
                         "role": "label"
                     },
@@ -358,7 +154,6 @@
                         "shape": "string",
                         "role": "label"
                     },
-
                     {
                         "name": "priority",
                         "displayName": "Priority",
@@ -371,7 +166,6 @@
                         "shape": "string",
                         "role": "label"
                     }
-
                 ]
             }
         }

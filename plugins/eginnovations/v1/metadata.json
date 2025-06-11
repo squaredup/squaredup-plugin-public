@@ -10,8 +10,8 @@
     "supportsConfigValidation": true,
     "links": [
         {
-            "url": "https://www.eginnovations.com/documentation/eG-Enterprise-User-Guides.htm",
-            "label": "Help adding this plugin"
+            "url": "https://docs.squaredup.com/data-sources/eGinnovations-plugin",
+            "label": "eGinnovations Plugin Documentation"
         }
     ],
     "keywords": [
@@ -28,8 +28,6 @@
     "actions": {
         "__testConfig":        { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "handlerConfig.js" } },
         "import":              { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" }, "isImportAction": true },
-        "dataSourceUnscoped":  { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
-        "appScopedProperties": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
         "getAlerts": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
         "getComponentsByState": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
         "getAlarmCount": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } }

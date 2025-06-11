@@ -17,7 +17,6 @@ export async function testConfig(event, api) {
 
     const context = {
         pluginConfig,
-
         log,
         report,
         patchConfig

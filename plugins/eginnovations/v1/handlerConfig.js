@@ -1,14 +1,11 @@
-import { stageApps } from './importObjects/apps.js';
-import { stageBuildings } from './importObjects/building.js';
-import { appScopedProperties } from './readDataSource/appScopedProperties.js';
-import { dataSourceUnscoped } from './readDataSource/dataSourceUnscoped.js';
-import { getAlerts } from './readDataSource/getAlerts.js';
-
+import { stageComponents } from './importObjects/components.js';
+import { getAlerts } from './readDataSource/alerts.js';
+import { getComponentsByState } from './readDataSource/componentsByState.js';
+import { getAlarmCount } from './readDataSource/alarmCount.js';
 import fetch from 'node-fetch';
 import https from 'https';
-import { getComponentsByState } from './readDataSource/getComponentsByState.js';
-import { getAlarmCount } from './readDataSource/getAlarmCount.js';
 
+    
 // ============================================================================
 //
 // testConfig
@@ -23,24 +20,28 @@ export async function testConfig(context) {
         const agent = new https.Agent({
             rejectUnauthorized: false
         });
+        const serverUrl=context.pluginConfig.serverUrl;
         const uname = context.pluginConfig.user;
         const upass = Buffer.from(context.pluginConfig.pwd).toString('base64');
         const accessID = context.pluginConfig.accessID;
 
 
-        const url = `https://172.16.8.229:7077/final/eGMobileService/getLoginSquaredup?uname=${uname}&user_from=squaredup&upass=${upass}&accessID=${accessID}`;
-
+        const url = `${serverUrl}/final/eGMobileService/getLoginSquaredup?uname=${uname}&user_from=squaredup&upass=${upass}&accessID=${accessID}`;
+       
         try {
             // Await the fetch request
             const response = await fetch(url, { agent });
+           
 
             // Check if the response is OK
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
+
             }
 
             // Parse the JSON response
             const data = await response.json();
+            
 
             if (data.output === 'success') {
                 messages.push({
@@ -73,11 +74,10 @@ export async function testConfig(context) {
 //
 // importObjects
 //
-export const importStages = [stageApps, stageBuildings];
+export const importStages = [stageComponents];
 
 export const defaultApiLimits = {
-    apps: 10,
-    buildings: 3
+    apps: 10
 };
 
 export const initialPagingContext = {
@@ -103,8 +103,6 @@ export function reportImportProblem(context) {
 // readDataSource
 //
 export const dataSourceFns = {
-    appScopedProperties,
-    dataSourceUnscoped,
     getAlerts,
     getComponentsByState,
     getAlarmCount
