@@ -13,19 +13,18 @@ export async function getAlerts(context) {
 
     // Define the body of the request
     const body = {
-
         'filterBy': 'ComponentType',
         'filterValues': 'Microsoft SQL,Microsoft Windows,Mobile RUM,eG Manager'
-
     };
 
     const headers = {
-
+        'Content-Type': 'application/json',
         user: context.pluginConfig.user,
         pwd: Buffer.from(context.pluginConfig.pwd).toString('base64'),
         managerurl: `${serverUrl}`,
         accessID: context.pluginConfig.accessID
     };
+    
     try {
         // Await the fetch request
         const response = await fetch(url, {
@@ -40,6 +39,11 @@ export async function getAlerts(context) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not JSON');
+        }
 
         let data = await response.json();
         let alertsData = [];
@@ -49,13 +53,9 @@ export async function getAlerts(context) {
         
         return alertsData;
 
-
-
-
     } catch (error) {
         // Catch and log any errors
-        throw new Error('HTTP error! status:' + error);
-
+        context.log.error(`Error in getAlerts: ${error.message}`);
+        throw new Error(`HTTP error! status: ${error.message}`);
     }
-
 }

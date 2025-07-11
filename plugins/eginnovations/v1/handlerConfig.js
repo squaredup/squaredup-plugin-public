@@ -20,54 +20,75 @@ export async function testConfig(context) {
         const agent = new https.Agent({
             rejectUnauthorized: false
         });
-        const serverUrl=context.pluginConfig.serverUrl;
+        const serverUrl = context.pluginConfig.serverUrl;
         const uname = context.pluginConfig.user;
         const upass = Buffer.from(context.pluginConfig.pwd).toString('base64');
         const accessID = context.pluginConfig.accessID;
-
 
         const url = `${serverUrl}/final/eGMobileService/getLoginSquaredup?uname=${uname}&user_from=squaredup&upass=${upass}&accessID=${accessID}`;
        
         try {
             // Await the fetch request
             const response = await fetch(url, { agent });
-           
 
             // Check if the response is OK
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
             }
 
             // Parse the JSON response
             const data = await response.json();
-            
 
             if (data.output === 'success') {
                 messages.push({
                     status: 'success',
                     message: 'Testing passed'
                 });
-
             } else {
                 messages.push({
                     status: 'error',
-                    message: 'nothing works!'
+                    message: 'Authentication failed - please check your credentials'
                 });
             }
+            
             const result = {
                 link: 'https://www.eginnovations.com/documentation/eG-Enterprise-User-Guides.htm',
                 messages: messages
             };
             return result;
+            
         } catch (error) {
             // Catch and log any errors
-            throw new Error('HTTP error! status:'+error);
-
+            context.log.error(`Error in testConfig: ${error.message}`);
+            messages.push({
+                status: 'error',
+                message: `Connection failed: ${error.message}`
+            });
+            
+            const result = {
+                link: 'https://www.eginnovations.com/documentation/eG-Enterprise-User-Guides.htm',
+                messages: messages
+            };
+            return result;
         }
+    } else {
+        messages.push({
+            status: 'error',
+            message: 'Missing required configuration: user, pwd, or accessID'
+        });
+        
+        const result = {
+            link: 'https://www.eginnovations.com/documentation/eG-Enterprise-User-Guides.htm',
+            messages: messages
+        };
+        return result;
     }
-
-
 }
 
 // ============================================================================
