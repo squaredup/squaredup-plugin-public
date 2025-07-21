@@ -38,12 +38,8 @@ export async function getAlarmCount(context) {
         }
 
         let data = await response.json();
-        context.log.info(JSON.stringify(data));
-        let alarmCount = [];
        
-        alarmCount = Array.isArray(data) ? data : Object.values(data);
-        // context.log.info(Array.isArray(alarmCount));
-        return alarmCount;
+        return data;
     
     } catch (error) {
         // Catch and log any errors

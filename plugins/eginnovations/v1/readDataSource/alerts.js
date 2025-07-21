@@ -46,12 +46,9 @@ export async function getAlerts(context) {
         }
 
         let data = await response.json();
-        let alertsData = [];
-        // context.log.info(JSON.stringify(targetNode));
-        alertsData = Array.isArray(data) ? data : Object.values(data);
-        context.log.info(Array.isArray(alertsData));
+       
         
-        return alertsData;
+        return data;
 
     } catch (error) {
         // Catch and log any errors

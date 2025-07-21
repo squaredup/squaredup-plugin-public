@@ -38,13 +38,9 @@ export async function getComponentsByState(context) {
         }
 
         let data = await response.json();
-        context.log.info(JSON.stringify(data));
+      
         
-        // Ensure we return an array or object, not undefined
-        let componentsData = [];
-        componentsData = Array.isArray(data) ? data : Object.values(data);
-        
-        return componentsData;
+        return data;
         
     } catch (error) {
         // Catch and log any errors

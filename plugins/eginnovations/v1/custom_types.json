@@ -1,9 +1,9 @@
 [
     {
-        "name": "building",
-        "type": "Building",
-        "icon": "building",
-        "singular": "Building",
-        "plural": "Buildings"
+        "name": "eGComponents",
+        "type": "app",
+        "icon": "app",
+        "singular": "app",
+        "plural": "apps"
     }
 ]
