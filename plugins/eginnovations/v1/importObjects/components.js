@@ -71,6 +71,7 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
     // A real plugin would be making HTTP requests authenticated with information in
     // the plugin configuration using fetch and creating vertices and edges using the
     // information thus obtained.
+    const apps = [];
     const url = `${context.pluginConfig.serverUrl}/api/eg/analytics/getComponentsDetails`;
 
     const agent = new https.Agent({
@@ -110,7 +111,7 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
         let data;
         try {
             data = await response.json();
-            context.log.debug(`Successfully parsed JSON response`);
+            context.log.debug('Successfully parsed JSON response');
         } catch (jsonError) {
             context.log.error(`Failed to parse API response as JSON: ${jsonError.message}`);
             throw new Error(`Invalid JSON response: ${jsonError.message}`);
@@ -118,7 +119,7 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
 
         // Log the response structure (but not the full data to avoid huge logs)
         context.log.debug(`Response structure: ${JSON.stringify({
-            hasDetails: !!data.details,
+            hasDetails: Boolean(data.details),
             detailsType: Array.isArray(data.details) ? 'array' : typeof data.details,
             detailsLength: Array.isArray(data.details) ? data.details.length : 'N/A',
             total: data.total,

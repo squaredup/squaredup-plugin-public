@@ -39,6 +39,7 @@
     "title-case": "^3.0.3"
   },
   "devDependencies": {
+    "@swc/helpers": "^0.5.17",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.2.5"
