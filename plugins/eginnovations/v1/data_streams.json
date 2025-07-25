@@ -1,0 +1,173 @@
+{
+    "rowTypes": [
+        {
+            "name": "Alarms",
+            "metadata": [
+                {
+                    "name": "total",
+                    "displayName": "Total",
+                    "shape": "number",
+                    "role": "label"
+                },
+                {
+                    "name": "critical",
+                    "displayName": "Critical",
+                    "shape": "number",
+                    "role": "label"
+                },
+                {
+                    "name": "major",
+                    "displayName": "Major",
+                    "shape": "number",
+                    "role": "label"
+                },
+                {
+                    "name": "minor",
+                    "displayName": "Minor",
+                    "shape": "number",
+                    "role": "label"
+                }
+            ]
+        }
+    ],
+    "dataSources": [
+        {
+            "name": "getComponentsByState",
+            "displayName": "Components By State",
+            "description": "Reporting and Non-reporting Components",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getAlarmCount",
+            "displayName": "alarms",
+            "description": "Number of Alarms",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getAlerts",
+            "displayName": "Alerts",
+            "description": "Alerts for components filter",
+            "supportedScope": "list",
+            "targetNodesProperties": [
+                "componentType",
+                "measure",
+                "test",
+                "service",
+                "alarmID",
+                "description",
+                "startTime",
+                "componentName",
+                "priority",
+                "layer"
+            ]
+        }
+    ],
+    "matches": {
+        "__configId": {
+            "type": "equals",
+            "value": "{{configId}}"
+        }
+    },
+    "dataStreams": [
+        {
+            "displayName": "Alarms",
+            "description": "Numbers of Alarms",
+            "dataSourceName": "getAlarmCount",
+            "definition": {
+                "timeframes": false,
+                "name": "Alarms",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "rowType": {
+                    "name": "Alarms"
+                }
+            }
+        },
+        {
+            "displayName": "Alerts",
+            "description": "Returns Alerts for scoped components",
+            "dataSourceName": "getAlerts",
+            "provides": "componentType",
+            "definition": {
+                "name": "alerts",
+                "timeframes": false,
+                "dataSourceConfig": {
+                    "properties": [
+                        "componentType",
+                        "componentName"
+                    ]
+                },
+                "rowPath": [],
+                "matches": {
+                    "sourceType": {
+                        "type": "equals",
+                        "value": "eGComponents"
+                    }
+                },
+                "metadata": [
+                    {
+                        "name": "componentType",
+                        "displayName": "Component Type",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "measure",
+                        "displayName": "Measure",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "test",
+                        "displayName": "Test",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "service",
+                        "displayName": "Service",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "alarmID",
+                        "displayName": "Alarm ID",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "description",
+                        "displayName": "Description",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "startTime",
+                        "displayName": "Start Time",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "componentName",
+                        "displayName": "Component Name",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "priority",
+                        "displayName": "Priority",
+                        "shape": "string",
+                        "role": "label"
+                    },
+                    {
+                        "name": "layer",
+                        "displayName": "Layer",
+                        "shape": "string",
+                        "role": "label"
+                    }
+                ]
+            }
+        }
+    ]
+}

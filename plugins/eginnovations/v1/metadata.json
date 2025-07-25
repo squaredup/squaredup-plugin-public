@@ -1,0 +1,37 @@
+{
+    "name": "eGInnovations",
+    "displayName": "eG Innovations",
+    "version": "1.0.0",
+    "author": "eG Innovations Pvt Ltd",
+    "description": "Monitor key application metrics from your eG environment",
+    "category": "APM",
+    "type": "onprem",
+    "restrictedToPlatforms": [],
+    "supportsConfigValidation": true,
+    "links": [
+        {
+            "url": "https://docs.squaredup.com/data-sources/eGinnovations-plugin",
+            "label": "eGinnovations Plugin Documentation"
+        }
+    ],
+    "keywords": [
+        "eginnovations",
+        "monitor",
+        "APM"
+    ],
+    "objectTypes": [
+        "Account",
+        "Alerts information",
+        "Performance metics",
+        "Historical data"
+    ],
+    "actions": {
+        "__testConfig":        { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "handlerConfig.js" } },
+        "import":              { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" }, "isImportAction": true },
+        "getAlerts": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
+        "getComponentsByState": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
+        "getAlarmCount": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } }
+
+        
+    }
+}
