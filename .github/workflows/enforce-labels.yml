@@ -17,5 +17,5 @@ jobs:
             - name: Enforce second set of labels
               uses: yogevbd/enforce-label-action@2.2.2
               with:
-                  REQUIRED_LABELS_ANY: 'bug,new-plugin,enhancement,automated-test,internal'
+                  REQUIRED_LABELS_ANY: 'bug-fix,new-plugin,enhancement,automated-test,internal'
                   REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['bug','new-plugin','enhancement', 'automated-test', 'internal']"
