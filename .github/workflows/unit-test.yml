@@ -40,15 +40,13 @@ jobs:
                   }
                   elseif ( $pluginsToTest.Count -eq 1 ) {
                       Write-Output "Testing only one Plugin"
-                      $pluginName = ($pluginsToTest.TrimEnd('/')) -replace "plugins/" -replace "/", "-"
-                      pnpm run test --ci  --path="./$pluginsToTest" --pluginName="$pluginName"
+                      pnpm run test --ci --path="./$pluginsToTest"
                   }
                   else {
                       Write-Output "Testing $($pluginsToTest.Count) Plugins..."
                       foreach ( $plugin in $pluginsToTest ) {
                           Write-Output "Testing $plugin"
-                          $pluginName = ($plugin.TrimEnd('/')) -replace "plugins/" -replace "/", "-"
-                          pnpm run test --ci  --path="./$plugin" --pluginName="$pluginName"
+                          pnpm run test --ci  --path="./$plugin"
                           Write-Output "Tested $plugin"
                       }
                   }

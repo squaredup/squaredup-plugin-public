@@ -102,7 +102,7 @@ A plugin is a directory in this repo of the form `plugins/`_plugin-name_`/v1` co
           pnpm run unitTest
           # If running from the root of the repo
           # Replace 'ExamplePlugin' with your plugin name
-          pnpm run test -- --pluginName="ExamplePlugin" --pluginPath="plugins/ExamplePlugin/v1"
+          pnpm run test --path="plugins/ExamplePlugin/v1"
           # OR
           # Replace example-plugin-v1 with name from package.json of the plugin you are interested in
           pnpm run -F "example-plugin-v1" unitTest
