@@ -19,8 +19,12 @@ jobs:
               with:
                   node-version: '20.x'
 
+            - name: Install PNPM
+              run: npm install -g pnpm@9
+              timeout-minutes: 5
+
             - name: Install Dependencies
-              run: npm ci
+              run: pnpm install --frozen-lockfile
               timeout-minutes: 5
 
             - name: Run Unit Tests
