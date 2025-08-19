@@ -28,23 +28,23 @@ jobs:
                   $pattern = '(?<=\/[v][0-9]\/).*'
                   $changes = git diff --name-only origin/main... ./plugins
                   $pluginsToTest = $changes -replace $pattern | Sort-Object -Unique
+                  $pluginsToTest = $pluginsToTest | Where-Object { Test-Path -PathType Leaf (Join-Path "." $_ "metadata.json") } # Don't try to test deleted plugins
 
                   if ( $null -eq $pluginsToTest ) {
                       Write-Output "Nothing to Test as no changes were found in plugins folder..."
                       exit 0
                   }
                   elseif ( $pluginsToTest.Count -eq 1 ) {
+                      Write-Output "Testing only one Plugin"
                       $pluginName = ($pluginsToTest.TrimEnd('/')) -replace "plugins/" -replace "/", "-"
-                      Write-Output "Only Testing $pluginsToTest"
-                      npm test -- --ci  --path="./$pluginsToTest" --pluginName="$pluginName"
-                      Write-Output "Tested $pluginsToTest"
+                      pnpm run test --ci  --path="./$pluginsToTest" --pluginName="$pluginName"
                   }
                   else {
                       Write-Output "Testing $($pluginsToTest.Count) Plugins..."
                       foreach ( $plugin in $pluginsToTest ) {
                           Write-Output "Testing $plugin"
                           $pluginName = ($plugin.TrimEnd('/')) -replace "plugins/" -replace "/", "-"
-                          npm test -- --ci  --path="./$plugin" --pluginName="$pluginName"
+                          pnpm run test --ci  --path="./$plugin" --pluginName="$pluginName"
                           Write-Output "Tested $plugin"
                       }
                   }

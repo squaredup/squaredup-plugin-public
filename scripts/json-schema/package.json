@@ -1,0 +1,17 @@
+{
+  "name": "json-schema",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate": "pnpm dlx ts-node createJsonSchema.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@squaredup/types": "workspace:^1.0.0",
+    "zod-to-json-schema": "^3.24.1"
+  }
+}

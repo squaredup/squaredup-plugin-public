@@ -1,0 +1,15 @@
+{
+  "name": "dev-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "eslint-formatter-table": "^7.32.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

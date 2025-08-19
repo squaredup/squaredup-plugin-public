@@ -1,0 +1,22 @@
+{
+  "name": "@squaredup/eslint-config",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "@typescript-eslint/parser": "^8.26.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-no-only-tests": "^3.1.0"
+  },
+  "dependencies": {
+    "@babel/eslint-parser": "^7.17.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

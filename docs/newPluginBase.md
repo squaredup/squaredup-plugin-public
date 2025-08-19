@@ -112,7 +112,7 @@ The first two entries should always be supplied to support the `testConfig` and 
 }
 ```
 
-In this standard `npm` package file, replace the `name`, `author` and `license` fields to suit your purposes (the `version` field in this file isn't actually used; it is the `version` value in `metadata.json` that counts). Use the `npm` command to manipulate the `dependencies` as needed (this will also maintain the `package-lock.json` file which you should commit to the repo with the rest of your plugin source code).
+In this standard `npm` package file, replace the `name`, `author` and `license` fields to suit your purposes (the `version` field in this file isn't actually used; it is the `version` value in `metadata.json` that counts). Use the `pnpm` command to manipulate the `dependencies` as needed.
 
 ### `ui.json`
 
