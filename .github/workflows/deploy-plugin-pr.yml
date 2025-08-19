@@ -22,7 +22,7 @@ jobs:
                   $response = Invoke-RestMethod -Uri $url -Headers @{Authorization = "token ${{ secrets.GITHUB_TOKEN }}" }
 
                   # Get changed files in the PR
-                  $filesUrl = $response.url + "/files"
+                  $filesUrl = $response.url + "/files?per_page=100"
                   $files = Invoke-RestMethod -Uri $filesUrl -Headers @{Authorization = "token ${{ secrets.GITHUB_TOKEN }}" }
 
                   Write-Output "Total files changed: $($files.Count)"
