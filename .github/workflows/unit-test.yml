@@ -61,5 +61,5 @@ jobs:
               with:
                   name: test-results
                   path: |
-                      pluginUnitTests/test_output/*.xml
-                      pluginUnitTests/test_output/html/*.html
+                      packages/@squaredup/unit-test/test_output/*.xml
+                      packages/@squaredup/unit-test/test_output/html/*.html
