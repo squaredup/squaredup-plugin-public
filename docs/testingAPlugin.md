@@ -67,9 +67,9 @@ Imported 37 vertices and 0 edges:
 
 Testing readDataSource()
 ? Which dataStreamName do you want to test? (Use arrow keys)
-> (Quit) 
-  appHealth 
-  stuffUnscoped 
+> (Quit)
+  appHealth
+  stuffUnscoped
 ```
 
 (In the example above, the import is returning hard-coded objects, which is why it appears to work even though the preceding `testConfig()` test call showed errors).

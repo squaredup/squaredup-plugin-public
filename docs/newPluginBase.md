@@ -1,4 +1,4 @@
-# Writing a new Plugin
+# Creating a new Plugin Base
 
   - [Getting Started](#getting-started)
   - [`metadata.json`](#metadatajson)

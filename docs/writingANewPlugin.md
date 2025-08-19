@@ -120,3 +120,51 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
 Breaking changes to a plugin (i.e., incrementing the MAJOR version) will result in a new version of that plugin being made available alongside the existing, older version. In this unlikely scenario, you should create a whole new source directory, `plugins/`_plugin-name_`/v`_N_ for each new major version.
 
 Any changes to the MINOR or PATCH numbers will simply result in the existing plugin being upgraded/updated in-place, so care should be taken to ensure your plugin continues to work with older, existing configuration payloads being passed to your plugin handler.
+
+## Minimal Viable Plugin
+**Must**
+
++ Out-of-box dashboard - Dashboards created on setup Guideline for creating OOB scopes and dashboards
+
++ Basic Data Source
+
++ At least one Data Stream
+
++ Test configuration button
+
++ Handle all plugin import errors
+
+**Should**
+
++ Mustache should support the standard promises
+
++ Use Configurable Datastreams where appropriate
+
++ Contain Vertices and Edges for imported objects
+
++ Populating Configurable Datastream with Autocomplete values
+
+## Guidelines for plugin writing
+
+| **Category**   | **Description**  |
+| -------------- | ------------- |
+| Versioning | Use patch version change for small bug fixes <br> Use minor version changes for new data streams, text changes, internal performance improvements, added paging <br> Configuration with lower version of the plugin should work with upgraded plugin to a later version (non major) <br> When a plugin change will cause a breaking change communicate this to PMs and analyse the usage of the plugin and data stream to decide how best to handle it <br> Examples of breaking changes: <br><ul><li> Use major version change for Data Stream change that makes pervious version of same Data Stream to break (but consider creating a new data stream instead, liaise with PM) </li><li> Use major version change if removing certain objects from the graph, or if moving them over into data streams as this would break tiles where they are used as scope </li></ul>
+| Keywords | Include a relevant set of keywords in the metadata.json file. <br> Do not include the plugin name <br> Include relevant datastream references, e.g. BigQuery or Kusto. <br> Include related search terms, e.g. CI/CD, Database |
+| Spelling | American (not British) for all UI visible information (plugin name, description, data stream names) |
+| Data Stream metadata/columns | Every column should have a shape specified <br> Every column should have a name and a display name. The display name should typically be Title Case. |
+| External Links | A link should be added to all imported objects to take the user to the relevant platform, e.g. the Host in the Azure Portal, via the links property on imported nodes. <br> When it makes sense, a link should be included in the datastream data too. The column must be called “Link”. |
+| Timeframe | Whenever possible, all data streams should support timeframes, obeying the start/end dates included in the event. <br> Exception to the rule: data streams where it does not make sense to support a timeframe (e.g. current open alerts). Until such time that we can have a better visual cue, these data streams name should be appended with “Anytime” e.g. Open Incidents (Anytime) <br> Exception to the rule: some Health/Status data streams that show “current” data.
+| Health | Whenever possible, a datastream called “Health” for each imported node type should be included. |
+| Unscoped Data Streams | There must never be any unscoped data streams. |
+| Nodes / Objects | Where it makes sense, a plugin should create a top-level node that represents the account/organisation/instance, e.g. Azure subscription, Github organization. <br> The platform will create a node that represents the plugin itself and edges will be added automatically to top-level nodes such as the Github organization. <br> Add a link for each object to the tool, using the “links“ property (e.g. see the Dynatrace plugin) <br> Consider normalising the casing for case insensitive properties on the imported objects to ensure that correlation can work between them |
+
+## Dictionary
+| **Word (standard display name)** | **Synonyms** |
+|-------------|-----------|
+| CPU | Processor <br> Memory |
+| Disk | Volume
+| Response Time | Response <br> HTTP Response|
+| Availability | Synthetic <br> Check |
+| Hosts | Server |
+| Latest | Top 1 <br> Current <br> Most Recent |
+| Status | State <br> Health |
