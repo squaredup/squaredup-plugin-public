@@ -3,8 +3,22 @@
     "prettier.ignorePath": ".prettierignore",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "prettier.requireConfig": true,
-    "eslint.workingDirectories": [{ "directory": "." }],
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
+    },
+    "eslint.workingDirectories": [{ "directory": "." }],
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "**/data_streams.json"
+            ],
+            "url": "./packages/@squaredup/schema/data_streams.schema.json"
+        },
+        {
+            "fileMatch": [
+                "**/*.dash.json"
+            ],
+            "url": "./packages/@squaredup/schema/oob.schema.json"
+        }
+    ]
 }

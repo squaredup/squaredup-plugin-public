@@ -1,3 +1,13 @@
+import {
+    codsSchema,
+    customTypesSchema,
+    dashboardsSchema,
+    dataStreamsSchema,
+    metadataSchema,
+    payloadSchema,
+    scopesSchema,
+    uiSchema
+} from '@squaredup/schema';
 import Ajv from 'ajv';
 import chalk from 'chalk';
 import cp from 'child_process';
@@ -27,25 +37,15 @@ import {
 } from 'date-fns';
 import fs from 'fs';
 import inquirer from 'inquirer';
+import stringify from 'json-stable-stringify';
+import open from 'open';
 import os from 'os';
 import path, { dirname } from 'path';
 import { exit } from 'process';
-import requestPromise from 'request-promise';
 import slugify from 'slugify';
 import { titleCase } from 'title-case';
 import { fileURLToPath, pathToFileURL } from 'url';
 import util from 'util';
-import {
-    codsSchema,
-    customTypesSchema,
-    dashboardsSchema,
-    dataStreamsSchema,
-    metadataSchema,
-    payloadSchema,
-    scopesSchema,
-    uiSchema
-} from './schema.js';
-import open from 'open';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -55,7 +55,7 @@ const ajv = new Ajv({ allowUnionTypes: true, strict: false });
 const exec = util.promisify(cp.exec);
 const readDir = util.promisify(fs.readdir);
 
-const directoryPath = path.join(__dirname, 'plugins');
+const directoryPath = path.join(__dirname, '..', '..', 'plugins');
 
 const maxImportPayloadSize = 2 * 1024 * 1024;
 const prodEnvPluginsRefUrl = 'https://squaredup.com/cloud/pluginexport';
@@ -145,7 +145,7 @@ const spellCheckerFactory = async () => {
 
     // Get global allowed words
     const cspellConfigFileName = 'cspell.json';
-    const globalCspellConfigPath = path.join(__dirname, cspellConfigFileName);
+    const globalCspellConfigPath = path.join(__dirname, '..', '..', cspellConfigFileName);
     settings = mergeSettings(settings, readSettings(globalCspellConfigPath));
 
     // Get plugin-specific allowed words (if any)
@@ -162,7 +162,7 @@ const spellCheckerFactory = async () => {
     };
 };
 
-async function spellCheck(pluginName, textName, text, file = 'metadata.json') {
+async function spellCheck(pluginName, textName, text, file = 'metadata.json', logWarning) {
     if (text) {
         const spellChecker = await spellCheckerFactory();
         const typos = await spellChecker(text);
@@ -172,7 +172,8 @@ async function spellCheck(pluginName, textName, text, file = 'metadata.json') {
             ]);
         }
     } else {
-        logErrors([chalk.bgRed(`The ${file} file for plugin name "${pluginName}" has missing ${textName}`)]);
+        const message = `The ${file} file for plugin name "${pluginName}" has missing ${textName}`;
+        logWarning ? logWarnings([chalk.yellow(message)]) : logErrors([chalk.bgRed(message)]);
     }
 }
 
@@ -243,17 +244,17 @@ const validateJson = (file, jsonSchema = null) => {
         case intTestRun === true:
             !validate(json)
                 ? logErrors([
-                    chalk.bgRed(`${file} is invalid`),
-                    ...validate.errors.map((error) => chalk.red(`path ${error.instancePath}: ${error.message}`))
-                ])
+                      chalk.bgRed(`${file} is invalid`),
+                      ...validate.errors.map((error) => chalk.red(`path ${error.instancePath}: ${error.message}`))
+                  ])
                 : console.log(chalk.green(`${file} matches schema`));
             break;
         case intTestRun === false:
             !validate(json)
                 ? logErrorsAndExit([
-                    chalk.bgRed(`${file} is invalid`),
-                    ...validate.errors.map((error) => chalk.red(`path ${error.instancePath}: ${error.message}`))
-                ])
+                      chalk.bgRed(`${file} is invalid`),
+                      ...validate.errors.map((error) => chalk.red(`path ${error.instancePath}: ${error.message}`))
+                  ])
                 : console.log(chalk.green(`${file} matches schema`));
             break;
         default:
@@ -267,10 +268,11 @@ const loadHandler = async () => {
 
     if (fs.existsSync(packagePath)) {
         // Ensure npm packages are installed and return importer
-        console.log('Installing node packages...');
         const prevWd = process.cwd();
         process.chdir(pluginPath);
-        await exec('npm i');
+        const packageName = loadJsonFromFile(packagePath).name;
+        console.log(`Installing node packages for ${packageName}`);
+        await exec(`pnpm i --frozen-lockfile --filter ${packageName}`);
         process.chdir(prevWd);
         const { testConfig, importObjects, readDataSource } = await import(
             pathToFileURL(getPluginFilePath(handlerFileName))
@@ -345,6 +347,7 @@ const buildHandlerQuestions = async () => {
 
 async function validateMetadata() {
     const helpLink = 'Help adding this plugin';
+    const learnMoreLink = 'Learn more';
     metadata = loadJsonFromFile(getPluginFilePath('metadata.json'));
 
     if (!Array.isArray(metadata.links) || !metadata.links.some((l) => l.label === helpLink)) {
@@ -356,18 +359,55 @@ async function validateMetadata() {
             ]);
         }
     } else {
-        if (metadata.author === 'SquaredUp') {
-            const link = metadata.links.find((l) => l.label === helpLink);
-            const name = metadata.name.toLowerCase().replace(/ /g, '');
-            const baseName = name.replace(/onpremise$/, '');
+        if (metadata.author === 'SquaredUp' && metadata.category !== 'SquaredUp Internal') {
+            const BASE_HELP_URL = 'https://squaredup.com/cloud/pluginsetup-';
+            const BASE_DOCS_URL = 'https://docs.squaredup.com/data-sources/';
+            const BASE_LEARN_URL = 'https://squaredup.com/plugins/';
 
-            const expectUrl1 = `https://squaredup.com/cloud/pluginsetup-${name}`;
-            const expectUrl2 = `https://squaredup.com/cloud/pluginsetup-${baseName}`;
-            if (link.url !== expectUrl1 && link.url !== expectUrl2) {
-                const expectUrl = expectUrl1 === expectUrl2 ? expectUrl1 : `${expectUrl1} or ${expectUrl2}`;
+            // replace empty space with '-'; remove 'onpremise' word; remove any brackets in the name; remove last character if it ends with just '-'
+            const sanitiseName = (name) =>
+                name
+                    ?.toLowerCase()
+                    .replace(/ /g, '-')
+                    .replace(/onpremise$/, '')
+                    .replace(/\(.*?\)/g, '')
+                    .replace(/-$/, '');
+
+            const linkDocs = metadata.links.find((l) => l.label === helpLink);
+            const linkMarketing = metadata.links.find((l) => l.label === learnMoreLink);
+            const name = sanitiseName(metadata.name);
+            const displayName = sanitiseName(metadata.displayName);
+
+            const linkKeywords = [];
+            linkKeywords.push(name);
+            linkKeywords.push(displayName);
+            if (metadata?.keywords) {
+                linkKeywords.push(...metadata.keywords);
+            }
+
+            const regexUrlDocs = [`${BASE_HELP_URL}.*`, `${BASE_DOCS_URL}.*`];
+            const regexKeywords = new RegExp(linkKeywords.join('|'), 'i');
+
+            // check that each link type starts with correct url base and
+            // that at least one of the name, display name or a keyword is contained within the link
+            const linkDocsIsValid =
+                regexUrlDocs.some((regex) => new RegExp(regex).test(linkDocs?.url)) &&
+                regexKeywords.test(linkDocs?.url);
+            const linkMarketingIsValid =
+                linkMarketing?.url.startsWith(BASE_LEARN_URL) && regexKeywords.test(linkMarketing?.url);
+
+            if (linkDocs && !linkDocsIsValid) {
                 logErrors([
                     chalk.bgRed(
-                        `The metadata.json file for plugin name "${metadata.name}" has the wrong URL for "${helpLink}" link - "${link.url}" should be "${expectUrl}"`
+                        `The metadata.json file for plugin name "${metadata.name}" has the wrong URL for "${helpLink}" link - "${linkDocs.url}" should start with one of "${regexUrlDocs}" and contain one of "${regexKeywords}"`
+                    )
+                ]);
+            }
+
+            if (linkMarketing && !linkMarketingIsValid) {
+                logErrors([
+                    chalk.bgRed(
+                        `The metadata.json file for plugin name "${metadata.name}" has the wrong URL for "${learnMoreLink}" link - "${linkMarketing.url}" should start with "${BASE_LEARN_URL}" and contain one of "${regexKeywords}"`
                     )
                 ]);
             }
@@ -464,7 +504,7 @@ const validShapes = new Set([
     'url'
 ]);
 
-const validRoles = new Set(['id', 'label', 'link', 'timestamp', 'unitLabel', 'value']);
+const validRoles = new Set(['id', 'label', 'link', 'timestamp', 'unitLabel', 'value', 'description']);
 
 async function validateDataStreamMetadata(pluginName, name, metadata) {
     let stateColNum;
@@ -475,7 +515,7 @@ async function validateDataStreamMetadata(pluginName, name, metadata) {
         const col = metadata[colNum];
         let shapeName;
         if (Array.isArray(col.shape)) {
-            if (col.shape.length != 2) {
+            if (col.shape.length !== 2) {
                 logErrors([
                     chalk.bgRed(
                         `The data_streams.json file for plugin name "${pluginName}" "${name}" has metadata for column "${
@@ -614,6 +654,9 @@ async function validateDataStreams(pluginName) {
             await validateDataStreamMetadata(pluginName, `ROW:${rowType.name}`, rowType.metadata);
         }
     }
+    if (!Array.isArray(dataStreams.dataSources)) {
+        logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" has no dataSources array`)]);
+    }
     for (const dataSource of dataStreams.dataSources) {
         await spellCheck(pluginName, `display name for data source "${dataSource.name}"`, dataSource.displayName);
         if (dataSource.description) {
@@ -631,6 +674,26 @@ async function validateDataStreams(pluginName) {
         acc.add(val.name);
         return acc;
     }, new Set());
+    if (!Array.isArray(dataStreams.dataStreams)) {
+        logErrors([chalk.bgRed(`The data_streams.json file for plugin name "${pluginName}" has no dataStreams array`)]);
+    }
+    const dataStreamsByDefinitionName = dataStreams.dataStreams.reduce((acc, val) => {
+        if (typeof val.definition?.name !== 'string' || val.definition.name.trim().length <= 0) {
+            logErrors([
+                chalk.bgRed(
+                    `The data_streams.json file for plugin name "${pluginName}" has data stream with no definition name`
+                )
+            ]);
+        }
+        if (acc.has(val.definition.name)) {
+            logErrors([
+                chalk.bgRed(
+                    `The data_streams.json file for plugin name "${pluginName}" has second data stream with definition name "${val.definition.name}"`
+                )
+            ]);
+        }
+        return acc.set(val.definition.name, val);
+    }, new Map());
     for (const dataStream of dataStreams.dataStreams) {
         if (!dataSourceNames.has(dataStream.dataSourceName)) {
             logErrors([
@@ -665,6 +728,44 @@ async function validateDataStreams(pluginName) {
                 `description for data stream "${dataStream.definition.name}"`,
                 dataStream.description
             );
+        }
+        if (dataStream.definition.presetOf) {
+            const targetCoDS = dataStreamsByDefinitionName.get(dataStream.definition.presetOf);
+            if (!targetCoDS) {
+                logErrors([
+                    chalk.bgRed(
+                        `The data_streams.json file for plugin name "${pluginName}" data stream "${dataStream.definition.name}" targets non-existent CoDS: "${dataStream.definition.presetOf}" with presetOf`
+                    )
+                ]);
+            }
+            if (!targetCoDS.template) {
+                logErrors([
+                    chalk.bgRed(
+                        `The data_streams.json file for plugin name "${pluginName}" data stream "${dataStream.definition.name}" targets non-configurable data stream: "${dataStream.definition.presetOf}" with presetOf`
+                    )
+                ]);
+            }
+            const thisDef = stringify({
+                ...dataStream.definition,
+                name: undefined,
+                presetOf: undefined,
+                dataSourceConfig: undefined,
+                featured: undefined
+            });
+            const thatDef = stringify({
+                ...targetCoDS.definition,
+                name: undefined,
+                presetOf: undefined,
+                dataSourceConfig: undefined,
+                featured: undefined
+            });
+            if (thisDef !== thatDef) {
+                logErrors([
+                    chalk.bgRed(
+                        `The data_streams.json file for plugin name "${pluginName}" data stream "${dataStream.definition.name}" targets non-compatible data stream: "${dataStream.definition.presetOf}" with presetOf`
+                    )
+                ]);
+            }
         }
     }
     return dataStreams;
@@ -725,25 +826,36 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
     let defaultScopes = [];
     let defaultCods = [];
     let defaultDashboards = [];
-    const allDefaultContentFiles = await readDir(defaultContentPath);
-    allDefaultContentFiles.forEach((file) => {
-        const filePath = path.join(defaultContentPath, file);
-        const defaultContentFile = loadJsonFromFile(filePath);
-        if (file.toLowerCase() === 'scopes.json') {
-            validateJson(filePath, scopesSchema);
-            defaultScopes = defaultContentFile;
-        } else if (file.toLowerCase() === 'cods.json') {
-            validateJson(filePath, codsSchema);
-            defaultCods = defaultContentFile;
-        } else if (file.toLowerCase().endsWith('.dash.json')) {
-            validateJson(filePath, dashboardsSchema);
-            defaultContentFile['filePath'] = file;
-            defaultDashboards.push(defaultContentFile);
+    const readDefaultContent = async (folderPath) => {
+        const allDefaultContentFiles = await readDir(folderPath);
+        for (const item of allDefaultContentFiles) {
+            const itemPath = path.join(folderPath, item);
+            if (fs.lstatSync(itemPath).isDirectory()) {
+                await readDefaultContent(itemPath);
+            } else {
+                const defaultContentFile = loadJsonFromFile(itemPath);
+                if (item.toLowerCase() === 'scopes.json') {
+                    validateJson(itemPath, scopesSchema);
+                    checkForHardCodedIds(itemPath);
+                    checkForUnwantedLimits(defaultContentFile);
+                    defaultScopes = defaultContentFile;
+                } else if (item.toLowerCase() === 'cods.json') {
+                    validateJson(itemPath, codsSchema);
+                    defaultCods = defaultContentFile;
+                } else if (item.toLowerCase().endsWith('.dash.json')) {
+                    validateJson(itemPath, dashboardsSchema);
+                    checkForHardCodedIds(itemPath);
+                    defaultContentFile['filePath'] = item;
+                    defaultDashboards.push(defaultContentFile);
+                }
+            }
         }
-    });
+    };
+    await readDefaultContent(defaultContentPath);
 
     const allScopes = defaultScopes.map((s) => s.name);
     const allDataStreams = dataStreams.dataStreams.map((ds) => ds.definition.name);
+    const allVariables = defaultScopes.filter((s) => Boolean(s.variable)).map((s) => s.variable.name);
     defaultCods.forEach((cods) => {
         allDataStreams.push(`${cods.tplName}___${cods.index}`);
     });
@@ -753,7 +865,7 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
         await spellCheck(pluginName, 'Scope name in default content', scope.name, 'scopes.json');
 
         if (typeof scope.matches === 'object') {
-            if (scope.matches.type.type === 'equals') {
+            if (scope.matches.type?.type === 'equals') {
                 if (!allTypes.includes(scope.matches.type.value)) {
                     logErrors([
                         chalk.yellow(
@@ -763,7 +875,7 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
                 }
             } else {
                 const nonMatchingTypes = [];
-                for (const value of scope.matches.type.values) {
+                for (const value of scope.matches.type?.values || []) {
                     if (!allTypes.includes(value)) {
                         nonMatchingTypes.push(value);
                     }
@@ -773,7 +885,7 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
                         chalk.yellow(
                             `The default_content.json file for plugin name "${pluginName}" has scope "${
                                 scope.name
-                            }" with invalid type${nonMatchingTypes.length == 1 ? '' : 's'}: "${nonMatchingTypes.join(
+                            }" with invalid type${nonMatchingTypes.length === 1 ? '' : 's'}: "${nonMatchingTypes.join(
                                 '", "'
                             )}"`
                         )
@@ -786,7 +898,13 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
     for (const dashboard of defaultDashboards) {
         await spellCheck(pluginName, 'Dashboard name in default content', dashboard.name, dashboard.filePath);
         for (const tile of dashboard.dashboard.contents) {
-            await spellCheck(pluginName, 'Tile title in default content', tile.config.title, dashboard.filePath);
+            await spellCheck(
+                pluginName,
+                'Tile title in default content',
+                tile.config.title,
+                dashboard.filePath,
+                tile.config._type === 'tile/text'
+            );
             if (tile.config.description) {
                 await spellCheck(
                     pluginName,
@@ -795,16 +913,61 @@ async function validateDefaultContent(pluginName, dataStreams, customTypes) {
                     dashboard.filePath
                 );
             }
-            checkTileValue(pluginName, dashboard.name, tile.config.title, tile.config, allScopes, allDataStreams);
+            checkTileValue(
+                pluginName,
+                dashboard.name,
+                tile.config.title,
+                tile.config,
+                allScopes,
+                allDataStreams,
+                allVariables
+            );
             checkTileVizConfig(pluginName, dashboard, tile.config.title, tile.config);
         }
         checkTileTimeframes(pluginName, dashboard);
     }
 }
 
+function checkForHardCodedIds(filePath) {
+    const rawdata = fs.readFileSync(filePath, 'utf8');
+    const rawIds = rawdata.match(/\b(?<RAW>(\w+-[0-9a-f]{20}|node-[0-9a-zA-Z]+-[0-9a-zA-Z]+))\b/giu);
+    if (Array.isArray(rawIds)) {
+        const safeIds = ['config-00000000000000000000'];
+        const problemIds = rawIds.filter((id) => !safeIds.includes(id));
+        if (problemIds.length > 0) {
+            logErrors([
+                chalk.yellow(
+                    `The default content file "${filePath}" has unsafe raw ID references: "${Array.from(
+                        new Set(problemIds).keys()
+                    )
+                        .sort()
+                        .join('", "')}"`
+                )
+            ]);
+        }
+    }
+}
+
+function checkForUnwantedLimits(scopesFileContent) {
+    if (Array.isArray(scopesFileContent)) {
+        for (const scope of scopesFileContent) {
+            if (Object.hasOwnProperty.call(scope, 'limit') && Object.hasOwnProperty.call(scope, 'variable')) {
+                logErrors([
+                    chalk.yellow(
+                        `The scopes.json file has a scope "${scope.name}" with a variable and a limit. This is not allowed.`
+                    )
+                ]);
+            }
+        }
+    } else {
+        logErrors([chalk.red('The scopes.json file is not an array')]);
+    }
+}
+
 const checkTileVizConfig = (pluginName, dashboard, tileName, config) => {
     if (
         config?.visualisation?.config &&
+        config?._type === 'tile/data-stream' &&
         Object.keys(config.visualisation?.config).filter((k) => k !== config?.visualisation.type).length > 0
     ) {
         logWarnings([
@@ -817,7 +980,7 @@ const checkTileVizConfig = (pluginName, dashboard, tileName, config) => {
 
 const checkTileTimeframes = (pluginName, dashboard) => {
     const tiles = dashboard.dashboard.contents;
-    if (tiles.every((t) => Boolean(t.config.timeframe) && t.config.timeframe === tiles[0].config.timeframe)) {
+    if (tiles.every((t) => Boolean(t.config.timeframe) && t.config.timeframe === tiles[0].config.timeframe && tiles[0].config.timeframe !== 'none')) {
         logErrors([
             chalk.bgRed(
                 `The ${dashboard.filePath} file for plugin "${pluginName}" uses the same timeframe for all tiles, use a dashboard timeframe instead.`
@@ -826,17 +989,17 @@ const checkTileTimeframes = (pluginName, dashboard) => {
     }
 };
 
-const checkTileValue = (pluginName, dashboardName, tileName, value, allScopes, allDataStreams) => {
+const checkTileValue = (pluginName, dashboardName, tileName, value, allScopes, allDataStreams, allVariables) => {
     if (value == null) {
         return; // null or undefined values don't require further checking
     }
     if (typeof value === 'object' && !Array.isArray(value)) {
         for (const key of Object.keys(value)) {
-            checkTileValue(pluginName, dashboardName, tileName, value[key], allScopes, allDataStreams);
+            checkTileValue(pluginName, dashboardName, tileName, value[key], allScopes, allDataStreams, allVariables);
         }
     } else if (Array.isArray(value)) {
         for (const item of value) {
-            checkTileValue(pluginName, dashboardName, tileName, item, allScopes, allDataStreams);
+            checkTileValue(pluginName, dashboardName, tileName, item, allScopes, allDataStreams, allVariables);
         }
     } else if (typeof value === 'string') {
         if (value.startsWith('config-') && value !== 'config-00000000000000000000') {
@@ -918,6 +1081,18 @@ const checkTileValue = (pluginName, dashboardName, tileName, value, allScopes, a
                         )
                     ]);
                 }
+            } else if (value.startsWith('variables.')) {
+                value = value.replace('variables.', '');
+                if (value.startsWith('[') && value.endsWith(']')) {
+                    value = value.substring(1, value.length - 1);
+                }
+                if (!allVariables.includes(value)) {
+                    logErrors([
+                        chalk.bgRed(
+                            `The default_content.json file for plugin name ${pluginName} has dashboard "${dashboardName}" with tile "${tileName}" with non-existent variable name: "${value}"`
+                        )
+                    ]);
+                }
             } else {
                 if (!['configId', 'workspaceId'].includes(value)) {
                     logErrors([
@@ -940,13 +1115,13 @@ const checkPluginFiles = async () => {
         // Failure here ends validation process if intTestRun is false
         intTestRun === true
             ? logErrors([
-                chalk.bgRed('Your plugin is missing the following required files:'),
-                chalk.red(missingFiles.join(', '))
-            ])
+                  chalk.bgRed('Your plugin is missing the following required files:'),
+                  chalk.red(missingFiles.join(', '))
+              ])
             : logErrorsAndExit([
-                chalk.bgRed('Your plugin is missing the following required files:'),
-                chalk.red(missingFiles.join(', '))
-            ]);
+                  chalk.bgRed('Your plugin is missing the following required files:'),
+                  chalk.red(missingFiles.join(', '))
+              ]);
     }
 
     const filesToCheck = [...requiredFiles, ...optionalFiles.filter((file) => allPluginFiles.includes(file))];
@@ -959,10 +1134,15 @@ const checkPluginFiles = async () => {
     const metadata = await validateMetadata();
     if (['cloud', 'hybrid'].includes(metadata.type)) {
         if (!allPluginFiles.includes(handlerFileName)) {
-            logErrorsAndExit([
-                chalk.bgRed('Your plugin is missing the following required files:'),
-                chalk.red(handlerFileName)
-            ]);
+            intTestRun === true
+                ? logErrors([
+                      chalk.bgRed('Your plugin is missing the following required files:'),
+                      chalk.red(missingFiles.join(', '))
+                  ])
+                : logErrorsAndExit([
+                      chalk.bgRed('Your plugin is missing the following required files:'),
+                      chalk.red(handlerFileName)
+                  ]);
         }
     }
 
@@ -1030,7 +1210,7 @@ const validateHandlerData = async (handler, payload) => {
 
         const api = { log, report, patchConfig };
 
-        if (metadata.type === 'cloud') {
+        if (metadata?.type !== 'onprem') {
             api.runtimeContext = runtimeContext;
         }
 
@@ -1074,6 +1254,8 @@ const validateHandlerData = async (handler, payload) => {
             }
         } while (pagingContext && Object.keys(pagingContext).length > 0);
 
+        saveTestConfig(handlerEvent);
+
         // Construct the mermaid version of the diagram now (it performs extra validity checking)
         const mermaid = mermaidForImportObjects(importedGraph);
 
@@ -1092,6 +1274,43 @@ const validateHandlerData = async (handler, payload) => {
             console.log('================ MERMAID =======================');
             console.log(mermaid.join('\n'));
             console.log('================================================');
+        }
+
+        // Dump whole graph to a file. (Useful when changing import implementation - e.g. adding paging)
+        const graphDumpFile = 'graphDump.json';
+        try {
+            fs.unlinkSync(graphDumpFile);
+        } catch (err) {
+            /* Ignore */
+        }
+        const sourceIds = new Set();
+        for (const vertex of importedGraph.vertices.sort((a, b) => a.sourceId.localeCompare(b.sourceId))) {
+            delete vertex.id;
+            sourceIds.add(vertex.sourceId);
+            fs.appendFileSync(graphDumpFile, `${stringify(vertex)}\n`);
+        }
+        for (const edge of importedGraph.edges.sort((a, b) => stringify(a).localeCompare(stringify(b)))) {
+            if (sourceIds.has(edge.outV) && sourceIds.has(edge.inV)) {
+                fs.appendFileSync(graphDumpFile, `${stringify(edge)}\n`);
+            }
+        }
+        let firstDangler = true;
+        for (const edge of importedGraph.edges.sort((a, b) => stringify(a).localeCompare(stringify(b)))) {
+            if (!sourceIds.has(edge.outV) || !sourceIds.has(edge.inV)) {
+                if (firstDangler) {
+                    fs.appendFileSync(
+                        graphDumpFile,
+                        '===============================================================================================================\n'
+                    );
+                    fs.appendFileSync(graphDumpFile, 'Dangling links\n');
+                    fs.appendFileSync(
+                        graphDumpFile,
+                        '===============================================================================================================\n'
+                    );
+                    firstDangler = false;
+                }
+                fs.appendFileSync(graphDumpFile, `${stringify(edge)}\n`);
+            }
         }
     } catch (err) {
         console.log(chalk.red(err));
@@ -1116,10 +1335,10 @@ const applyColumnPatch = (metadata, colPatch) => {
         return filtered;
     }
     if (typeof colPatch.override === 'object') {
-        const patched = metadata.reduce(
-            (acc, col) => (acc.push(colNames.has(col.name) ? Object.assign({}, col, colPatch.override) : col), acc),
-            []
-        );
+        const patched = metadata.reduce((acc, col) => {
+            acc.push(colNames.has(col.name) ? Object.assign({}, col, colPatch.override) : col);
+            return acc;
+        }, []);
         return patched;
     }
     return metadata;
@@ -1144,10 +1363,10 @@ const preProcessDataStreams = (dataStreamsFile) => {
 
     // Clone the file contents and extract the rowTypes into a Map
     const newDataStreamsFile = JSON.parse(JSON.stringify(dataStreamsFile));
-    const rowTypesByName = newDataStreamsFile.content.rowTypes.reduce(
-        (acc, val) => (acc.set(val.name, val), acc),
-        new Map()
-    );
+    const rowTypesByName = newDataStreamsFile.content.rowTypes.reduce((acc, val) => {
+        acc.set(val.name, val);
+        return acc;
+    }, new Map());
     delete newDataStreamsFile.content.rowTypes;
 
     // Iterate through the data streams, replacing any rowType references with the row's metadata
@@ -1189,8 +1408,8 @@ function parseVersionString(versionString) {
 const getProdEnvPluginsRef = async () => {
     let result;
     try {
-        const json = await requestPromise(prodEnvPluginsRefUrl);
-        result = JSON.parse(json);
+        const json = await fetch(prodEnvPluginsRefUrl);
+        result = await json.json();
     } catch (e) {
         console.log(chalk.red.bold(e.message));
     }
@@ -1199,7 +1418,7 @@ const getProdEnvPluginsRef = async () => {
 
 const checkPluginSourceCode = async () => {
     const ext = os.type() === 'Windows_NT' ? '.cmd' : '';
-    const eslintPath = path.resolve(__dirname, `node_modules/.bin/eslint${ext}`);
+    const eslintPath = path.resolve(__dirname, `../../node_modules/.bin/eslint${ext}`);
     const pre = os.type() === 'Windows_NT' ? 'cmd /c ' : '';
     try {
         await exec(`${pre}${eslintPath} "${pluginPath}" --quiet --rule "no-console:error"`);
@@ -1215,7 +1434,11 @@ const checkPluginSourceCode = async () => {
         for (const line of err.stdout.split('\n')) {
             if (line.startsWith(pluginPath)) {
                 path = line.substring(pluginPath.length + 1);
-            } else if ((matches = line.match(/^\s*(\d+):\d+\s+.*no-console\s*$/u)) && path !== 'wrappedHandler.js') {
+            } else if (
+                (matches = line.match(/^\s*(\d+):\d+\s+.*no-console\s*$/u)) &&
+                path !== 'wrappedHandler.js' &&
+                !path.includes('node_modules')
+            ) {
                 let lineNumbers = lineNumbersByPath.get(path);
                 if (!lineNumbers) {
                     lineNumbers = new Set();
@@ -1268,10 +1491,10 @@ const checkProdEnvConsistency = async () => {
 
     const dataStreamsRaw = loadJsonFromFile(getPluginFilePath('data_streams.json'));
     const dataStreams = preProcessDataStreams({ content: dataStreamsRaw }).content;
-    const streamsByName = dataStreams.dataStreams.reduce(
-        (acc, val) => (acc.set(val.definition.name, val), acc),
-        new Map()
-    );
+    const streamsByName = dataStreams.dataStreams.reduce((acc, val) => {
+        acc.set(val.definition.name, val);
+        return acc;
+    }, new Map());
 
     for (const dataStreamRef of prodRef.dataStreams.sort(byStreamName)) {
         const dataStream = streamsByName.get(dataStreamRef.definition.name);
@@ -1286,7 +1509,10 @@ const checkProdEnvConsistency = async () => {
                 ]);
             }
             const colsByName = Array.isArray(dataStream.definition.metadata)
-                ? dataStream.definition.metadata.reduce((acc, val) => (acc.set(val.name, val), acc), new Map())
+                ? dataStream.definition.metadata.reduce((acc, val) => {
+                      acc.set(val.name, val);
+                      return acc;
+                  }, new Map())
                 : new Map();
             for (const colRef of (dataStreamRef.definition.metadata ?? []).sort(byName)) {
                 const col = colsByName.get(colRef.name);
@@ -1308,12 +1534,44 @@ const checkProdEnvConsistency = async () => {
     }
 };
 
+let originalTestConfig;
+let testConfigAnswer;
+
+const saveTestConfig = (handlerEvent) => {
+    if (!originalTestConfig) {
+        return;
+    }
+
+    try {
+        let newConfig;
+
+        const clone = {
+            ...handlerEvent.pluginConfig
+        };
+        delete clone.pagingContext;
+
+        if (Array.isArray(originalTestConfig)) {
+            originalTestConfig[testConfigAnswer].config = clone;
+            newConfig = JSON.stringify(originalTestConfig, null, '\t');
+        } else {
+            newConfig = JSON.stringify(clone, null, '\t');
+        }
+
+        fs.writeFileSync(getPluginFilePath('testConfig.json'), newConfig);
+    } catch (e) {
+        console.error(`Failed to write back testConfig: ${e.message}`);
+    }
+};
+
+
+
 export const getConfig = async () => {
     const testConfigPath = getPluginFilePath('testConfig.json');
 
     // If a testConfig file exists, invoke handler importObjects using its config
     if (fs.existsSync(testConfigPath)) {
         const testConfig = loadJsonFromFile(testConfigPath);
+        originalTestConfig = testConfig;
         if (Array.isArray(testConfig)) {
             await inquirer
                 .prompt([
@@ -1325,6 +1583,7 @@ export const getConfig = async () => {
                     }
                 ])
                 .then(async (answers) => {
+                    testConfigAnswer = answers.config;
                     pluginConfig = testConfig[answers.config].config;
                 });
         } else {
@@ -1384,31 +1643,29 @@ const validatePlugin = async () => {
     }
 };
 
-const getPluginFolders = async () => {
-    const mainFolders = (await readDir(directoryPath)).filter(
-        (item) => !['.gitignore', '.DS_Store', 'package.json', 'package-lock.json'].includes(item)
-    );
-
-    const allFolders = [];
-    await Promise.all(
-        mainFolders.map(async (folder) => {
-            const subFolders = await readDir(path.join(directoryPath, folder));
-
-            subFolders.map((subFolder) => {
-                if (/^v\d+$/gm.test(subFolder)) {
-                    allFolders.push(path.join(folder, subFolder));
+export const getPluginFolders = async () => {
+    const results = [];
+    for (const pluginName of fs.readdirSync(directoryPath)) {
+        const pluginPath = path.join(directoryPath, pluginName);
+        if (fs.lstatSync(pluginPath).isDirectory() && pluginName !== 'node_modules') {
+            let highestVersion = 0;
+            for (const verName of fs.readdirSync(pluginPath)) {
+                const verMatch = verName.match(/^v(\d+)$/u);
+                if (verMatch) {
+                    if (verMatch[1] > highestVersion) {
+                        highestVersion = verMatch[1];
+                    }
                 }
-            });
-        })
-    );
-
-    return allFolders.map((path) => {
-        const pathParts = path.split('\\');
-        return {
-            name: `${pathParts[0]} ${pathParts[1]}`,
-            value: path
-        };
-    });
+            }
+            if (highestVersion > 0) {
+                results.push({
+                    name: `${pluginName} v${highestVersion}`,
+                    value: path.join(pluginName, `v${highestVersion}`)
+                });
+            }
+        }
+    }
+    return results;
 };
 
 export const staticAnalyseAll = async () => {
@@ -1437,13 +1694,12 @@ export const staticAnalyseAll = async () => {
     process.exit(1);
 };
 
-export const staticAnalyseIntegrationTest = async (plugin) => {
-    let testConfigResults;
+export const staticAnalysis = async (plugin) => {
     let needsPrepAndClean = false;
     intTestRun = true; // switch flag to disable excess logging - rename
 
-    pluginName = plugin.Name;
-    pluginPath = path.join(directoryPath, plugin.Name);
+    pluginName = plugin.value;
+    pluginPath = path.join(directoryPath, plugin.value);
     if (!fs.existsSync(path.join(pluginPath, 'metadata.json'))) {
         console.log(chalk.yellow(`Skipping ${pluginPath} which has no metadata.json file`));
     }
@@ -1457,9 +1713,23 @@ export const staticAnalyseIntegrationTest = async (plugin) => {
 
     await checkPluginFiles();
     await checkPluginSourceCode();
+
+    //run cleanup script
+    if (needsPrepAndClean) {
+        exec(`node ${pluginPath}/testPrep.js -c`);
+    }
+
+    plugin.errors = automationErrors;
+    return plugin;
+};
+
+export const testConnection = async (plugin) => {
+    let testConfigResults;
+    pluginName = plugin.Name;
+    pluginPath = path.join(directoryPath, pluginName);
     handler = await loadHandler();
     pluginConfig = plugin.Credentials;
-    testConfigResults = await testConfig();
+    testConfigResults = await testTestConfig();
     let successMsgCount = 0,
         warningMsgCount = 0,
         errorMsgCount = 0;
@@ -1492,11 +1762,6 @@ export const staticAnalyseIntegrationTest = async (plugin) => {
     if (errorMsgCount > 0) {
         console.log(chalk.red(`${errorCount} error${errorCount === 1 ? '' : 's'}`));
     }
-    //run cleanup script
-    if (needsPrepAndClean) {
-        exec(`node ${pluginPath}/testPrep.js -c`);
-    }
-
     return testConfigResults;
 };
 
@@ -1540,7 +1805,7 @@ const testSingleCriterion = (fieldName, criterion, tn) => {
             if (Object.keys(criterion).length !== 2 || !Object.hasOwn(criterion, 'value')) {
                 throw new Error(`Invalid match criterion: ${JSON.stringify(criterion)}`);
             }
-            return tn[fieldName] == criterion.value;
+            return tn[fieldName] === criterion.value;
         }
         case 'regex': {
             if (Object.keys(criterion).length !== 2 || !Object.hasOwn(criterion, 'pattern')) {
@@ -1565,9 +1830,11 @@ const testSingleMatch = (singleMatch, tn) => {
         throw new Error(`Invalid match criteria: ${JSON.stringify(singleMatch)}`);
     }
     for (const fieldName in singleMatch) {
-        const criterion = singleMatch[fieldName];
-        if (!testSingleCriterion(fieldName, criterion, tn)) {
-            return false;
+        if (Object.prototype.hasOwnProperty.call(singleMatch, fieldName)) {
+            const criterion = singleMatch[fieldName];
+            if (!testSingleCriterion(fieldName, criterion, tn)) {
+                return false;
+            }
         }
     }
     return true;
@@ -1767,8 +2034,8 @@ const testDataStream = async (dataStream, dataSource) => {
         dataStream.definition.timeframes === false
             ? undefined
             : Array.isArray(dataStream.definition.timeframes)
-                ? await getTimeframe(dataStream.definition.timeframes)
-                : await getTimeframe();
+              ? await getTimeframe(dataStream.definition.timeframes)
+              : await getTimeframe();
 
     // Prompt for configurable dataSourceConfig items if needed.
     const dataSourceConfig = { ...dataStream.definition.dataSourceConfig };
@@ -1837,9 +2104,11 @@ const testDataStream = async (dataStream, dataSource) => {
     }
     console.log(results);
     console.log('');
+
+    saveTestConfig(handlerEvent);
 };
 
-export const testConfig = async () => {
+export const testTestConfig = async () => {
     console.log('\nTesting testConfig()');
     const handlerEvent = { pluginConfig };
 
@@ -1851,6 +2120,9 @@ export const testConfig = async () => {
 
     testResult = await handler.testConfig(handlerEvent, api);
     console.log(testResult);
+
+    saveTestConfig(handlerEvent);
+
     return testResult;
 };
 
@@ -1865,7 +2137,7 @@ const testPlugin = async () => {
     // Test config
     await getConfig();
     if (metadata.supportsConfigValidation) {
-        await testConfig();
+        await testTestConfig();
     }
 
     // Import
@@ -1917,10 +2189,10 @@ const testPlugin = async () => {
     console.log('\nTesting readDataSource()');
     const dataStreamsRaw = loadJsonFromFile(getPluginFilePath('data_streams.json'));
     const dataStreams = preProcessDataStreams({ content: dataStreamsRaw }).content;
-    const streamsByName = dataStreams.dataStreams.reduce(
-        (acc, val) => (acc.set(val.definition.name, val), acc),
-        new Map()
-    );
+    const streamsByName = dataStreams.dataStreams.reduce((acc, val) => {
+        acc.set(val.definition.name, val);
+        return acc;
+    }, new Map());
 
     do {
         const quit = '(Quit)';
@@ -2003,4 +2275,3 @@ const args = process.argv;
         }
     }
 })();
-

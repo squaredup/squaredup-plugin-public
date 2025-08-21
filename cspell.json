@@ -5,29 +5,18 @@
         "**/node_modules/**",
         "**/.git/**",
         ".vscode",
-        "package-lock.json"
+        "pnpm-lock.yaml"
     ],
     "allowCompoundWords": true,
     "dictionaries": [
         "en_US",
-        "en-gb",
         "softwareTerms",
         "node",
+        "fonts",
+        "filetypes",
         "npm"
     ],
     "words": [
-        "Analyse",
-        "datacenter",
-        "datacenters",
-        "Geolocation",
-        "IMAP",
-        "onprem",
-        "onpremise",
-        "squaredup",
-        "subfolder",
-        "subfolders",
-        "timeframe",
-        "timeframes",
-        "unscoped"
+        "timeframes"
     ]
 }

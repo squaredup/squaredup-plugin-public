@@ -1,0 +1,721 @@
+{
+    "type": "object",
+    "properties": {
+        "rowTypes": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "metadata": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "displayName": {
+                                    "type": "string"
+                                },
+                                "shape": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string",
+                                            "enum": [
+                                                "string",
+                                                "date",
+                                                "seconds",
+                                                "boolean",
+                                                "number",
+                                                "bytes",
+                                                "percent",
+                                                "state",
+                                                "kilobytes",
+                                                "milliseconds",
+                                                "minutes",
+                                                "currency",
+                                                "megabytes",
+                                                "guid",
+                                                "url",
+                                                "terabytes",
+                                                "usd",
+                                                "json"
+                                            ]
+                                        },
+                                        {
+                                            "anyOf": [
+                                                {
+                                                    "type": "array",
+                                                    "minItems": 2,
+                                                    "maxItems": 2,
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "const": "url"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "label": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "label"
+                                                            ],
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "minItems": 2,
+                                                    "maxItems": 2,
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "const": "number"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "decimalPlaces": {
+                                                                    "type": "number"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "decimalPlaces"
+                                                            ],
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "minItems": 2,
+                                                    "maxItems": 2,
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "const": "state"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "map": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "success": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "warning": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "error": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "unknown": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "additionalProperties": false
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "map"
+                                                            ],
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "minItems": 2,
+                                                    "maxItems": 2,
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "const": "currency"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "code": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "code"
+                                                            ],
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "minItems": 2,
+                                                    "maxItems": 2,
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "const": "milliseconds"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "decimalPlaces": {
+                                                                    "type": "number"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "decimalPlaces"
+                                                            ],
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "minItems": 2,
+                                                    "maxItems": 2,
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "const": "date"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "format": {
+                                                                    "type": "string"
+                                                                },
+                                                                "inputPattern": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "minItems": 2,
+                                                    "maxItems": 2,
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "const": "percent"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "decimalPlaces": {
+                                                                    "type": "number"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "decimalPlaces"
+                                                            ],
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "minItems": 2,
+                                                    "maxItems": 2,
+                                                    "items": [
+                                                        {
+                                                            "type": "string",
+                                                            "const": "customUnit"
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "suffix": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "suffix"
+                                                            ],
+                                                            "additionalProperties": false
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "role": {
+                                    "type": "string",
+                                    "enum": [
+                                        "value",
+                                        "label",
+                                        "link",
+                                        "id",
+                                        "timestamp",
+                                        "unitLabel",
+                                        "description"
+                                    ]
+                                },
+                                "pattern": {
+                                    "type": "string"
+                                },
+                                "sourceId": {
+                                    "type": "string"
+                                },
+                                "visible": {
+                                    "type": "boolean"
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "metadata"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "dataSources": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "supportedScope": {
+                        "type": "string",
+                        "enum": [
+                            "none",
+                            "list",
+                            "single"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "targetNodesProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "timeframes": {
+                        "anyOf": [
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "enum": [
+                                        "last1hour",
+                                        "last12hours",
+                                        "last24hours",
+                                        "last7days",
+                                        "last30days",
+                                        "thisMonth",
+                                        "thisQuarter",
+                                        "thisYear",
+                                        "lastMonth",
+                                        "lastQuarter",
+                                        "lastYear",
+                                        "none"
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "displayName",
+                    "supportedScope"
+                ],
+                "additionalProperties": false
+            }
+        },
+        "matches": {},
+        "dataStreams": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "displayName": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "dataSourceName": {
+                        "type": "string"
+                    },
+                    "definition": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "dataSourceConfig": {},
+                            "featured": {
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "tags": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                },
+                                "default": []
+                            },
+                            "presetOf": {
+                                "type": "string"
+                            },
+                            "rowPath": {
+                                "type": "array",
+                                "items": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "matches": {
+                                "anyOf": [
+                                    {
+                                        "type": "string",
+                                        "const": "none"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "const": "all"
+                                    },
+                                    {
+                                        "type": "string",
+                                        "const": "true"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "oneOf"
+                                                        },
+                                                        "values": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type",
+                                                        "values"
+                                                    ],
+                                                    "additionalProperties": false
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "notOneOf"
+                                                        },
+                                                        "values": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type",
+                                                        "values"
+                                                    ],
+                                                    "additionalProperties": false
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "contains"
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type",
+                                                        "value"
+                                                    ],
+                                                    "additionalProperties": false
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "notContains"
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type",
+                                                        "value"
+                                                    ],
+                                                    "additionalProperties": false
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "equals"
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type",
+                                                        "value"
+                                                    ],
+                                                    "additionalProperties": false
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "notEquals"
+                                                        },
+                                                        "value": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type",
+                                                        "value"
+                                                    ],
+                                                    "additionalProperties": false
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "type": {
+                                                            "type": "string",
+                                                            "const": "any"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "type"
+                                                    ],
+                                                    "additionalProperties": false
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/properties/dataStreams/items/properties/definition/properties/matches/anyOf/3"
+                                        }
+                                    }
+                                ]
+                            },
+                            "sortable": {
+                                "type": "boolean"
+                            },
+                            "provides": {
+                                "type": "string",
+                                "enum": [
+                                    "health",
+                                    "templateData"
+                                ]
+                            },
+                            "options": {
+                                "type": "object",
+                                "properties": {
+                                    "noMatch": {
+                                        "type": "boolean"
+                                    },
+                                    "minimumRequestIntervalSeconds": {
+                                        "type": "integer",
+                                        "exclusiveMinimum": 0
+                                    },
+                                    "noCache": {
+                                        "type": "boolean"
+                                    },
+                                    "excludeFromDrilldown": {
+                                        "type": "boolean"
+                                    },
+                                    "bypassDataSourceConfigExpressionResolution": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "additionalProperties": false
+                            },
+                            "timeframes": {
+                                "anyOf": [
+                                    {
+                                        "type": "boolean"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "enum": [
+                                                "last1hour",
+                                                "last12hours",
+                                                "last24hours",
+                                                "last7days",
+                                                "last30days",
+                                                "thisMonth",
+                                                "thisQuarter",
+                                                "thisYear",
+                                                "lastMonth",
+                                                "lastQuarter",
+                                                "lastYear",
+                                                "none"
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "supportsNoneTimeframe": {
+                                "type": "boolean"
+                            },
+                            "defaultTimeframe": {
+                                "type": "string",
+                                "enum": [
+                                    "none",
+                                    "dashboard"
+                                ]
+                            },
+                            "requiresParameterTimeframe": {
+                                "type": "boolean"
+                            },
+                            "manualConfigApply": {
+                                "type": "boolean",
+                                "default": false
+                            },
+                            "objectLimit": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0
+                            },
+                            "params": {},
+                            "rowType": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "column": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "names": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "override": {},
+                                                "remove": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ],
+                                "additionalProperties": false
+                            },
+                            "metadata": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/properties/rowTypes/items/properties/metadata/items"
+                                }
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "rowPath",
+                            "matches"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "template": {
+                        "type": "array",
+                        "items": {}
+                    },
+                    "provides": {
+                        "type": "string",
+                        "const": "health",
+                        "description": "Deprecated - Use inner provides instead"
+                    }
+                },
+                "required": [
+                    "displayName",
+                    "dataSourceName",
+                    "definition"
+                ],
+                "additionalProperties": false
+            }
+        }
+    },
+    "required": [
+        "dataSources",
+        "dataStreams"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -42,7 +42,8 @@ export const metadataSchema = {
                     url: {
                         type: 'string'
                     },
-                    label: { type: 'string' }
+                    label: { type: 'string' },
+                    category: { type: 'string' }
                 },
                 required: ['label', 'url'],
                 additionalProperties: false
@@ -126,9 +127,8 @@ export const scopesSchema = {
                         type: 'object', // an object
                         minProperties: 1, // at least 1 property
                         patternProperties: {
-                            // '.*': { // properties can have any name ADD BACK LATER
-                            '^type$': {
-                                // property must be type
+                            // properties can have any name
+                            '.*': { 
                                 type: 'object',
                                 properties: {
                                     type: { type: 'string', enum: ['equals', 'oneOf'] }, // a string of value 'equals' or 'oneOf'
@@ -146,8 +146,7 @@ export const scopesSchema = {
                                     { required: ['values'] }
                                 ]
                             }
-                        },
-                        additionalProperties: false // REMOVE LATER
+                        }
                     }
                 ]
             }
@@ -261,8 +260,7 @@ export const uiSchema = {
                 maxLength: 150
             },
             help: {
-                type: 'string',
-                maxLength: 200
+                type: 'string'
             },
             validation: {
                 type: 'object',
@@ -739,14 +737,20 @@ export const dataStreamsSchema = {
                                 }
                             }
                         },
-                        timeframes: datastreamSupportedTimeframesSchema
+                        timeframes: datastreamSupportedTimeframesSchema,
+                        manualConfigApply: {
+                            type: 'boolean'
+                        },
+                        tags: {
+                            type: 'array',
+                            items: { type: 'string' }
+                        }
                     }
                 }
             }
         }
     }
 };
-
 
 export const jiraSchema = {
     type: 'object',
