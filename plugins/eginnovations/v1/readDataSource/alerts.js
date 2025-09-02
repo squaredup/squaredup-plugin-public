@@ -14,7 +14,7 @@ export async function getAlerts(context) {
     // Define the body of the request
     const body = {
         'filterBy': 'ComponentType',
-        'filterValues': 'Microsoft SQL,Microsoft Windows,Mobile RUM,eG Manager'
+        'filterValues': 'All'
     };
 
     const headers = {
@@ -47,8 +47,7 @@ export async function getAlerts(context) {
 
         let data = await response.json();
        
-        
-        return data;
+        return data.data;
 
     } catch (error) {
         // Catch and log any errors

@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import https from 'https';
 
-export let totalNApps = 10;
+export let totalNApps = 20;
 export async function stageComponents(context) {
     let finished = false;
     let apiLimit = context.apiLimits.apps;

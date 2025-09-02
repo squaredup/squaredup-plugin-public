@@ -38,8 +38,12 @@ export async function getAlarmCount(context) {
         }
 
         let data = await response.json();
-       
-        return data;
+        
+       const result=[];
+       result.push({healthState:'major',count:data.major});
+       result.push({healthState:'minor',count:data.minor});
+       result.push({healthState:'critical',count:data.critical});
+        return result;
     
     } catch (error) {
         // Catch and log any errors

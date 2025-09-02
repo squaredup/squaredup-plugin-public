@@ -38,8 +38,6 @@ export async function getComponentsByState(context) {
         }
 
         let data = await response.json();
-      
-        
         return data;
         
     } catch (error) {

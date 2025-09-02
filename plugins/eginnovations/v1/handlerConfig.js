@@ -68,7 +68,7 @@ export async function testConfig(context) {
             context.log.error(`Error in testConfig: ${error.message}`);
             messages.push({
                 status: 'error',
-                message: `Connection failed: ${error.message}`
+                message: `Authentication failed - please check your credentials: ${error.message}`
             });
             
             const result = {
@@ -98,7 +98,7 @@ export async function testConfig(context) {
 export const importStages = [stageComponents];
 
 export const defaultApiLimits = {
-    apps: 10
+    apps: 50
 };
 
 export const initialPagingContext = {
