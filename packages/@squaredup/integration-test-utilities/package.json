@@ -1,0 +1,17 @@
+{
+  "name": "@squaredup/integration-test-utilities",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "type": "module",
+  "dependencies": {
+    "@jest/globals": "^29.7.0",
+    "@squaredup/schema": "workspace:^1.0.0",
+    "ajv": "^8.6.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

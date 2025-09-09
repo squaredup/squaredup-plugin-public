@@ -9,16 +9,13 @@ export async function stageBuildings(context) {
         let buildingIndex = context.pageAPI.get('buildingIndex');
         context.log.debug(`Getting page of ${apiLimit} buildings from ${buildingIndex}`);
 
-        const response = await GetBuildingObjectsFromExternalApi(context, buildingIndex, apiLimit);
+        const response = await GetBuildingObjectsFromExternalApi(buildingIndex, apiLimit);
         for (const building of response.data.buildings) {
             addVertexForBuilding(context, building);
 
-            const createEdgeFrom = (bn, an) =>
-                context.edges.push({
-                    label: 'monitors',
-                    outV: `app_${an}`,
-                    inV: `building_${bn}`
-                });
+            const createEdgeFrom = (bn, an) => context.edges.push({
+                label: 'monitors', outV: `app_${an}`, inV: `building_${bn}`,
+            });
 
             // Create a monitoring edge from some random(ish) app to this building
             createEdgeFrom(buildingIndex, (buildingIndex * 53) % totalNApps);
@@ -53,26 +50,22 @@ async function addVertexForBuilding(context, buildingObject) {
     return vertex;
 }
 
-async function GetBuildingObjectsFromExternalApi(context, buildingIndex, apiLimit) {
-    // This example code makes no use of the plugin configuration in the context object
-    // A real plugin would be making HTTP requests authenticated with information in
-    // the plugin configuration using fetch and creating vertices and edges using the
-    // information thus obtained.
+async function GetBuildingObjectsFromExternalApi(buildingIndex, apiLimit) {
     let buildingNum = buildingIndex;
     const buildings = [];
-    while (buildingNum < totalNBuildings && buildings.length < apiLimit) {
+    while(buildingNum < totalNBuildings && buildings.length < apiLimit) {
         buildings.push({
             buildingName: `Building #${buildingNum}`,
             buildingNum
         });
         buildingNum++;
     }
-    return {
+    return ({
         paging: {
-            totalLength: totalNBuildings
+            totalLength: totalNBuildings,
         },
         data: {
             buildings
         }
-    };
+    });
 }

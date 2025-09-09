@@ -147,6 +147,7 @@ The `fieldGroup` field groups a number of other controls together and, optionall
         "type": "fieldGroup",
         "name": "advancedLabelsGroup",
         "label": "Advanced Options",
+        "isInline": true,
         "visible": {
             "advancedLabels": "show"
         },
@@ -159,9 +160,50 @@ The `fieldGroup` field groups a number of other controls together and, optionall
 ```
 More information about the syntax of the `visible` node can be found on the [Plugin Field Types](https://squaredup-eng.atlassian.net/wiki/spaces/PPD/pages/26922639097857/Plugin+Field+Types) page in Confluence.
 
-There is no real visibility of the `fieldGroup` control in the UI. If it's conditionally visible and the condition is false, it's completely absent from the UI. If it's not conditionally visible, or the condition is true, the child controls appear in the UI just as they would if they were not in a `fieldGroup`.
+**Controlling UI Rendering with `displayAs`**
 
-There is no useful presence in the `pluginConfig` object for this field type.
+You can use `displayAs` to control how components render in the UI. There are three `displayAs` options: `"tabs"`, `"tab"`, and `"inline-fields"`.
+
+- `"tabs"` and `"inline-fields"` are **top-level** `displayAs` options, meaning they define how the main component is displayed.  
+- `"tab"` is used **within** a `"tabs"` structure to define individual tabs.  
+
+**Important Note**
+When a `fieldGroup` has `"displayAs": "tabs"`, its `fields` property **must** contain child `fieldGroups` with `"displayAs": "tab"`. Without this structure, the UI will not render properly.
+
+### Example: Working `tabs` Template
+
+```json
+{
+    "type": "fieldGroup",
+    "name": "webApiConfig",
+    "visible": "true",
+    "displayAs": "tabs",
+    "fields": [
+        {
+            "type": "fieldGroup",
+            "name": "basics",
+            "visible": "true",
+            "displayAs": "tab",
+            "label": "Basics",
+            "fields": [...]
+        },
+        {
+            "type": "fieldGroup",
+            "name": "parameters",
+            "displayAs": "tab",
+            "label": "Parameters",
+            "visible": {
+                "httpMethod": "post"
+            },
+            "fields": [...]
+        }
+    ]
+}
+```
+
+This ensures that the UI correctly renders the tabbed structure.
+
+By default, when there is no `displayAs` property, the `fieldGroup` is not rendered in the UI only the `fields` referenced in its `fields` property. If a `fieldGroup` is conditionally visible and the condition is false, it's completely absent from the UI. If a `fieldGroup` is not conditionally visible, or the condition is true, the child controls appear in the UI (if `displayAs` isn't used the fields appear just as they would if they were not in a `fieldGroup`).
 
 ### key-value
 The `key-value` field allows the user to add an arbitrary number of key-value pairs:

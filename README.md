@@ -36,6 +36,7 @@ Javascript (NodeJS) is currently the implementation language/runtime with fulles
 ## Structure of a plugin
 
 A plugin is a directory in this repo of the form `plugins/`_plugin-name_`/v1` containing certain key files:
+
 - `metadata.json` - a file containing high-level information about the plugin (for example: the execution location of the plugin, or the information that appears in the Data Source Gallery, above).
 - `ui.json` - a file describing the configuration that must be shown to a user who is in the process of adding the plugin to their tenant to connect with an instance of the back end system.
 - `custom_types.json` (Optional) - a file containing information about non-standard object types that will be imported by the plugin into the Data Mesh.
@@ -46,40 +47,70 @@ A plugin is a directory in this repo of the form `plugins/`_plugin-name_`/v1` co
 
 1. **Clone the Repository:**
     First, clone the repository to your local machine:
+
     ```bash
     git clone https://github.com/squaredup/squaredup-plugin-public.git
     cd squaredup-plugin-public
     ```
+
 2. **Create a New Branch:**
     You will need to create a new branch for your changes:
+
     ```bash
     git checkout -b add-new-plugin # Replace Branch Name
     ```
+
 3. **Creating the Plugin Folder:**
     The suggested way to write a new plugin is to make a copy of the `examplePlugins/hybrid/v1` directory in your `plugins/`_plugin-name_`/v1` directory.
+
    ```bash
    # Replace 'ExamplePlugin' with your plugin name
    mkdir -p 'plugins/ExamplePlugin/v1'
    cp -r 'examplePlugins/hybrid/v1/*' 'plugins/ExamplePlugin/v1/'
    ```
+
 4. **Tailoring the Example Plugin:**
     You will need to tailor the configuration and code to interact with the specific back end as Required.
     This process is described in more detail in [Writing a New Plugin](docs/writingANewPlugin.md).
-5. **Testing the Plugin:** There are two main ways to test your plugin.
-      1. Using the SquaredUp Test/Validation Script (`validate.js` at the root of this repo):
+5. **Using `pnpm` to Install Dependencies:**
+    `pnpm` is used for dependency management instead of `npm`. Check [pnpm](https://pnpm.io/pnpm-cli) to learn more about `pnpm`
+    Ensure `pnpm` is installed by running `pnpm -version`. If its not installed it can be installed by running the following command:
+
+    ```bash
+    npm install --location=global pnpm@9
+    ```
+
+    | **Description**                 | **Command**                 | **Notes**                              |
+    | ------------------------------- | --------------------------- | -------------------------------------- |
+    | Install all packages                               | `pnpm i`     | e.g. after merging main                |
+    | Install all packages without changing the lockfile | `pnpm fast`  | use `pnpm -w fast` if not in root      |
+    | Install packages for certain package only | `pnpm -F "examplehybrid-v1" i` | `examplehybrid-v1` is from `package.json`'s name field |
+    | Install packages for certain package without changing the lockfile | `pnpm -F "examplehybrid-v1" i --frozen-lockfile` | `examplehybrid-v1` is from `package.json`'s name field |
+    | Add a package to Azure v1 | `pnpm add myPackage -F "azure-v1"` | `azure-v1` is from `package.json`'s name field |
+
+6. **Testing the Plugin:** There are two main ways to test your plugin.
+      1. Using the SquaredUp Test/Validation Script (`validate.js` in `scripts\plugins-validator`):
+
           ```bash
-          npm ci
-          npm run validate
+          pnpm run -w validate
           ```
+
       2. Using the SquaredUp Unit Test Framework which can be executed by running:
+
           ```bash
-          npm ci
+          # If running from the plugins directory
+          pnpm run unitTest
+          # If running from the root of the repo
           # Replace 'ExamplePlugin' with your plugin name
-          npm test -- --pluginName="ExamplePlugin" --pluginPath="plugins/ExamplePlugin/v1"
+          pnpm run test --path="plugins/ExamplePlugin/v1"
+          # OR
+          # Replace example-plugin-v1 with name from package.json of the plugin you are interested in
+          pnpm run -F "example-plugin-v1" unitTest
           ```
+
       You should aim to do as much testing as possible with the `validate.js` script as the turn-around time is much quicker.
       This process is described in more detail in [Testing a Plugin](docs/testingAPlugin.md).
-6. **Installation**
+7. **Installation**
     The plugin is only installed when a Pull Request has been submitted. During PR creation you will be
     asked for your Tenant (Organization) Name which can be retrieved from the [settings page](https://app.squaredup.com/settings/organization).
     This will be used for restricting the plugin to the specified tenant only.

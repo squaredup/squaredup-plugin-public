@@ -1,12 +1,15 @@
 module.exports = {
+    root: true,
+    plugins: ['no-only-tests'],
+    extends: ['eslint:recommended', 'prettier'],
+    parser: '@babel/eslint-parser',
+    parserOptions: {
+        requireConfigFile: false,
+        es2021: true
+    },
     env: {
         es2021: true,
         node: true
-    },
-    extends: ['eslint:recommended', 'prettier'],
-    parserOptions: {
-        ecmaVersion: 12,
-        sourceType: 'module'
     },
     ignorePatterns: ['wrappedHandler.js', 'handlerCloud.js', 'handlerOnPrem.js'],
     rules: {
@@ -58,6 +61,38 @@ module.exports = {
             }
         ],
         'no-debugger': 'warn',
-        'no-duplicate-imports': 'warn'
-    }
+        'no-duplicate-imports': 'warn',
+        'no-only-tests/no-only-tests': 'error'
+    },
+    overrides: [
+        // Use typescript rules for TS files
+        {
+            files: ['**/*.ts', '**/*.tsx'],
+            extends: [
+                'eslint:recommended',
+                'plugin:@typescript-eslint/eslint-recommended',
+                'plugin:@typescript-eslint/recommended'
+            ],
+            rules: {
+                'no-unused-vars': ['off'],
+                'no-redeclare': 'off',
+                '@typescript-eslint/ban-ts-comment': 'off',
+                '@typescript-eslint/explicit-function-return-type': 'off',
+                '@typescript-eslint/no-redeclare': ['error'],
+                '@typescript-eslint/no-unused-vars': [
+                    'warn',
+                    {
+                        ignoreRestSiblings: true,
+                        argsIgnorePattern: '^_' // allow unused if they start with an underscore
+                    }
+                ],
+                '@typescript-eslint/no-empty-object-type': 'error',
+                // we should turn this on at some point, too many things to change right now
+                '@typescript-eslint/explicit-module-boundary-types': 'off'
+            },
+            globals: { Atomics: 'readonly', SharedArrayBuffer: 'readonly' },
+            parser: '@typescript-eslint/parser',
+            plugins: ['@typescript-eslint']
+        }
+    ]
 };

@@ -1,0 +1,1248 @@
+{
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "schemaVersion": {
+            "type": "string"
+        },
+        "variables": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "dashboard": {
+            "type": "object",
+            "properties": {
+                "_type": {
+                    "type": "string"
+                },
+                "columns": {
+                    "type": "number"
+                },
+                "contents": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "i": {
+                                "type": "string"
+                            },
+                            "w": {
+                                "type": "number"
+                            },
+                            "h": {
+                                "type": "number"
+                            },
+                            "x": {
+                                "type": "number"
+                            },
+                            "y": {
+                                "type": "number"
+                            },
+                            "moved": {
+                                "type": "boolean"
+                            },
+                            "static": {
+                                "type": "boolean"
+                            },
+                            "z": {
+                                "type": "number"
+                            },
+                            "config": {
+                                "anyOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "_type": {
+                                                "type": "string",
+                                                "const": "tile/text"
+                                            },
+                                            "title": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "visualisation": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "config": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "content": {
+                                                                "type": "string"
+                                                            },
+                                                            "align": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "left",
+                                                                    "center",
+                                                                    "right"
+                                                                ]
+                                                            },
+                                                            "autoSize": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "fontSize": {
+                                                                "type": [
+                                                                    "number",
+                                                                    "string"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "content"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    }
+                                                },
+                                                "required": [
+                                                    "config"
+                                                ],
+                                                "additionalProperties": false
+                                            }
+                                        },
+                                        "required": [
+                                            "_type",
+                                            "visualisation"
+                                        ],
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "_type": {
+                                                "type": "string",
+                                                "const": "tile/image"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "title": {
+                                                "type": "string"
+                                            },
+                                            "visualisation": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "config": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "src": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "src"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    }
+                                                },
+                                                "required": [
+                                                    "config"
+                                                ],
+                                                "additionalProperties": false
+                                            }
+                                        },
+                                        "required": [
+                                            "_type",
+                                            "visualisation"
+                                        ],
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "_type": {
+                                                "type": "string",
+                                                "const": "tile/data-stream"
+                                            },
+                                            "baseTile": {
+                                                "type": "string"
+                                            },
+                                            "dataStream": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "dataSourceConfig": {},
+                                                    "metadata": {},
+                                                    "pluginConfigId": {
+                                                        "type": "string"
+                                                    },
+                                                    "group": {},
+                                                    "filter": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "filters": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "column": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "operation": {
+                                                                            "type": "string",
+                                                                            "enum": [
+                                                                                "empty",
+                                                                                "equals",
+                                                                                "greaterthan",
+                                                                                "lessthan",
+                                                                                "notempty",
+                                                                                "notequals",
+                                                                                "contains",
+                                                                                "notcontains",
+                                                                                "datemorethan"
+                                                                            ]
+                                                                        },
+                                                                        "value": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "reactKey": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "stateValue": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "column",
+                                                                        "operation"
+                                                                    ],
+                                                                    "additionalProperties": false
+                                                                }
+                                                            },
+                                                            "multiOperation": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "filters",
+                                                            "multiOperation"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    },
+                                                    "sort": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "by": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "type": "array",
+                                                                    "minItems": 2,
+                                                                    "maxItems": 2,
+                                                                    "items": [
+                                                                        {
+                                                                            "type": [
+                                                                                "string",
+                                                                                "null"
+                                                                            ]
+                                                                        },
+                                                                        {
+                                                                            "type": "string"
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "top": {
+                                                                "type": "number"
+                                                            }
+                                                        },
+                                                        "additionalProperties": false
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id"
+                                                ],
+                                                "additionalProperties": false
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "scope": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "scope": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "workspace": {
+                                                        "type": "string"
+                                                    },
+                                                    "bindings": {
+                                                        "type": "object",
+                                                        "additionalProperties": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "query": {
+                                                        "type": "string"
+                                                    },
+                                                    "queryDetail": {}
+                                                },
+                                                "additionalProperties": false
+                                            },
+                                            "monitor": {},
+                                            "title": {
+                                                "type": "string"
+                                            },
+                                            "variables": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "visualisation": {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string",
+                                                                "const": "data-stream-blocks"
+                                                            },
+                                                            "config": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "data-stream-blocks": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "columns": {
+                                                                                "type": "number"
+                                                                            },
+                                                                            "blockHeight": {
+                                                                                "type": [
+                                                                                    "number",
+                                                                                    "string"
+                                                                                ]
+                                                                            },
+                                                                            "limitHeight": {
+                                                                                "type": "number"
+                                                                            },
+                                                                            "sublabel": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "orderBy": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "valueMap": {
+                                                                                "type": "object",
+                                                                                "additionalProperties": {
+                                                                                    "type": [
+                                                                                        "string",
+                                                                                        "number",
+                                                                                        "boolean"
+                                                                                    ]
+                                                                                }
+                                                                            },
+                                                                            "groupBy": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "stateColumn": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "linkColumn": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "wrapLabels": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "labelColumn": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": false
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    },
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string",
+                                                                "const": "data-stream-donut-chart"
+                                                            },
+                                                            "config": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "data-stream-donut-chart": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "valueColumn": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "labelColumn": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "legendMode": {
+                                                                                "type": "string",
+                                                                                "enum": [
+                                                                                    "table",
+                                                                                    "inline"
+                                                                                ]
+                                                                            },
+                                                                            "legendPosition": {
+                                                                                "type": "string",
+                                                                                "enum": [
+                                                                                    "top",
+                                                                                    "left",
+                                                                                    "right",
+                                                                                    "bottom",
+                                                                                    "auto"
+                                                                                ]
+                                                                            },
+                                                                            "showValuesAsPercentage": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "palette": {
+                                                                                "anyOf": [
+                                                                                    {
+                                                                                        "type": "array",
+                                                                                        "items": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "additionalProperties": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": false
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    },
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string",
+                                                                "const": "data-stream-gauge"
+                                                            },
+                                                            "config": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "data-stream-gauge": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "value": {
+                                                                                "anyOf": [
+                                                                                    {
+                                                                                        "anyOf": [
+                                                                                            {
+                                                                                                "type": "object",
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string",
+                                                                                                        "const": "count"
+                                                                                                    }
+                                                                                                },
+                                                                                                "required": [
+                                                                                                    "type"
+                                                                                                ],
+                                                                                                "additionalProperties": false
+                                                                                            },
+                                                                                            {
+                                                                                                "type": "object",
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string",
+                                                                                                        "const": "sum"
+                                                                                                    },
+                                                                                                    "top": {
+                                                                                                        "type": "number"
+                                                                                                    },
+                                                                                                    "columns": {
+                                                                                                        "type": "array",
+                                                                                                        "items": {
+                                                                                                            "type": "string"
+                                                                                                        }
+                                                                                                    }
+                                                                                                },
+                                                                                                "required": [
+                                                                                                    "type",
+                                                                                                    "columns"
+                                                                                                ],
+                                                                                                "additionalProperties": false
+                                                                                            },
+                                                                                            {
+                                                                                                "type": "object",
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string",
+                                                                                                        "const": "mean"
+                                                                                                    },
+                                                                                                    "top": {
+                                                                                                        "type": "number"
+                                                                                                    },
+                                                                                                    "columns": {
+                                                                                                        "type": "array",
+                                                                                                        "items": {
+                                                                                                            "type": "string"
+                                                                                                        }
+                                                                                                    }
+                                                                                                },
+                                                                                                "required": [
+                                                                                                    "type",
+                                                                                                    "columns"
+                                                                                                ],
+                                                                                                "additionalProperties": false
+                                                                                            },
+                                                                                            {
+                                                                                                "type": "object",
+                                                                                                "properties": {
+                                                                                                    "type": {
+                                                                                                        "type": "string",
+                                                                                                        "const": "arr"
+                                                                                                    },
+                                                                                                    "columns": {
+                                                                                                        "type": "array",
+                                                                                                        "items": {
+                                                                                                            "type": "string"
+                                                                                                        }
+                                                                                                    }
+                                                                                                },
+                                                                                                "required": [
+                                                                                                    "type",
+                                                                                                    "columns"
+                                                                                                ],
+                                                                                                "additionalProperties": false
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "label": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "minimum": {
+                                                                                "type": "number"
+                                                                            },
+                                                                            "maximum": {
+                                                                                "type": "number"
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": false
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    },
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string",
+                                                                "const": "data-stream-table"
+                                                            },
+                                                            "config": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "data-stream-table": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "hideSearch": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "columnOrder": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "hiddenColumns": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "columnDisplayNames": {
+                                                                                "type": "object",
+                                                                                "additionalProperties": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "columns": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "useAccessorHeaderLabels": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "showShapeInTooltip": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "resizedColumns": {},
+                                                                            "rowLinkColumnName": {},
+                                                                            "pageSize": {
+                                                                                "type": "number"
+                                                                            },
+                                                                            "transpose": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "hideCount": {
+                                                                                "type": "boolean"
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": false
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    },
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string",
+                                                                "const": "data-stream-bar-chart"
+                                                            },
+                                                            "config": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "data-stream-bar-chart": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "palette": {
+                                                                                "anyOf": [
+                                                                                    {
+                                                                                        "type": "array",
+                                                                                        "items": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "additionalProperties": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "xAxisLabel": {
+                                                                                "type": "string",
+                                                                                "description": "String to use as an X-axis label"
+                                                                            },
+                                                                            "yAxisLabel": {
+                                                                                "type": "string",
+                                                                                "description": "String to use as an Y-axis label"
+                                                                            },
+                                                                            "yAxisData": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "xAxisData": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "xAxisGroup": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "horizontalLayout": {
+                                                                                "type": "string",
+                                                                                "enum": [
+                                                                                    "vertical",
+                                                                                    "horizontal"
+                                                                                ]
+                                                                            },
+                                                                            "grouping": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "showValue": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "showTotals": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "displayMode": {
+                                                                                "type": "string",
+                                                                                "enum": [
+                                                                                    "actual",
+                                                                                    "percentage",
+                                                                                    "cumulative"
+                                                                                ]
+                                                                            },
+                                                                            "range": {
+                                                                                "type": "object",
+                                                                                "properties": {
+                                                                                    "type": {
+                                                                                        "type": "string",
+                                                                                        "enum": [
+                                                                                            "auto",
+                                                                                            "custom"
+                                                                                        ]
+                                                                                    },
+                                                                                    "minimum": {
+                                                                                        "type": "number"
+                                                                                    },
+                                                                                    "maximum": {
+                                                                                        "type": "number"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "type"
+                                                                                ],
+                                                                                "additionalProperties": false
+                                                                            },
+                                                                            "showGrid": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "showLegend": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "legendPosition": {},
+                                                                            "requiresLegacyColumnMigration": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "yAxisColumn": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "yAxisRangeMode": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "yAxisRangeTo": {
+                                                                                "type": "number"
+                                                                            },
+                                                                            "xAxisColumn": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "unitLabelColumn": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": false
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    },
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string",
+                                                                "const": "data-stream-line-graph"
+                                                            },
+                                                            "config": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "data-stream-line-graph": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "palette": {
+                                                                                "anyOf": [
+                                                                                    {
+                                                                                        "type": "array",
+                                                                                        "items": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "additionalProperties": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "decimalPlaces": {
+                                                                                "type": "number",
+                                                                                "description": "How many decimal places to show for the value"
+                                                                            },
+                                                                            "dataPoints": {
+                                                                                "type": "boolean",
+                                                                                "description": "Whether or not to enable data points"
+                                                                            },
+                                                                            "xAxisLabel": {
+                                                                                "type": "string",
+                                                                                "description": "String to use as an X-axis label"
+                                                                            },
+                                                                            "yAxisLabel": {
+                                                                                "type": "string",
+                                                                                "description": "String to use as an Y-axis label"
+                                                                            },
+                                                                            "shading": {
+                                                                                "type": "boolean",
+                                                                                "description": "Whether or not to enable shading"
+                                                                            },
+                                                                            "yAxisRangeMode": {
+                                                                                "type": "string",
+                                                                                "description": "Y axis range mode"
+                                                                            },
+                                                                            "yAxisRangeFrom": {
+                                                                                "type": "number",
+                                                                                "description": "Bottom of the Y axis"
+                                                                            },
+                                                                            "yAxisRangeTo": {
+                                                                                "type": "number",
+                                                                                "description": "Top of the Y axis"
+                                                                            },
+                                                                            "xAxisColumn": {
+                                                                                "type": "string",
+                                                                                "description": "Column to use for the X axis"
+                                                                            },
+                                                                            "yAxisColumn": {
+                                                                                "anyOf": [
+                                                                                    {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "array",
+                                                                                        "items": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    }
+                                                                                ],
+                                                                                "description": "Column to use for the Y axis"
+                                                                            },
+                                                                            "cumulative": {
+                                                                                "type": "boolean",
+                                                                                "description": "Should values be calculated as cumulative"
+                                                                            },
+                                                                            "showGrid": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "showTrendLine": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "unitLabelColumn": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "seriesColumn": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "showLegend": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "legendPosition": {}
+                                                                        },
+                                                                        "additionalProperties": false
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    },
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "type": {
+                                                                "type": "string",
+                                                                "const": "data-stream-scalar"
+                                                            },
+                                                            "config": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "data-stream-scalar": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "value": {
+                                                                                "anyOf": [
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "count"
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "distinctcount"
+                                                                                            },
+                                                                                            "columns": {
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type",
+                                                                                            "columns"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "sum"
+                                                                                            },
+                                                                                            "top": {
+                                                                                                "type": "number"
+                                                                                            },
+                                                                                            "columns": {
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type",
+                                                                                            "columns"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "min"
+                                                                                            },
+                                                                                            "top": {
+                                                                                                "type": "number"
+                                                                                            },
+                                                                                            "columns": {
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type",
+                                                                                            "columns"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "max"
+                                                                                            },
+                                                                                            "top": {
+                                                                                                "type": "number"
+                                                                                            },
+                                                                                            "columns": {
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type",
+                                                                                            "columns"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "mean"
+                                                                                            },
+                                                                                            "top": {
+                                                                                                "type": "number"
+                                                                                            },
+                                                                                            "columns": {
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type",
+                                                                                            "columns"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "median"
+                                                                                            },
+                                                                                            "top": {
+                                                                                                "type": "number"
+                                                                                            },
+                                                                                            "columns": {
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type",
+                                                                                            "columns"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "mode"
+                                                                                            },
+                                                                                            "top": {
+                                                                                                "type": "number"
+                                                                                            },
+                                                                                            "columns": {
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type",
+                                                                                            "columns"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "latest"
+                                                                                            },
+                                                                                            "columns": {
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type",
+                                                                                            "columns"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "object",
+                                                                                        "properties": {
+                                                                                            "type": {
+                                                                                                "type": "string",
+                                                                                                "const": "arr"
+                                                                                            },
+                                                                                            "columns": {
+                                                                                                "type": "array",
+                                                                                                "items": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "type",
+                                                                                            "columns"
+                                                                                        ],
+                                                                                        "additionalProperties": false
+                                                                                    },
+                                                                                    {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                ]
+                                                                            },
+                                                                            "label": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "labelPosition": {
+                                                                                "type": "string",
+                                                                                "enum": [
+                                                                                    "top",
+                                                                                    "left",
+                                                                                    "right",
+                                                                                    "bottom"
+                                                                                ]
+                                                                            },
+                                                                            "comparisonColumn": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "formatted": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "manualSize": {
+                                                                                "type": "number"
+                                                                            }
+                                                                        },
+                                                                        "additionalProperties": false
+                                                                    }
+                                                                },
+                                                                "additionalProperties": false
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    }
+                                                ]
+                                            },
+                                            "timeframe": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "last1hour",
+                                                    "last12hours",
+                                                    "last24hours",
+                                                    "last7days",
+                                                    "last30days",
+                                                    "thisMonth",
+                                                    "thisQuarter",
+                                                    "thisYear",
+                                                    "lastMonth",
+                                                    "lastQuarter",
+                                                    "lastYear",
+                                                    "none"
+                                                ]
+                                            },
+                                            "monitorOld": {},
+                                            "dataStreamDraft": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "dataSourceConfig": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "sql": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "sql"
+                                                        ],
+                                                        "additionalProperties": false
+                                                    }
+                                                },
+                                                "required": [
+                                                    "dataSourceConfig"
+                                                ],
+                                                "additionalProperties": false
+                                            }
+                                        },
+                                        "required": [
+                                            "_type",
+                                            "dataStream",
+                                            "visualisation"
+                                        ],
+                                        "additionalProperties": false
+                                    }
+                                ]
+                            }
+                        },
+                        "required": [
+                            "i",
+                            "w",
+                            "h",
+                            "x",
+                            "y",
+                            "config"
+                        ],
+                        "additionalProperties": false
+                    }
+                },
+                "version": {
+                    "type": "number"
+                },
+                "variables": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "_type",
+                "columns",
+                "contents"
+            ],
+            "additionalProperties": false
+        },
+        "timeframe": {
+            "type": "string",
+            "enum": [
+                "last1hour",
+                "last12hours",
+                "last24hours",
+                "last7days",
+                "last30days",
+                "thisMonth",
+                "thisQuarter",
+                "thisYear",
+                "lastMonth",
+                "lastQuarter",
+                "lastYear",
+                "none"
+            ]
+        }
+    },
+    "required": [
+        "name",
+        "dashboard"
+    ],
+    "additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-07/schema#"
+}
