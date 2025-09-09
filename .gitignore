@@ -17,6 +17,9 @@
 .idea/**/contentModel.xml
 /plugins/package.json
 /plugins/package-lock.json
+/plugins/pnpm-workspace.yaml
+/plugins/pnpm-lock.yaml
+
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
@@ -501,8 +504,6 @@ PublishScripts/
 *.nupkg
 # NuGet Symbol Packages
 *.snupkg
-# The packages folder can be ignored because of Package Restore
-**/[Pp]ackages/*
 # except build/, which is used as an MSBuild target.
 !**/[Pp]ackages/build/
 # Uncomment if necessary however generally it will be regenerated when needed
@@ -679,26 +680,28 @@ serverless.yml
 wrappedHandler.js
 handlerCloud.js
 handlerOnPrem.js
+graphDump.json
 
 # Test files
 testConfig.json
 env-testConfig.json
 testDatastreamConfig.json
 junit.xml
-pluginUnitTests/test_output/
+**/test_output/
 testDatastreamLocally.js
 datastream_test_results/
+oauth_test_results/
 testResults.datastreamResults.json
 **/testPluginLocally.js
 **/testResults.json
 **/importResults.json
 **/datastreamResults.json
-pluginsIntegrationTestUtils/reports/html/
-pluginsIntegrationTestUtils/reports/junit/
-pluginsIntegrationTestUtils/configs/env-Config.json
-pluginsIntegrationTestUtils/configs/env-testConfig.json
+packages/@squaredup/integration-test-utilities/reports/**
+env-Config.json
 testTargetNodeConfig.json
 testDataSourceConfig.json
+plugins/**/allure-*/
 
 # CI files
 PluginsToUpload/*
+PluginsToPackage/*

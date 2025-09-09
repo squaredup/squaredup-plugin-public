@@ -7,7 +7,7 @@ export async function stageApps(context) {
         let appIndex = context.pageAPI.get('appIndex');
         context.log.debug(`Getting page of ${apiLimit} apps from ${appIndex}`);
 
-        const response = await GetAppObjectsFromExternalApi(context, appIndex, apiLimit);
+        const response = await GetAppObjectsFromExternalApi(appIndex, apiLimit);
         for (const app of response.data.apps) {
             addVertexForApp(context, app);
         }
@@ -38,20 +38,15 @@ async function addVertexForApp(context, appObject) {
     return vertex;
 }
 
-async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
-    // This example code makes no use of the plugin configuration in the context object
-    // A real plugin would be making HTTP requests authenticated with information in
-    // the plugin configuration using fetch and creating vertices and edges using the
-    // information thus obtained.
+async function GetAppObjectsFromExternalApi(appIndex, apiLimit) {
     let appNum = appIndex;
     const apps = [];
-    while (appNum < totalNApps && apps.length < apiLimit) {
-        const appType =
-            (appNum & 7) === 0
-                ? 'Hybrid'
-                : (appNum & 7) === 5
-                  ? 'ThinClient'
-                  : (appNum & 7) === 3
+    while(appNum < totalNApps && apps.length < apiLimit) {
+        const appType = (appNum & 7) === 0
+            ? 'Hybrid'
+            : (appNum & 7) === 5
+                ? 'ThinClient'
+                : (appNum & 7) === 3
                     ? 'FatClient'
                     : 'Web';
         apps.push({
@@ -61,12 +56,12 @@ async function GetAppObjectsFromExternalApi(context, appIndex, apiLimit) {
         });
         appNum++;
     }
-    return {
+    return ({
         paging: {
-            totalLength: totalNApps
+            totalLength: totalNApps,
         },
         data: {
             apps
         }
-    };
+    });
 }

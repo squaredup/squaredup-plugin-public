@@ -1,0 +1,16 @@
+{
+  "name": "@squaredup/timeframes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "timeframes.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "date-fns": "^2.30.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

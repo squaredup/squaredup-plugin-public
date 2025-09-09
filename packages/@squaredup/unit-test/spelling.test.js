@@ -1,15 +1,15 @@
 import { describe, expect, test } from '@jest/globals';
-import fs from 'fs';
-import { safeLoadJsonFromFile, testablePluginFolder } from './util.js';
 import {
-    validateText,
     combineTextAndLanguageSettings,
     finalizeSettings,
     getDefaultSettings,
+    mergeSettings,
     readSettings,
-    mergeSettings
+    validateText
 } from 'cspell-lib';
+import fs from 'fs';
 import path from 'path';
+import { safeLoadJsonFromFile, testablePluginFolder } from './util.js';
 
 export const testIf = (condition, ...args) => (condition ? test(...args) : test.skip(...args));
 export const describeIf = (condition, ...args) => (condition ? describe(...args) : describe.skip(...args));
@@ -46,6 +46,30 @@ const checkUiJson = (pluginToTest, uiConfig) => {
                 checkText(pluginToTest, 'Label', uiElement.label);
                 checkText(pluginToTest, 'Title', uiElement.title);
                 checkText(pluginToTest, 'Help', uiElement.help);
+                checkText(pluginToTest, 'Placeholder', uiElement.placeholder);
+                // If fieldGroup check all fields
+                if (uiElement.type === 'fieldGroup') {
+                    for (const field of uiElement.fields) {
+                        const checkField = (field) => {
+                            checkText(pluginToTest, 'Label', field.label);
+                            checkText(pluginToTest, 'Title', field.title);
+                            checkText(pluginToTest, 'Help', field.help);
+                            if (field.fields) {
+                                field.fields.forEach((subField) => {
+                                    checkField(subField);
+                                });
+                            }
+                        };
+                        checkField(field);
+                    }
+                }
+                // If radio check all options
+                if (uiElement.type === 'radio') {
+                    uiElement.options.forEach((option) => {
+                        checkText(pluginToTest, 'Label', option.label);
+                        checkText(pluginToTest, 'Value', option.value.toString());
+                    });
+                }
             });
         });
     }
@@ -82,6 +106,12 @@ const checkDataStreamJson = (pluginToTest, dataStreamConfig) => {
                 describe(`${dataStream.displayName}`, () => {
                     checkText(pluginToTest, 'Display Name', dataStream.displayName);
                     checkText(pluginToTest, 'Description', dataStream.description);
+
+                    if (Array.isArray(dataStream.definition?.metadata)) {
+                        dataStream.definition.metadata.forEach((column) => {
+                            checkText(pluginToTest, `Metadata Column (${column.name})`, column.displayName);
+                        });
+                    }
                 });
             });
         }
@@ -93,6 +123,50 @@ const checkMetadataJson = (pluginToTest, metadataConfig) => {
     checkText(pluginToTest, 'Display Name', metadataConfig?.displayName);
     checkText(pluginToTest, 'Description', metadataConfig?.description);
     checkText(pluginToTest, 'Category', metadataConfig?.category);
+
+    if (Array.isArray(metadataConfig?.links)) {
+        metadataConfig.links.forEach((link) => {
+            checkText(pluginToTest, `Link Label (${link.url})`, link.label);
+        });
+    }
+
+    if (metadataConfig?.actions) {
+        Object.keys(metadataConfig.actions).forEach((action) => {
+            checkText(pluginToTest, `Action (${action})`, action);
+        });
+    }
+};
+const checkScopesJson = (pluginToTest, scopesConfig) => {
+    checkText(pluginToTest, 'Name', scopesConfig?.name);
+};
+
+const checkDashboardsJson = (pluginToTest, dashboardsConfig) => {
+    checkText(pluginToTest, 'Name', dashboardsConfig?.name);
+    for (const tile of dashboardsConfig?.dashboard?.contents ?? []) {
+        checkText(pluginToTest, 'Title', tile.config.title);
+        if (tile.config.description) {
+            checkText(pluginToTest, 'Description', tile.config.description);
+        }
+        if (tile.config._type === 'tile/text') {
+            checkText(pluginToTest, 'Content', tile.config.visualisation.config.content);
+        }
+    }
+};
+
+const listDashboardsJson = (folderPath) => {
+    let dashboards = [];
+    const allDefaultContentFiles = fs.readdirSync(folderPath);
+    for (const item of allDefaultContentFiles) {
+        const itemPath = path.join(folderPath, item);
+        if (fs.lstatSync(itemPath).isDirectory()) {
+            dashboards = dashboards.concat(listDashboardsJson(itemPath));
+        } else {
+            if (item.toLowerCase().endsWith('.dash.json')) {
+                dashboards.push(itemPath);
+            }
+        }
+    }
+    return dashboards;
 };
 
 const checkText = (pluginToTest, textName, text) => {
@@ -132,6 +206,28 @@ describe('Spelling', () => {
             const customTypesConfig = safeLoadJsonFromFile(path.join(pluginToTest.pluginPath, 'custom_types.json'));
             describeIf(customTypesConfig.fileLoadSuccess, 'Custom Types', () => {
                 checkCustomTypesJson(pluginToTest, customTypesConfig.fileContent);
+            });
+        });
+
+        const defaultContentExists = fs.existsSync(path.join(pluginToTest.pluginPath, 'DefaultContent'));
+        describeIf(validFolder && defaultContentExists, `${pluginToTest.name}`, () => {
+            const scopesConfig = safeLoadJsonFromFile(
+                path.join(pluginToTest.pluginPath, 'DefaultContent', 'scopes.json')
+            );
+            describeIf(scopesConfig.fileLoadSuccess, 'Scopes', () => {
+                checkScopesJson(pluginToTest, scopesConfig.fileContent);
+            });
+
+            const dashboards = defaultContentExists
+                ? listDashboardsJson(path.join(pluginToTest.pluginPath, 'DefaultContent'))
+                : [];
+            describeIf(dashboards.length > 0, 'Dashboards', () => {
+                dashboards.forEach((dashboard) => {
+                    const dashboardConfig = safeLoadJsonFromFile(dashboard);
+                    describeIf(dashboardConfig.fileLoadSuccess, `${dashboardConfig.fileContent.name}`, () => {
+                        checkDashboardsJson(pluginToTest, dashboardConfig.fileContent);
+                    });
+                });
             });
         });
     }

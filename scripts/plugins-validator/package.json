@@ -1,0 +1,25 @@
+{
+  "name": "plugins-validator",
+  "version": "1.0.0",
+  "description": "plugins validation script",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "validate": "node validate.js"
+  },
+  "devDependencies": {
+    "@squaredup/schema": "workspace:^1.0.0",
+    "ajv": "^8.6.0",
+    "chalk": "^4.1.1",
+    "cspell-lib": "^5.13.4",
+    "date-fns": "^2.30.0",
+    "inquirer": "^8.1.1",
+    "json-stable-stringify": "^1.1.1",
+    "open": "^9.1.0",
+    "slugify": "^1.6.5",
+    "title-case": "^3.0.3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

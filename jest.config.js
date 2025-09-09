@@ -1,28 +1,33 @@
 import path, { dirname } from 'path';
-import { getPluginFolders } from './pluginUnitTests/util.js';
 import { fileURLToPath } from 'url';
+import { getPluginFolders } from './packages/@squaredup/unit-test/util.js';
 
 const pathArg = process.argv.filter((x) => x.startsWith('--path='))[0];
-const pluginPath = pathArg ? pathArg.split('=')[1] : null;
+const pluginPath = pathArg ? pathArg.split('=')[1].replace(/\/$/u, '') : null;
 
-const pluginNameArg = process.argv.filter((x) => x.startsWith('--pluginName='))[0];
-const pluginName = pluginNameArg ? pluginNameArg.split('=')[1] : null;
-const testFileName = pluginName ? pluginName + '.xml' : 'junit-test.xml';
+const pluginName = pluginPath ? pluginPath.split('/').slice(-2).join('-') : null;
+const testFileName = pluginName ? pluginName : 'all-plugins-test';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const directoryPath = path.join(__dirname, './plugins');
 
 const getPlugins = async (pluginPath) => {
     if (pluginPath !== undefined && pluginPath !== null) {
-        return [{
-            name: pluginName,
-            pluginPath: pluginPath
-        }];
-    }
-    else {
-        return await getPluginFolders(directoryPath);
+        return [
+            {
+                name: pluginName,
+                pluginPath: pluginPath
+            }
+        ];
+    } else {
+        const pluginFolders = await getPluginFolders(directoryPath);
+        return pluginFolders;
     }
 };
+
+const pluginSpecificTestsPath = pluginPath
+    ? `<rootDir>/**/${pluginPath}/**/*.test.{js,jsx,ts,tsx}`
+    : '<rootDir>/**/**/**/*.test.{js,jsx,ts,tsx}';
 
 export default async () => {
     return {
@@ -30,7 +35,8 @@ export default async () => {
         coveragePathIgnorePatterns: ['node_modules', '.mock.ts', 'Mocks.ts'],
 
         testMatch: [
-            '<rootDir>/**/pluginUnitTests/**/*.{spec,test}.{js,jsx,ts,tsx}'
+            '<rootDir>/**/packages/@squaredup/unit-test/**/*.test.{js,jsx,ts,tsx}',
+            pluginSpecificTestsPath
         ],
 
         globals: {
@@ -52,7 +58,7 @@ export default async () => {
                 }
             ]
         },
-        transformIgnorePatterns: ['[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$'],
+        transformIgnorePatterns: ['/node_modules/(?!serialize-error|@squaredup/plugin-common)'],
         testEnvironment: 'node',
 
         reporters: [
@@ -60,18 +66,18 @@ export default async () => {
             [
                 'jest-html-reporters',
                 {
-                    publicPath: 'pluginUnitTests/test_output/html',
-                    filename: pluginName + '.html',
+                    publicPath: '<rootDir>/packages/@squaredup/unit-test/test_output/html',
+                    filename: testFileName + '.html',
                     expand: true,
-                    pageTitle: pluginName,
+                    pageTitle: pluginName ? pluginName : 'All Plugins',
                     inlineSource: true
                 }
             ],
             [
                 'jest-junit',
                 {
-                    outputDirectory: 'pluginUnitTests/test_output',
-                    outputName: testFileName,
+                    outputDirectory: '<rootDir>/packages/@squaredup/unit-test/test_output',
+                    outputName: testFileName + '.xml',
                     suiteName: 'Plugin Unit Test',
                     noStackTrace: true,
                     ancestorSeparator: ' › ',
