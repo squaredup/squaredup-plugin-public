@@ -18,6 +18,23 @@
             ]
         },
         {
+            "name": "HistoricalData",
+            "metadata": [
+                {
+                    "name": "date",
+                    "displayName": "Date",
+                    "shape": "date",
+                    "role": "label"
+                },
+                {
+                    "name": "value",
+                    "displayName": "Value",
+                    "shape": "number",
+                    "role": "value"
+                }
+            ]
+        },
+        {
             "name": "Alerts",
             "metadata": [
                 {
@@ -82,7 +99,7 @@
                 }
             ]
         },
-         {
+        {
             "name": "ComponentsState",
             "metadata": [
                 {
@@ -103,11 +120,81 @@
                     "shape": "string",
                     "role": "label"
                 }
-              
+            ]
+        },
+        {
+            "name": "LiveMeasure",
+            "metadata": [
+                {
+                    "name": "unit",
+                    "displayName": "Unit",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "lastMeasurementTime",
+                    "displayName": "Last Measure Time",
+                    "shape": "date",
+                    "role": "label"
+                },
+                {
+                    "name": "measure",
+                    "displayName": "Measure",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "test",
+                    "displayName": "Test",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "componentName",
+                    "displayName": "Component Name",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "priority",
+                    "displayName": "Priority",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "value",
+                    "displayName": "Value",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "omponentType",
+                    "displayName": "Component Type",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "info",
+                    "displayName": "Info",
+                    "shape": "string",
+                    "role": "label"
+                }
             ]
         }
     ],
     "dataSources": [
+        {
+            "name": "getHistoricalData",
+            "displayName": "Historical Data",
+            "description": "Historical Data For Components",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getLiveMeasure",
+            "displayName": "Live Measure",
+            "description": "Live Measure For Components",
+            "supportedScope": "none"
+        },
         {
             "name": "getComponentsByState",
             "displayName": "Components By State",
@@ -125,6 +212,19 @@
             "displayName": "Alerts",
             "description": "Infrastructure Health",
             "supportedScope": "none"
+        },
+
+        {
+            "name": "getComponentsByType",
+            "displayName": "Component Type",
+            "description": "Component Type",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getUserComponentsForType",
+            "displayName": "Component Name",
+            "description": "Component Name",
+            "supportedScope": "none"
         }
     ],
     "matches": {
@@ -134,6 +234,188 @@
         }
     },
     "dataStreams": [
+        {
+            "displayName": "Live Measure",
+            "description": "Live Measure For Components",
+            "dataSourceName": "getLiveMeasure",
+            "definition": {
+                "timeframes": false,
+                "name": "Live Measure",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "rowType": {
+                    "name": "LiveMeasure"
+                }
+            },
+            "template": [
+                {
+                    "name": "componentType",
+                    "type": "autocomplete",
+                    "data": {
+                        "source": "dataSources",
+                        "dataSourceName": "getComponentsByType",
+                        "definition": {
+                            "name": "getComponentsListByType",
+                            "rowPath": [],
+                            "matches": "none",
+                            "timeframes": false,
+                            "dataSourceConfig": {},
+                            "metadata": [
+                                {
+                                    "name": "componentType",
+                                    "role": "label",
+                                    "displayName": "Component Type",
+                                    "shape": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "componentName",
+                    "type": "autocomplete",
+                    "data": {
+                        "source": "dataSources",
+                        "dataSourceName": "getUserComponentsForType",
+                        "definition": {
+                            "name": "getComponentsListByType",
+                            "rowPath": [],
+                            "matches": "none",
+                            "timeframes": false,
+                            "dataSourceConfig": {
+                                "componentType": { "fieldName": "componentType", "required": true }
+                            },
+                            "metadata": [
+                                {
+                                    "name": "componentName",
+                                    "role": "label",
+                                    "displayName": "Component Name",
+                                    "shape": "string"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+
+        {
+            "displayName": "Historical Data",
+            "description": "Historical Data For Components",
+            "dataSourceName": "getHistoricalData",
+            "definition": {
+                "timeframes": true,
+                "name": "Historical Data",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "rowType": {
+                    "name": "HistoricalData"
+                }
+            },
+            "template": [
+                {
+                    "name": "componentType",
+                    "type": "autocomplete",
+                    "data": {
+                        "source": "dataSources",
+                        "dataSourceName": "getComponentsByType",
+                        "definition": {
+                            "name": "getComponentsListByType",
+                            "rowPath": [],
+                            "matches": "none",
+                            "timeframes": false,
+                            "dataSourceConfig": {},
+                            "metadata": [
+                                {
+                                    "name": "componentType",
+                                    "role": "label",
+                                    "displayName": "Component Type",
+                                    "shape": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "componentName",
+                    "type": "autocomplete",
+                    "data": {
+                        "source": "dataSources",
+                        "dataSourceName": "getUserComponentsForType",
+                        "definition": {
+                            "name": "getComponentsListByType",
+                            "rowPath": [],
+                            "matches": "none",
+                            "timeframes": false,
+                            "dataSourceConfig": {
+                                "componentType": { "fieldName": "componentType", "required": true }
+                            },
+                            "metadata": [
+                                {
+                                    "name": "componentName",
+                                    "role": "label",
+                                    "displayName": "Component Name",
+                                    "shape": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                 {
+                    "name": "test",
+                    "type": "autocomplete",
+                    "data": {
+                        "source": "dataSources",
+                        "dataSourceName": "getTestForType",
+                        "definition": {
+                            "name": "getTestListForType",
+                            "rowPath": [],
+                            "matches": "none",
+                            "timeframes": false,
+                            "dataSourceConfig": {
+                                "componentType": { "fieldName": "componentType", "required": true }
+                            },
+                            "metadata": [
+                                {
+                                    "name": "test",
+                                    "role": "label",
+                                    "displayName": "Test",
+                                    "shape": "string"
+                                }
+                            ]
+                        }
+                    }
+                },
+                 {
+                    "name": "measure",
+                    "type": "autocomplete",
+                    "data": {
+                        "source": "dataSources",
+                        "dataSourceName": "getMeasureForTest",
+                        "definition": {
+                            "name": "getMeasureListForTest",
+                            "rowPath": [],
+                            "matches": "none",
+                            "timeframes": false,
+                            "dataSourceConfig": {
+                                "componentType": { "fieldName": "componentType", "required": true },
+                                "test":{ "fieldName": "test", "required": true }
+                            },
+                            "metadata": [
+                                {
+                                    "name": "measure",
+                                    "role": "label",
+                                    "displayName": "Measure",
+                                    "shape": "string"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
         {
             "displayName": "Alarms",
             "description": "Current Status",
@@ -164,21 +446,23 @@
                 }
             }
         },
-          {
+
+        {
             "displayName": "Components By State",
             "description": "Reporting and Non-reporting Components",
             "dataSourceName": "getComponentsByState",
+
             "definition": {
                 "name": "Components By State",
-                "dataSourceConfig": {},
+
                 "timeframes": false,
                 "rowPath": [],
                 "matches": "none",
-                 "rowType": {
+                "dataSourceConfig": {},
+                "rowType": {
                     "name": "ComponentsState"
                 }
             }
         }
-
     ]
 }

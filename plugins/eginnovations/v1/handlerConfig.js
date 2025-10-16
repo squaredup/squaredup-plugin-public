@@ -4,6 +4,12 @@ import { getComponentsByState } from './readDataSource/componentsByState.js';
 import { getAlarmCount } from './readDataSource/alarmCount.js';
 import fetch from 'node-fetch';
 import https from 'https';
+import { getLiveMeasure } from './readDataSource/getLiveMeasure.js';
+import { getHistoricalData } from './readDataSource/getHistoricalData.js';
+import { getComponentsByType } from './readDataSource/getComponentsByType.js';
+import { getUserComponentsForType } from './readDataSource/getUserComponentsForType.js';
+import { getTestForType } from './readDataSource/getTestForType.js';
+import { getMeasureForTest } from './readDataSource/getMeasureForTest.js';
 
     
 // ============================================================================
@@ -126,5 +132,12 @@ export function reportImportProblem(context) {
 export const dataSourceFns = {
     getAlerts,
     getComponentsByState,
-    getAlarmCount
+    getAlarmCount,
+    getLiveMeasure,
+    getHistoricalData,
+    getComponentsByType,
+    getUserComponentsForType,
+    getTestForType,
+    getMeasureForTest
+
 };

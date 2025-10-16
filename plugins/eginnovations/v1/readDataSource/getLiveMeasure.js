@@ -1,20 +1,26 @@
+// import _ from 'lodash';
 import fetch from 'node-fetch';
 import https from 'https';
 
-export async function getAlarmCount(context) {
+export async function getLiveMeasure(context) {
     const serverUrl = context.pluginConfig.serverUrl;
-    const url = `${serverUrl}/api/eg/analytics/getAlarmCount`;
+    const url = `${serverUrl}/api/eg/analytics/getLiveMeasure`;
     context.log.info(url);
 
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
 
-     const body = {
-        from: 'squaredup'
+    // Define the body of the request
+    const body = {
+        
+    'componentName': JSON.stringify(context.dataSourceConfig.componentName),//'172.16.8.112:7077',
+    'componentType':JSON.stringify(context.dataSourceConfig.componentType) ,//'eG Manager'
+   'from': 'squaredup'
+
     };
-
-
+    context.log.info(JSON.stringify(context.dataSourceConfig.componentName));
+    context.log.info(JSON.stringify(context.dataSourceConfig.componentType));
     const headers = {
         'Content-Type': 'application/json',
         user: context.pluginConfig.user,
@@ -22,7 +28,7 @@ export async function getAlarmCount(context) {
         managerurl: `${serverUrl}`,
         accessID: context.pluginConfig.accessID
     };
-    
+   
     try {
         // Await the fetch request
         const response = await fetch(url, {
@@ -44,16 +50,12 @@ export async function getAlarmCount(context) {
         }
 
         let data = await response.json();
-        
-       const result=[];
-       result.push({healthState:'major',count:data.major});
-       result.push({healthState:'minor',count:data.minor});
-       result.push({healthState:'critical',count:data.critical});
-        return result;
-    
+       
+        return data;
+
     } catch (error) {
         // Catch and log any errors
-        context.log.error(`Error in getAlarmCount: ${error.message}`);
+        context.log.error(`Error in getLiveMeasure: ${error.message}`);
         throw new Error(`HTTP error! status: ${error.message}`);
     }
 }

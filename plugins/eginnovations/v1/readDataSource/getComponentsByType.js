@@ -1,28 +1,26 @@
-import fetch from 'node-fetch';
+// import _ from 'lodash';
 import https from 'https';
+import fetch from 'node-fetch';
 
-export async function getAlarmCount(context) {
+export async function getComponentsByType(context) {
     const serverUrl = context.pluginConfig.serverUrl;
-    const url = `${serverUrl}/api/eg/analytics/getAlarmCount`;
-    context.log.info(url);
-
+    const url = `${serverUrl}/api/eg/analytics/getComponentsByState`;
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
 
-     const body = {
+    const body = {
         from: 'squaredup'
     };
-
 
     const headers = {
         'Content-Type': 'application/json',
         user: context.pluginConfig.user,
         pwd: Buffer.from(context.pluginConfig.pwd).toString('base64'),
-        managerurl: `${serverUrl}`,
+        managerurl: serverUrl,
         accessID: context.pluginConfig.accessID
     };
-    
+
     try {
         // Await the fetch request
         const response = await fetch(url, {
@@ -44,16 +42,16 @@ export async function getAlarmCount(context) {
         }
 
         let data = await response.json();
-        
-       const result=[];
-       result.push({healthState:'major',count:data.major});
-       result.push({healthState:'minor',count:data.minor});
-       result.push({healthState:'critical',count:data.critical});
-        return result;
-    
+
+        // Extract only the componentType values in a new array of objects
+        const componentTypes = data.runningComponents.map(component => ({
+            componentType: component.componentType
+        }));
+        return componentTypes;
+
     } catch (error) {
         // Catch and log any errors
-        context.log.error(`Error in getAlarmCount: ${error.message}`);
+        context.log.error(`Error in getComponentsByType: ${error.message}`);
         throw new Error(`HTTP error! status: ${error.message}`);
     }
 }

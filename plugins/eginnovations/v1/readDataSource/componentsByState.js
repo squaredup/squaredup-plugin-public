@@ -1,6 +1,6 @@
 // import _ from 'lodash';
-import fetch from 'node-fetch';
 import https from 'https';
+import fetch from 'node-fetch';
 
 export async function getComponentsByState(context) {
     const serverUrl = context.pluginConfig.serverUrl;
@@ -10,6 +10,10 @@ export async function getComponentsByState(context) {
         rejectUnauthorized: false
     });
 
+    const body = {
+        from: 'squaredup'
+    };
+
     const headers = {
         'Content-Type': 'application/json',
         user: context.pluginConfig.user,
@@ -17,11 +21,12 @@ export async function getComponentsByState(context) {
         managerurl: serverUrl,
         accessID: context.pluginConfig.accessID
     };
-    
+
     try {
         // Await the fetch request
         const response = await fetch(url, {
             method: 'POST',
+            body: JSON.stringify(body),
             headers: headers,
             agent: agent
         });
@@ -38,8 +43,8 @@ export async function getComponentsByState(context) {
         }
 
         let data = await response.json();
-        return data;
-        
+
+        return data.runningComponents;
     } catch (error) {
         // Catch and log any errors
         context.log.error(`Error in getComponentsByState: ${error.message}`);

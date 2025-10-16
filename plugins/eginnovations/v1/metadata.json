@@ -1,7 +1,7 @@
 {
     "name": "eGInnovations",
     "displayName": "eG Innovations",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "author": "eG Innovations Pvt Ltd",
     "description": "Monitor key application metrics from your eG environment",
     "category": "APM",
@@ -14,24 +14,64 @@
             "label": "eGinnovations Plugin Documentation"
         }
     ],
-    "keywords": [
-        "eginnovations",
-        "monitor",
-        "APM"
-    ],
-    "objectTypes": [
-        "Account",
-        "Alerts information",
-        "Performance metics",
-        "Historical data"
-    ],
+    "keywords": ["eginnovations", "monitor", "APM"],
+    "objectTypes": ["Account", "Alerts information", "Performance metics", "Historical data"],
     "actions": {
-        "__testConfig":        { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "handlerConfig.js" } },
-        "import":              { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" }, "isImportAction": true },
-        "getAlerts": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
-        "getComponentsByState": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } },
-        "getAlarmCount": { "connector": "nodejs", "version": "2.0.0", "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" } }
-
-        
+        "__testConfig": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "handlerConfig.js" }
+        },
+        "import": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" },
+            "isImportAction": true
+        },
+        "getAlerts": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getComponentsByState": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getAlarmCount": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getLiveMeasure": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getHistoricalData": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+         "getComponentsByType": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+          "getUserComponentsForType": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+         "getTestForType": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+         "getMeasureForTest": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        }
     }
 }

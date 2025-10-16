@@ -14,7 +14,8 @@ export async function getAlerts(context) {
     // Define the body of the request
     const body = {
         'filterBy': 'ComponentType',
-        'filterValues': 'All'
+        'filterValues': 'All',
+         'from': 'squaredup'
     };
 
     const headers = {
