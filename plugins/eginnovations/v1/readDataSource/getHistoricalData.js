@@ -13,15 +13,17 @@ export async function getHistoricalData(context) {
     });
 
     // Get raw timeline value from UI or config
-let rawTimeline = JSON.stringify(context.timeframe) || 'last1hour';  // fallback
+let rawTimeline = JSON.stringify(context.timeframe.enum) || 'last1hour';  // fallback
 
 // Clean and format the timeline
 let formattedTimeline = rawTimeline
-  .replace(/^last/i, '')    // remove "last" at the start
-  .replace(/^this/i, '')    // remove "this" at the start
-  .replace(/([0-9]+)([a-zA-Z]+)/, '$1 $2') // add space between number and unit
-  .replace(/([a-z])([A-Z])/g, '$1 $2')     // optional: add space between camelCase
+  .trim()
+  .slice(5)
+  .replace(/^last/i, '')                // remove "last" at start
+  .replace(/^this/i, '')                // remove "this" at start
+  .replace(/(\d+)([a-zA-Z]+)/g, '$1 $2') // add space between number and unit
   .trim();
+  context.log.info(formattedTimeline);
 
     // Define the body of the request
     const body = {
