@@ -20,7 +20,7 @@ jobs:
                   node-version: '20.x'
 
             - name: Install PNPM
-              run: npm install -g pnpm@9
+              run: npm install -g pnpm@10
               timeout-minutes: 5
 
             - name: Install Dependencies

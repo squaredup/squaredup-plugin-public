@@ -77,8 +77,10 @@ A plugin is a directory in this repo of the form `plugins/`_plugin-name_`/v1` co
     Ensure `pnpm` is installed by running `pnpm -version`. If its not installed it can be installed by running the following command:
 
     ```bash
-    npm install --location=global pnpm@9
+    npm install --location=global pnpm@10
     ```
+
+    If older version of `pnpm` is installed it can be upgraded by following `pnpm` update [documentation](https://pnpm.io/cli/self-update)
 
     | **Description**                 | **Command**                 | **Notes**                              |
     | ------------------------------- | --------------------------- | -------------------------------------- |
