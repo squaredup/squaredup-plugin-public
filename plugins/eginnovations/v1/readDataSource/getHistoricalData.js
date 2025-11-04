@@ -13,7 +13,7 @@ export async function getHistoricalData(context) {
     });
 
     // Get raw timeline value from UI or config
-let rawTimeline = JSON.stringify(context.timeframe.enum) || 'last1hour';  // fallback
+let rawTimeline = context.timeframe.enum || 'last1hour';  // fallback
 
 // Clean and format the timeline
 let formattedTimeline = rawTimeline
@@ -28,10 +28,10 @@ let formattedTimeline = rawTimeline
     // Define the body of the request
     const body = {
         timeline: formattedTimeline,//'1 hour',
-        componentName: JSON.stringify(context.dataSourceConfig.componentName), //'172.16.8.112:7077',
-        componentType: JSON.stringify(context.dataSourceConfig.componentType), //'eG Manager',
-        test: JSON.stringify(context.dataSourceConfig.test), //'Network',
-        measure: JSON.stringify(context.dataSourceConfig.measure),//'Packet Loss',
+        componentName:context.dataSourceConfig.componentName, //'172.16.8.112:7077',
+        componentType: context.dataSourceConfig.componentType, //'eG Manager',
+        test: context.dataSourceConfig.test, //'Network',
+        measure: context.dataSourceConfig.measure,//'Packet Loss',
         from: 'squaredup'
     };
 

@@ -11,7 +11,7 @@ export async function getTestForType(context) {
     });
 
     const body = {
-        componentType: JSON.stringify(context.dataSourceConfig.componentType),
+        componentType: context.dataSourceConfig.componentType,
         from: 'squaredup'
     };
 

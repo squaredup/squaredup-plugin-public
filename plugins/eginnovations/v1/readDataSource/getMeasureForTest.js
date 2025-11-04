@@ -11,8 +11,8 @@ export async function getMeasureForTest(context) {
     });
 
     const body = {
-        componentType: JSON.stringify(context.dataSourceConfig.componentType),
-        test:JSON.stringify(context.dataSourceConfig.test),
+        componentType: context.dataSourceConfig.componentType,
+        test:context.dataSourceConfig.test,
         from: 'squaredup'
     };
 

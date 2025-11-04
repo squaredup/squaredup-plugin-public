@@ -11,7 +11,7 @@ export async function getUserComponentsForType(context) {
     });
 
     const body = {
-        'componentType': JSON.stringify(context.dataSourceConfig.componentType), //"eG Manager",
+        'componentType': context.dataSourceConfig.componentType, //"eG Manager",
         'from': 'squaredup'
     };
     context.log.info(JSON.stringify(context.dataSourceConfig.componentType));

@@ -13,14 +13,13 @@ export async function getLiveMeasure(context) {
 
     // Define the body of the request
     const body = {
-        
-    'componentName': JSON.stringify(context.dataSourceConfig.componentName),//'172.16.8.112:7077',
-    'componentType':JSON.stringify(context.dataSourceConfig.componentType) ,//'eG Manager'
+    
+    'componentName': context.dataSourceConfig.componentName,//'172.16.8.112:7077',
+    'componentType':context.dataSourceConfig.componentType ,//'eG Manager'
    'from': 'squaredup'
 
     };
-    context.log.info(JSON.stringify(context.dataSourceConfig.componentName));
-    context.log.info(JSON.stringify(context.dataSourceConfig.componentType));
+    context.log.info(JSON.stringify(context.dataSourceConfig));
     const headers = {
         'Content-Type': 'application/json',
         user: context.pluginConfig.user,
