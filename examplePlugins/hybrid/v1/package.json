@@ -4,6 +4,10 @@
   "type": "module",
   "author": "someone",
   "license": "ISC",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "unitTest": "pnpm -w run test --ci --path=plugins/ExamplePlugin/v1"
+  },
   "dependencies": {
     "lodash": "^4.17.21"
   }
