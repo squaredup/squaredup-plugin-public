@@ -125,6 +125,12 @@
         {
             "name": "LiveMeasure",
             "metadata": [
+                 {
+                    "name": "componentName",
+                    "displayName": "Component Name",
+                    "shape": "string",
+                    "role": "label"
+                },
                 {
                     "name": "unit",
                     "displayName": "Unit",
@@ -149,12 +155,7 @@
                     "shape": "string",
                     "role": "label"
                 },
-                {
-                    "name": "componentName",
-                    "displayName": "Component Name",
-                    "shape": "string",
-                    "role": "label"
-                },
+               
                 {
                     "name": "priority",
                     "displayName": "Priority",
@@ -168,7 +169,7 @@
                     "role": "label"
                 },
                 {
-                    "name": "omponentType",
+                    "name": "componentType",
                     "displayName": "Component Type",
                     "shape": "string",
                     "role": "label"
@@ -301,13 +302,14 @@
                 "name": "getComponentsListByType",
                 "timeframes": false,
                 "provides": "templateData",
+                "options": { "noMatch": true },
                 "dataSourceConfig": {},
                 "rowPath": [],
                 "matches": "none",
                 "metadata": [
                     {
                         "name": "componentType",
-                        "role": "label",
+                        "role": "value",
                         "displayName": "Component Type",
                         "shape": "string"
                     }
@@ -322,6 +324,7 @@
                 "name": "getUserComponentsListForType",
                 "timeframes": false,
                 "provides": "templateData",
+                "options": { "noMatch": true },
                 "dataSourceConfig": {
                     "componentType": { "fieldName": "componentType", "required": true }
                 },
@@ -330,7 +333,7 @@
                 "metadata": [
                     {
                         "name": "componentName",
-                        "role": "label",
+                        "role": "value",
                         "displayName": "Component Name",
                         "shape": "string"
                     }
@@ -354,7 +357,7 @@
                 "metadata": [
                     {
                         "name": "test",
-                        "role": "label",
+                        "role": "value",
                         "displayName": "Test",
                         "shape": "string"
                     }
@@ -379,20 +382,19 @@
                 "metadata": [
                     {
                         "name": "measure",
-                        "role": "label",
+                        "role": "value",
                         "displayName": "Measure",
                         "shape": "string"
                     }
                 ]
             }
-        },
-
+        }, 
         {
             "displayName": "Historical Data",
             "description": "Historical Data For Components",
             "dataSourceName": "getHistoricalData",
             "definition": {
-                "timeframes": true,
+                "timeframes": false,
                 "name": "Historical Data",
                 "dataSourceConfig": {},
                 "rowPath": [],
@@ -461,6 +463,18 @@
                         "dataStreamName": "getMeasureListForTest",
                         "dataSourceConfig": {}
                     }
+                },
+                {
+                    "name": "timeline",
+                    "type": "autocomplete",
+                    "label": "Timeline",
+                    "title": "Timeline",
+                    "help": "Select the Timeline",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Timeline",
+                    "isMulti": false,
+                    "options":[{"value":"1 hour","label":"1 hour"},{"value":"2 hours","label":"2 hours"},{"value":"4 hours","label":"4 hours"},{"value":"6 hours","label":"6 hours"},{"value":"8 hours","label":"8 hours"},{"value":"10 hours","label":"10 hours"},{"value":"12 hours","label":"12 hours"},{"value":"1 day","label":"1 day"},{"value":"2 days","label":"2 days"},{"value":"4 days","label":"4 days"},{"value":"6 days","label":"6 days"},{"value":"1 week","label":"1 week"},{"value":"2 weeks","label":"2 weeks"},{"value":"4 weeks","label":"4 weeks"}],
+                    "defaultValue":"1 hour"
                 }
             ]
         },

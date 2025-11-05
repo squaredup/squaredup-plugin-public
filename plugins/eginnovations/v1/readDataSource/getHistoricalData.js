@@ -6,28 +6,16 @@ export async function getHistoricalData(context) {
     const serverUrl = context.pluginConfig.serverUrl;
     const url = `${serverUrl}/api/eg/analytics/getHistoricalData`;
     context.log.info(url);
-    context.log.info(JSON.stringify(context.timeframe.enum));
     context.log.info(JSON.stringify(context.dataSourceConfig));
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
 
-    // Get raw timeline value from UI or config
-let rawTimeline = context.timeframe.enum || 'last1hour';  // fallback
 
-// Clean and format the timeline
-let formattedTimeline = rawTimeline
-  .trim()
-  .slice(5)
-  .replace(/^last/i, '')                // remove "last" at start
-  .replace(/^this/i, '')                // remove "this" at start
-  .replace(/(\d+)([a-zA-Z]+)/g, '$1 $2') // add space between number and unit
-  .trim();
-  context.log.info(formattedTimeline);
 
     // Define the body of the request
     const body = {
-        timeline: formattedTimeline,//'1 hour',
+        timeline: context.dataSourceConfig.timeline,//'1 hour',
         componentName:context.dataSourceConfig.componentName, //'172.16.8.112:7077',
         componentType: context.dataSourceConfig.componentType, //'eG Manager',
         test: context.dataSourceConfig.test, //'Network',
