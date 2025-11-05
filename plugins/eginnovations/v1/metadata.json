@@ -1,7 +1,7 @@
 {
     "name": "eGInnovations",
     "displayName": "eG Innovations",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "author": "eG Innovations Pvt Ltd",
     "description": "Monitor key application metrics from your eG environment",
     "category": "APM",

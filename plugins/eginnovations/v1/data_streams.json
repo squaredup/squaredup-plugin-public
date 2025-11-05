@@ -125,7 +125,7 @@
         {
             "name": "LiveMeasure",
             "metadata": [
-                 {
+                {
                     "name": "componentName",
                     "displayName": "Component Name",
                     "shape": "string",
@@ -155,7 +155,7 @@
                     "shape": "string",
                     "role": "label"
                 },
-               
+
                 {
                     "name": "priority",
                     "displayName": "Priority",
@@ -227,13 +227,13 @@
             "description": "Component Name",
             "supportedScope": "none"
         },
-         {
+        {
             "name": "getTestForType",
             "displayName": "Test Name",
             "description": "Test Name",
             "supportedScope": "none"
         },
-         {
+        {
             "name": "getMeasureForTest",
             "displayName": "Measure Name",
             "description": "Measure Name",
@@ -289,7 +289,7 @@
                     "data": {
                         "source": "dataStream",
                         "dataStreamName": "getUserComponentsListForType",
-                        "dataSourceConfig": {}
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
                     }
                 }
             ]
@@ -325,9 +325,7 @@
                 "timeframes": false,
                 "provides": "templateData",
                 "options": { "noMatch": true },
-                "dataSourceConfig": {
-                    "componentType": { "fieldName": "componentType", "required": true }
-                },
+                "dataSourceConfig": {},
                 "rowPath": [],
                 "matches": "none",
                 "metadata": [
@@ -349,9 +347,7 @@
                 "timeframes": false,
                 "provides": "templateData",
                 "options": { "noMatch": true },
-                "dataSourceConfig": {
-                    "componentType": { "fieldName": "componentType", "required": true }
-                },
+                "dataSourceConfig": {},
                 "rowPath": [],
                 "matches": "none",
                 "metadata": [
@@ -373,10 +369,7 @@
                 "timeframes": false,
                 "provides": "templateData",
                 "options": { "noMatch": true },
-                "dataSourceConfig": {
-                    "componentType": { "fieldName": "componentType", "required": true },
-                    "test": { "fieldName": "test", "required": true }
-                },
+                "dataSourceConfig": {},
                 "rowPath": [],
                 "matches": "none",
                 "metadata": [
@@ -388,7 +381,7 @@
                     }
                 ]
             }
-        }, 
+        },
         {
             "displayName": "Historical Data",
             "description": "Historical Data For Components",
@@ -431,7 +424,7 @@
                     "data": {
                         "source": "dataStream",
                         "dataStreamName": "getUserComponentsListForType",
-                        "dataSourceConfig": {}
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
                     }
                 },
                 {
@@ -446,7 +439,7 @@
                     "data": {
                         "source": "dataStream",
                         "dataStreamName": "getTestListForType",
-                        "dataSourceConfig": {}
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
                     }
                 },
                 {
@@ -461,7 +454,10 @@
                     "data": {
                         "source": "dataStream",
                         "dataStreamName": "getMeasureListForTest",
-                        "dataSourceConfig": {}
+                        "dataSourceConfig": {
+                            "componentType": { "fieldName": "componentType", "required": true },
+                            "test": { "fieldName": "test", "required": true }
+                        }
                     }
                 },
                 {
@@ -473,8 +469,27 @@
                     "validation": { "required": true },
                     "placeholder": "Select the Timeline",
                     "isMulti": false,
-                    "options":[{"value":"1 hour","label":"1 hour"},{"value":"2 hours","label":"2 hours"},{"value":"4 hours","label":"4 hours"},{"value":"6 hours","label":"6 hours"},{"value":"8 hours","label":"8 hours"},{"value":"10 hours","label":"10 hours"},{"value":"12 hours","label":"12 hours"},{"value":"1 day","label":"1 day"},{"value":"2 days","label":"2 days"},{"value":"4 days","label":"4 days"},{"value":"6 days","label":"6 days"},{"value":"1 week","label":"1 week"},{"value":"2 weeks","label":"2 weeks"},{"value":"4 weeks","label":"4 weeks"}],
-                    "defaultValue":"1 hour"
+                    "allowCustomValues": false,
+                    "data": {
+                        "source": "fixed",
+                        "values": [
+                            { "label": "1 hour", "value": "1 hour" },
+                            { "label": "2 hours", "value": "2 hours" },
+                            { "label": "4 hours", "value": "4 hours" },
+                            { "label": "6 hours", "value": "6 hours" },
+                            { "label": "8 hours", "value": "8 hours" },
+                            { "label": "10 hours", "value": "10 hours" },
+                            { "label": "12 hours", "value": "12 hours" },
+                            { "label": "1 day", "value": "1 day" },
+                            { "label": "2 days", "value": "2 days" },
+                            { "label": "4 days", "value": "4 days" },
+                            { "label": "6 days", "value": "6 days" },
+                            { "label": "1 week", "value": "1 week" },
+                            { "label": "2 weeks", "value": "2 weeks" },
+                            { "label": "4 weeks", "value": "4 weeks" }
+                        ]
+                    },
+                    "defaultValue": "1 hour"
                 }
             ]
         },
