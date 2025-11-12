@@ -27,17 +27,6 @@
                     "role": "label"
                 },
                 {
-                    "name": "value",
-                    "displayName": "Value",
-                    "shape": "number",
-                    "role": "value"
-                }
-            ]
-        },
-        {
-            "name": "Alerts",
-            "metadata": [
-                {
                     "name": "componentType",
                     "displayName": "Component Type",
                     "shape": "string",
@@ -49,12 +38,84 @@
                     "shape": "string",
                     "role": "label"
                 },
+                 {
+                    "name": "test",
+                    "displayName": "Test",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "componentName",
+                    "displayName": "Component Name",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "descriptor",
+                    "displayName": "Descriptor",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "value",
+                    "displayName": "Value",
+                    "shape": "number",
+                    "role": "value"
+                }
+            ]
+        },
+        {
+            "name": "Alerts",
+            "metadata": [
+                {
+                    "name": "priority",
+                    "displayName": "Priority",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "startTime",
+                    "displayName": "Start Time",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "componentType",
+                    "displayName": "Component Type",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "componentName",
+                    "displayName": "Component Name",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "description",
+                    "displayName": "Description",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "layer",
+                    "displayName": "Layer",
+                    "shape": "string",
+                    "role": "label"
+                },
                 {
                     "name": "test",
                     "displayName": "Test",
                     "shape": "string",
                     "role": "label"
                 },
+                {
+                    "name": "measure",
+                    "displayName": "Measure",
+                    "shape": "string",
+                    "role": "label"
+                },
+
                 {
                     "name": "service",
                     "displayName": "Service",
@@ -68,32 +129,8 @@
                     "role": "label"
                 },
                 {
-                    "name": "description",
-                    "displayName": "Description",
-                    "shape": "string",
-                    "role": "label"
-                },
-                {
-                    "name": "startTime",
-                    "displayName": "Start Time",
-                    "shape": "string",
-                    "role": "label"
-                },
-                {
-                    "name": "componentName",
-                    "displayName": "Component Name",
-                    "shape": "string",
-                    "role": "label"
-                },
-                {
-                    "name": "priority",
-                    "displayName": "Priority",
-                    "shape": "string",
-                    "role": "label"
-                },
-                {
-                    "name": "layer",
-                    "displayName": "Layer",
+                    "name": "info",
+                    "displayName": "Info",
                     "shape": "string",
                     "role": "label"
                 }
@@ -102,6 +139,12 @@
         {
             "name": "ComponentsState",
             "metadata": [
+                {
+                    "name": "priority",
+                    "displayName": "Priority",
+                    "shape": "string",
+                    "role": "label"
+                },
                 {
                     "name": "componentType",
                     "displayName": "Component Type",
@@ -113,12 +156,6 @@
                     "displayName": "Component Name",
                     "shape": "string",
                     "role": "label"
-                },
-                {
-                    "name": "priority",
-                    "displayName": "Priority",
-                    "shape": "string",
-                    "role": "label"
                 }
             ]
         },
@@ -126,8 +163,20 @@
             "name": "LiveMeasure",
             "metadata": [
                 {
-                    "name": "componentName",
-                    "displayName": "Component Name",
+                    "name": "priority",
+                    "displayName": "Priority",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "test",
+                    "displayName": "Test",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "measure",
+                    "displayName": "Measure",
                     "shape": "string",
                     "role": "label"
                 },
@@ -138,45 +187,35 @@
                     "role": "label"
                 },
                 {
-                    "name": "lastMeasurementTime",
-                    "displayName": "Last Measure Time",
-                    "shape": "date",
-                    "role": "label"
-                },
-                {
-                    "name": "measure",
-                    "displayName": "Measure",
+                    "name": "descriptor",
+                    "displayName": "Descriptor",
                     "shape": "string",
                     "role": "label"
                 },
-                {
-                    "name": "test",
-                    "displayName": "Test",
-                    "shape": "string",
-                    "role": "label"
-                },
-
-                {
-                    "name": "priority",
-                    "displayName": "Priority",
-                    "shape": "string",
-                    "role": "label"
-                },
+                
                 {
                     "name": "value",
                     "displayName": "Value",
                     "shape": "string",
                     "role": "label"
                 },
+
                 {
-                    "name": "componentType",
-                    "displayName": "Component Type",
-                    "shape": "string",
+                    "name": "lastMeasurementTime",
+                    "displayName": "Last Measure Time",
+                    "shape": "date",
                     "role": "label"
                 },
                 {
-                    "name": "info",
-                    "displayName": "Info",
+                    "name": "componentName",
+                    "displayName": "Component Name",
+                    "shape": "string",
+                    "role": "label"
+                },
+
+                {
+                    "name": "componentType",
+                    "displayName": "Component Type",
                     "shape": "string",
                     "role": "label"
                 }
@@ -290,6 +329,39 @@
                         "source": "dataStream",
                         "dataStreamName": "getUserComponentsListForType",
                         "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
+                    }
+                },
+                {
+                    "name": "test",
+                    "type": "autocomplete",
+                    "label": "Test Name",
+                    "title": "Test Name",
+                    "help": "Select the Test Name",
+                    "validation": { "required": false },
+                    "placeholder": "Select the Test Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getTestListForType",
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
+                    }
+                },
+                {
+                    "name": "measure",
+                    "type": "autocomplete",
+                    "label": "Measure",
+                    "title": "Measure",
+                    "help": "Select the Measure Name",
+                    "validation": { "required": false },
+                    "placeholder": "Select the measure Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getMeasureListForTest",
+                        "dataSourceConfig": {
+                            "componentType": { "fieldName": "componentType", "required": true },
+                            "test": { "fieldName": "test", "required": true }
+                        }
                     }
                 }
             ]
