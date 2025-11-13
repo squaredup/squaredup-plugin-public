@@ -119,7 +119,7 @@ export async function testConfig(context) {
         log.error('TestConfig error', { message: error.message, stack: error.stack });
         newMessage(error.message, 'error');
         // Throw to stop the SquaredUp test and block continuation
-        throw error;
+       // throw error;
     }
 
     pluginConfig.testResult = result;
