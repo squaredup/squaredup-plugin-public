@@ -13,9 +13,11 @@ import { getMeasureForTest } from './readDataSource/getMeasureForTest.js';
 
     
 // ============================================================================
-//
-// testConfig
 
+/**
+ * Test configuration for eG Innovations integration.
+ * Authenticates the provided credentials and prevents continuation on failure.
+ */
 export async function testConfig(context) {
     const { pluginConfig, log } = context;
     const messages = [];
@@ -25,113 +27,106 @@ export async function testConfig(context) {
         messages
     };
 
-    const newMessage = (message, status = 'error') => messages.push({ message, status });
-
-    // =============================================================
-    // Step 1: Validate required configuration values
-    // =============================================================
-    log.debug('Starting eG Innovations testConfig validation');
-
-    if (!pluginConfig.serverUrl) {
-        newMessage('Server URL is required.');
-        return result;
-    }
-
-    if (!pluginConfig.user || !pluginConfig.pwd || !pluginConfig.accessID) {
-        newMessage('Missing required configuration: user, pwd, or accessID');
-        return result;
-    }
-
-
-    // =============================================================
-    //  Test authentication using eG Innovations Login API
-    // =============================================================
-    const agent = new https.Agent({ rejectUnauthorized: false });
-
-    const uname = pluginConfig.user;
-    const upass = Buffer.from(pluginConfig.pwd).toString('base64');
-    const accessID = pluginConfig.accessID;
-    const serverUrl = pluginConfig.serverUrl;
-
-    const loginUrl = `${serverUrl}/final/eGMobileService/getLoginSquaredup?uname=${encodeURIComponent(uname)}&user_from=squaredup&upass=${encodeURIComponent(upass)}&accessID=${encodeURIComponent(accessID)}`;
-
-    log.debug('Constructed login URL', { loginUrl });
+    const newMessage = (message, status = 'error') => {
+        messages.push({ message, status });
+        log.debug(`[testConfig] ${status.toUpperCase()}: ${message}`);
+    };
 
     try {
-        const response = await fetch(loginUrl, { agent, method: 'GET' });
-        const status = response.status;
-        const contentType = response.headers.get('content-type') || '';
-
-        log.debug('Login API response status', { status });
-
-        if (!contentType.includes('application/json')) {
-            newMessage('Unexpected response format: server did not return JSON.');
-            return result;
+        // ==========================================================
+        // Step 1: Validate configuration values
+        // ==========================================================
+        if (!pluginConfig.serverUrl) {
+            throw new Error('Server URL is required.');
+        }
+        if (!pluginConfig.user || !pluginConfig.pwd || !pluginConfig.accessID) {
+            throw new Error('Missing required configuration: user, pwd, or accessID.');
         }
 
-        const data = await response.json();
-        log.debug('Parsed login API response', { data });
+        // Validate URL format
+        let url;
+        try {
+            url = new URL(pluginConfig.serverUrl);
+        } catch {
+            throw new Error(`Invalid server URL: ${pluginConfig.serverUrl}`);
+        }
 
-        // =============================================================
-        // Handle known response codes and messages
-        // =============================================================
-        switch (status) {
-            case 200:
-                if (data.output?.toLowerCase() === 'success' || data.code === 200) {
-                    newMessage('Authentication successful. Connection to eG Innovations verified.', 'success');
-                } else {
-                    newMessage(`Unexpected success response: ${data.output || 'No output message.'}`, 'warning');
-                }
-                break;
+        if (url.protocol !== 'https:') {
+            throw new Error('Server URL must start with https:// for secure communication.');
+        }
 
-            case 400:
-                if (data.output?.includes('Invalid AccessID')) {
-                    newMessage('Authentication failed: Invalid AccessID. Please provide a valid AccessID.');
-                } else {
-                    newMessage('Authentication failed: Bad Request (400). Please check your input values.');
-                }
-                break;
+        newMessage('Validated server URL format.', 'success');
 
-            case 401:
-                if (data.output?.includes('Invalid username or password')) {
-                    newMessage('Authentication failed: Invalid username or password. Please check your credentials.');
-                } else {
-                    newMessage('Authentication failed: Unauthorized (401). Please check credentials.');
-                }
-                break;
+        // ==========================================================
+        // Step 2: Test Login API directly
+        // ==========================================================
+        const agent = new https.Agent({ rejectUnauthorized: false });
+        const uname = pluginConfig.user;
+        const upass = Buffer.from(pluginConfig.pwd).toString('base64');
+        const accessID = pluginConfig.accessID;
+        const serverUrl = pluginConfig.serverUrl;
 
-            case 404:
-                newMessage('Authentication failed: Endpoint not found (404). Please verify the server URL and API path.');
-                break;
+        const loginUrl = `${serverUrl}/final/eGMobileService/getLoginSquaredup?uname=${encodeURIComponent(uname)}&user_from=squaredup&upass=${encodeURIComponent(upass)}&accessID=${encodeURIComponent(accessID)}`;
 
-            case 405:
-                newMessage('Authentication failed: Method not allowed (405). Please contact your system administrator.');
-                break;
+        log.debug('Testing login API', { loginUrl });
 
-            default:
-                newMessage(`Authentication failed: ${status} ${response.statusText}. Please check credentials or server availability.`);
-                break;
+        let response;
+        try {
+            response = await fetch(loginUrl, { agent, method: 'GET' });
+        } catch (error) {
+            throw new Error(`Network error contacting login API: ${error.message}`);
+        }
+
+        const status = response.status;
+        const contentType = response.headers.get('content-type') || '';
+        let data = {};
+
+        if (contentType.includes('application/json')) {
+            try {
+                data = await response.json();
+            } catch {
+                throw new Error('Failed to parse JSON response from eG Innovations server.');
+            }
+        } else {
+            throw new Error('Server did not return valid JSON.');
+        }
+
+        log.debug('Login API response', { status, data });
+
+        // ==========================================================
+        // Step 3: Handle authentication results
+        // ==========================================================
+        if (status === 200 && data.output?.toLowerCase() === 'success') {
+            newMessage('Authentication successful. Connection to eG Innovations verified.', 'success');
+        } 
+        else if (status === 400 || (data.output?.includes('Invalid AccessID'))) {
+            throw new Error('Authentication failed: Invalid AccessID. Please provide a valid AccessID.');
+        } 
+        else if (status === 401 || (data.output?.includes('Invalid username or password'))) {
+            throw new Error('Authentication failed: Invalid username or password. Please check your credentials.');
+        } 
+        else if (status === 404) {
+            throw new Error('Authentication failed: Endpoint not found (404). Please verify the server URL and API path.');
+        } 
+        else if (status === 405) {
+            throw new Error('Authentication failed: Method not allowed (405). Please contact your administrator.');
+        } 
+        else {
+            throw new Error(`Authentication failed: ${status} ${response.statusText}.`);
         }
 
     } catch (error) {
-        log.error('Error during authentication', { message: error.message, stack: error.stack });
-        if (error.code === 'ENOTFOUND') {
-            newMessage(`Domain not found for ${serverUrl}. Please verify the server URL.`);
-        } else if (error.code === 'ECONNREFUSED') {
-            newMessage(`Connection refused by ${serverUrl}. The server may be down or blocking requests.`);
-        } else if (error.message.includes('self signed certificate')) {
-            newMessage('SSL error: The server uses a self-signed certificate. Please ensure it’s trusted or contact your admin.');
-        } else {
-            newMessage(`Authentication failed: ${error.message}. Please check your credentials or network connection.`);
-        }
+        log.error('TestConfig error', { message: error.message, stack: error.stack });
+        newMessage(error.message, 'error');
+        // Throw to stop the SquaredUp test and block continuation
+        throw error;
     }
 
-    // =============================================================
-    //  Return final structured result
-    // =============================================================
     pluginConfig.testResult = result;
     return result;
 }
+
+
 
 // ============================================================================
 //

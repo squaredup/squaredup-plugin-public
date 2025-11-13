@@ -12,7 +12,7 @@
                 {
                     "name": "count",
                     "displayName": "Count",
-                    "shape": "number",
+                    "shape": ["number",{"decimalPlaces": 0}],
                     "role": "value"
                 }
             ]
