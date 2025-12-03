@@ -1,7 +1,7 @@
 {
     "name": "eGInnovations",
     "displayName": "eG Enterprise",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "author": "eG Innovations Pvt Ltd",
     "description": "Monitor key application metrics from your eG environment",
     "category": "APM",
@@ -20,7 +20,7 @@
         "__testConfig": {
             "connector": "nodejs",
             "version": "2.0.0",
-            "config": { "scriptPath": "handler.js", "entryPoint": "handlerConfig.js" }
+            "config": { "scriptPath": "handler.js", "entryPoint": "testConfig" }
         },
         "import": {
             "connector": "nodejs",
