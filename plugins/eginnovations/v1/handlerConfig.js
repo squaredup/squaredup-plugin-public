@@ -33,35 +33,31 @@ export async function testConfig(context) {
     };
 
     try {
-        //Step 1: Validate configuration values
+        // Step 1: Validate configuration
         if (!pluginConfig.serverUrl) {
             newMessage('Server URL is required.');
-            log.info(JSON.stringify(result));
             return result;
         }
         if (!pluginConfig.user || !pluginConfig.pwd || !pluginConfig.accessID) {
-            newMessage('Missing required configuration: user, pwd, or accessID.');
-            log.info(JSON.stringify(result));
+            newMessage('Missing required configuration fields.');
             return result;
         }
 
-       // Validate URL format
+        // Validate URL
         let url;
         try {
             url = new URL(pluginConfig.serverUrl);
         } catch {
-            newMessage(`Invalid server URL: ${pluginConfig.serverUrl}`);
-            log.info(JSON.stringify(result));
+            newMessage('Invalid server URL format.');
             return result;
         }
 
         if (url.protocol !== 'https:') {
-            newMessage('Server URL must start with https:// for secure communication.');
-            log.info(JSON.stringify(result));
+            newMessage('Server URL must begin with https://');
             return result;
         }
 
-        // Step 2: Test Login API directly
+        // Step 2: Test Login API
         const agent = new https.Agent({ rejectUnauthorized: false });
         const uname = pluginConfig.user;
         const upass = Buffer.from(pluginConfig.pwd).toString('base64');
@@ -70,14 +66,15 @@ export async function testConfig(context) {
 
         const loginUrl = `${serverUrl}/final/eGMobileService/getLoginSquaredup?uname=${encodeURIComponent(uname)}&user_from=squaredup&upass=${encodeURIComponent(upass)}&accessID=${encodeURIComponent(accessID)}`;
 
-        log.info('Testing login API', { loginUrl });
+        // DO NOT log full URL containing credentials
+        log.info('Testing login API (URL hidden for security)');
 
         let response;
         try {
             response = await fetch(loginUrl, { agent, method: 'GET' });
         } catch (error) {
-            newMessage(`Network error contacting login API: ${error.message}`);
-            log.info(JSON.stringify(result));
+            newMessage('Network error contacting login API. Please check connectivity.');
+            log.error(`Network error (details hidden): ${error.message}`);
             return result;
         }
 
@@ -89,42 +86,43 @@ export async function testConfig(context) {
             try {
                 data = await response.json();
             } catch {
-                newMessage('Failed to parse JSON response from eG Innovations server.');
-                log.info(JSON.stringify(result));
+                newMessage('Invalid JSON response from eG Enterprise server.');
                 return result;
             }
         } else {
-            newMessage('Server did not return valid JSON.');
-            log.info(JSON.stringify(result));
+            newMessage('Server did not return JSON.');
             return result;
         }
 
-        log.info('Login API response', { status, data });
+        // Log without exposing credentials
+        log.info('Login API response received (content hidden)');
 
-        // Step 3: Handle authentication results
+        // Step 3: Authentication results
         if (status === 200 && data.output?.toLowerCase() === 'success') {
-            newMessage('Authentication successful. Connection to eG Innovations verified.', 'success');
+            newMessage('Authentication successful.', 'success');
         } else if (status === 400 || data.output?.includes('Invalid AccessID')) {
-            newMessage('Authentication failed: Invalid AccessID. Please provide a valid AccessID.');
+            newMessage('Authentication failed: Invalid AccessID.');
         } else if (status === 401 || data.output?.includes('Invalid username or password')) {
-            newMessage('Authentication failed: Invalid username or password. Please check your credentials.');
+            newMessage('Authentication failed: Invalid username or password.');
         } else if (status === 404) {
-            newMessage('Authentication failed: Endpoint not found (404). Please verify the server URL and API path.');
+            newMessage('Authentication failed: API endpoint not found (404).');
         } else if (status === 405) {
-            newMessage('Authentication failed: Method not allowed (405). Please contact your administrator.');
+            newMessage('Authentication failed: Method not allowed (405).');
         } else {
-            newMessage(`Authentication failed: ${status} ${response.statusText}.`);
+            newMessage(`Authentication failed with status ${status}.`);
         }
+
     } catch (error) {
-        log.error('TestConfig error', { message: error.message, stack: error.stack });
-        newMessage(error.message, 'error');
+        log.error(`TestConfig error (hidden details): ${error.message}`);
+        newMessage('Unexpected internal error occurred.', 'error');
     }
 
-    pluginConfig.testResult = result;
-    
-    log.info(JSON.stringify(result));
+    // DO NOT log raw result (it may contain sensitive info)
+    log.info('TestConfig completed, result sanitized.');
+
     return result;
 }
+
 
 // ============================================================================
 //
