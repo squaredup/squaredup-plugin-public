@@ -156,6 +156,12 @@
                     "displayName": "Component Name",
                     "shape": "string",
                     "role": "label"
+                },
+                {
+                    "name": "state",
+                    "displayName": "State",
+                    "shape": "string",
+                    "role": "label"
                 }
             ]
         },
@@ -337,7 +343,7 @@
                     "label": "Test Name",
                     "title": "Test Name",
                     "help": "Select the Test Name",
-                    "validation": { "required": false },
+                    "validation": { "required": true },
                     "placeholder": "Select the Test Name",
                     "isMulti": false,
                     "data": {
@@ -352,7 +358,7 @@
                     "label": "Measure",
                     "title": "Measure",
                     "help": "Select the Measure Name",
-                    "validation": { "required": false },
+                    "validation": { "required": true },
                     "placeholder": "Select the measure Name",
                     "isMulti": false,
                     "data": {

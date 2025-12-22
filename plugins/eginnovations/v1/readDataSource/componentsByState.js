@@ -44,7 +44,7 @@ export async function getComponentsByState(context) {
 
         let data = await response.json();
 
-        return data.runningComponents;
+        return data.totalComponents;
     } catch (error) {
         // Catch and log any errors
         context.log.error(`Error in getComponentsByState: ${error.message}`);

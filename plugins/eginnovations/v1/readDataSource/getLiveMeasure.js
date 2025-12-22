@@ -1,6 +1,6 @@
 // import _ from 'lodash';
-import fetch from 'node-fetch';
 import https from 'https';
+import fetch from 'node-fetch';
 
 export async function getLiveMeasure(context) {
     const serverUrl = context.pluginConfig.serverUrl;
@@ -13,11 +13,11 @@ export async function getLiveMeasure(context) {
 
     // Define the body of the request
     const body = {
-    
-    'componentName': context.dataSourceConfig.componentName,//'172.16.8.112:7077',
-    'componentType':context.dataSourceConfig.componentType ,//'eG Manager'
-   'from': 'squaredup'
-
+        componentName: context.dataSourceConfig.componentName, //'172.16.8.112:7077',
+        componentType: context.dataSourceConfig.componentType,
+        test: context.dataSourceConfig.test,
+        measure: context.dataSourceConfig.measure, //'eG Manager'
+        from: 'squaredup'
     };
     context.log.info(JSON.stringify(context.dataSourceConfig));
     const headers = {
@@ -27,7 +27,7 @@ export async function getLiveMeasure(context) {
         managerurl: `${serverUrl}`,
         accessID: context.pluginConfig.accessID
     };
-   
+
     try {
         // Await the fetch request
         const response = await fetch(url, {
@@ -49,9 +49,8 @@ export async function getLiveMeasure(context) {
         }
 
         let data = await response.json();
-       
-        return data;
 
+        return data;
     } catch (error) {
         // Catch and log any errors
         context.log.error(`Error in getLiveMeasure: ${error.message}`);

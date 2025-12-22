@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import https from 'https';
 
-export let totalNApps = 2;
+export let totalNApps = 50;
 
 /**
  * stageComponents

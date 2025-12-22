@@ -44,7 +44,7 @@ export async function getComponentsByType(context) {
         let data = await response.json();
 
         // Extract only the componentType values in a new array of objects
-        const componentTypes = data.runningComponents.map(component => ({
+        const componentTypes = data.totalComponents.map(component => ({
             componentType: component.componentType
         }));
         return componentTypes;
