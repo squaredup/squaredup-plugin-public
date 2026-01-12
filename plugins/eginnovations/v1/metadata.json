@@ -1,0 +1,77 @@
+{
+    "name": "eGInnovations",
+    "displayName": "eG Enterprise",
+    "version": "1.1.5",
+    "author": "eG Innovations Pvt Ltd",
+    "description": "Monitor key application metrics from your eG environment",
+    "category": "APM",
+    "type": "onprem",
+    "restrictedToPlatforms": [],
+    "supportsConfigValidation": true,
+    "links": [
+        {
+            "url": "https://docs.squaredup.com/data-sources/eGinnovations-plugin",
+            "label": "eGinnovations Plugin Documentation"
+        }
+    ],
+    "keywords": ["eginnovations", "monitor", "APM"],
+    "objectTypes": ["Account", "Alerts information", "Performance metics", "Historical data"],
+    "actions": {
+        "__testConfig": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "testConfig" }
+        },
+        "import": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "importObjects" },
+            "isImportAction": true
+        },
+        "getAlerts": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getComponentsByState": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getAlarmCount": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getLiveMeasure": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getHistoricalData": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+         "getComponentsByType": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+          "getUserComponentsForType": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+         "getTestForType": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+         "getMeasureForTest": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        }
+    }
+}

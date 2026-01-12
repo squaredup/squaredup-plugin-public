@@ -1,0 +1,17 @@
+{
+  "name": "eginnovations-v1",
+  "version": "1.0.0",
+  "description": "Squaredup plugin for eGinnovations",
+  "type": "module",
+  "main": "handler.js",
+  "author": "eG innovations Pvt Ltd",
+  "license": "ISC",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.3.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "unitTest": "pnpm -w run test --ci --path=plugins/eginnovations/v1"
+  }
+}

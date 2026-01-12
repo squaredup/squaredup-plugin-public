@@ -1,0 +1,9 @@
+[
+    {
+        "name": "eGComponents",
+        "type": "app",
+        "icon": "app",
+        "singular": "app",
+        "plural": "apps"
+    }
+]

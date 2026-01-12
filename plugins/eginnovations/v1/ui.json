@@ -1,0 +1,50 @@
+[
+  {
+    "type": "text",
+    "name": "serverUrl",
+    "label": "EG Server URL",
+    "title": "EG Server URL",
+    "help": "The URL of your EG instance (e.g., https://your-instance.eginnovations.com)",
+    "validation": {
+      "required": true,
+      "pattern": {
+        "value": "^https://[^\\s]+$",
+        "message": "Please enter a valid URL starting with https://"
+      }
+    },
+    "placeholder": "https://your-instance.eginnovations.com"
+  },
+  {
+    "type": "text",
+    "name": "user",
+    "label": "Account UserName",
+    "title": "Account UserName",
+    "help": "The username for the account",
+    "validation": {
+      "required": true
+    },
+    "placeholder": "Username"
+  },
+  {
+    "type": "password",
+    "name": "pwd",
+    "label": "Account Password",
+    "title": "Account Password",
+    "help": "Provide your password",
+    "validation": {
+      "required": true
+    },
+    "placeholder": "Password"
+  },
+  {
+    "type": "password",
+    "name": "accessID",
+    "label": "Access ID",
+    "title": "Access ID",
+    "help": "The Access ID to use",
+    "validation": {
+      "required": true
+    },
+    "placeholder": "Access ID"
+  }
+]

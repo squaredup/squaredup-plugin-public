@@ -1,0 +1,623 @@
+{
+    "rowTypes": [
+        {
+            "name": "Alarms",
+            "metadata": [
+                {
+                    "name": "healthState",
+                    "displayName": "Health State",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "count",
+                    "displayName": "Count",
+                    "shape": ["number",{"decimalPlaces": 0}],
+                    "role": "value"
+                }
+            ]
+        },
+        {
+            "name": "HistoricalData",
+            "metadata": [
+                {
+                    "name": "date",
+                    "displayName": "Date",
+                    "shape": "date",
+                    "role": "label"
+                },
+                {
+                    "name": "componentType",
+                    "displayName": "Component Type",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "measure",
+                    "displayName": "Measure",
+                    "shape": "string",
+                    "role": "label"
+                },
+                 {
+                    "name": "test",
+                    "displayName": "Test",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "componentName",
+                    "displayName": "Component Name",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "descriptor",
+                    "displayName": "Descriptor",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "value",
+                    "displayName": "Value",
+                    "shape": "number",
+                    "role": "value"
+                }
+            ]
+        },
+        {
+            "name": "Alerts",
+            "metadata": [
+                {
+                    "name": "priority",
+                    "displayName": "Priority",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "startTime",
+                    "displayName": "Start Time",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "componentType",
+                    "displayName": "Component Type",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "componentName",
+                    "displayName": "Component Name",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "description",
+                    "displayName": "Description",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "layer",
+                    "displayName": "Layer",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "test",
+                    "displayName": "Test",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "measure",
+                    "displayName": "Measure",
+                    "shape": "string",
+                    "role": "label"
+                },
+
+                {
+                    "name": "service",
+                    "displayName": "Service",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "alarmID",
+                    "displayName": "Alarm ID",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "info",
+                    "displayName": "Info",
+                    "shape": "string",
+                    "role": "label"
+                }
+            ]
+        },
+        {
+            "name": "ComponentsState",
+            "metadata": [
+                {
+                    "name": "priority",
+                    "displayName": "Priority",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "componentType",
+                    "displayName": "Component Type",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "componentName",
+                    "displayName": "Component Name",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "state",
+                    "displayName": "State",
+                    "shape": "string",
+                    "role": "label"
+                }
+            ]
+        },
+        {
+            "name": "LiveMeasure",
+            "metadata": [
+                {
+                    "name": "priority",
+                    "displayName": "Priority",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "test",
+                    "displayName": "Test",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "measure",
+                    "displayName": "Measure",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "unit",
+                    "displayName": "Unit",
+                    "shape": "string",
+                    "role": "label"
+                },
+                {
+                    "name": "descriptor",
+                    "displayName": "Descriptor",
+                    "shape": "string",
+                    "role": "label"
+                },
+                
+                {
+                    "name": "value",
+                    "displayName": "Value",
+                    "shape": "string",
+                    "role": "label"
+                },
+
+                {
+                    "name": "lastMeasurementTime",
+                    "displayName": "Last Measure Time",
+                    "shape": "date",
+                    "role": "label"
+                },
+                {
+                    "name": "componentName",
+                    "displayName": "Component Name",
+                    "shape": "string",
+                    "role": "label"
+                },
+
+                {
+                    "name": "componentType",
+                    "displayName": "Component Type",
+                    "shape": "string",
+                    "role": "label"
+                }
+            ]
+        }
+    ],
+    "dataSources": [
+        {
+            "name": "getHistoricalData",
+            "displayName": "Historical Data",
+            "description": "Historical Data For Components",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getLiveMeasure",
+            "displayName": "Live Measure",
+            "description": "Live Measure For Components",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getComponentsByState",
+            "displayName": "Components By State",
+            "description": "Reporting and Non-reporting Components",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getAlarmCount",
+            "displayName": "alarms",
+            "description": "Current Status",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getAlerts",
+            "displayName": "Alerts",
+            "description": "Infrastructure Health",
+            "supportedScope": "none"
+        },
+
+        {
+            "name": "getComponentsByType",
+            "displayName": "Component Type",
+            "description": "Component Type",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getUserComponentsForType",
+            "displayName": "Component Name",
+            "description": "Component Name",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getTestForType",
+            "displayName": "Test Name",
+            "description": "Test Name",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getMeasureForTest",
+            "displayName": "Measure Name",
+            "description": "Measure Name",
+            "supportedScope": "none"
+        }
+    ],
+    "matches": {
+        "__configId": {
+            "type": "equals",
+            "value": "{{configId}}"
+        }
+    },
+    "dataStreams": [
+        {
+            "displayName": "Live Measure",
+            "description": "Live Measure For Components",
+            "dataSourceName": "getLiveMeasure",
+            "definition": {
+                "timeframes": false,
+                "name": "Live Measure",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "rowType": {
+                    "name": "LiveMeasure"
+                }
+            },
+            "template": [
+                {
+                    "name": "componentType",
+                    "type": "autocomplete",
+                    "label": "Component Type",
+                    "title": "Component Type",
+                    "help": "Select the Component Type",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Component Type",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getComponentsListByType",
+                        "dataSourceConfig": {}
+                    }
+                },
+                {
+                    "name": "componentName",
+                    "type": "autocomplete",
+                    "label": "Component Name",
+                    "title": "Component Name",
+                    "help": "Select the Component Name",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Component Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getUserComponentsListForType",
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
+                    }
+                },
+                {
+                    "name": "test",
+                    "type": "autocomplete",
+                    "label": "Test Name",
+                    "title": "Test Name",
+                    "help": "Select the Test Name",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Test Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getTestListForType",
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
+                    }
+                },
+                {
+                    "name": "measure",
+                    "type": "autocomplete",
+                    "label": "Measure",
+                    "title": "Measure",
+                    "help": "Select the Measure Name",
+                    "validation": { "required": true },
+                    "placeholder": "Select the measure Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getMeasureListForTest",
+                        "dataSourceConfig": {
+                            "componentType": { "fieldName": "componentType", "required": true },
+                            "test": { "fieldName": "test", "required": true }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "displayName": "Components Type",
+            "description": "Select the components type",
+            "dataSourceName": "getComponentsByType",
+            "definition": {
+                "name": "getComponentsListByType",
+                "timeframes": false,
+                "provides": "templateData",
+                "options": { "noMatch": true },
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "metadata": [
+                    {
+                        "name": "componentType",
+                        "role": "value",
+                        "displayName": "Component Type",
+                        "shape": "string"
+                    }
+                ]
+            }
+        },
+        {
+            "displayName": "Components Name",
+            "description": "Select the components Name",
+            "dataSourceName": "getUserComponentsForType",
+            "definition": {
+                "name": "getUserComponentsListForType",
+                "timeframes": false,
+                "provides": "templateData",
+                "options": { "noMatch": true },
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "metadata": [
+                    {
+                        "name": "componentName",
+                        "role": "value",
+                        "displayName": "Component Name",
+                        "shape": "string"
+                    }
+                ]
+            }
+        },
+        {
+            "displayName": "Test Name",
+            "description": "Select the Test Name",
+            "dataSourceName": "getTestForType",
+            "definition": {
+                "name": "getTestListForType",
+                "timeframes": false,
+                "provides": "templateData",
+                "options": { "noMatch": true },
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "metadata": [
+                    {
+                        "name": "test",
+                        "role": "value",
+                        "displayName": "Test",
+                        "shape": "string"
+                    }
+                ]
+            }
+        },
+        {
+            "displayName": "Measure Name",
+            "description": "Select the Measure Name",
+            "dataSourceName": "getMeasureForTest",
+            "definition": {
+                "name": "getMeasureListForTest",
+                "timeframes": false,
+                "provides": "templateData",
+                "options": { "noMatch": true },
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "metadata": [
+                    {
+                        "name": "measure",
+                        "role": "value",
+                        "displayName": "Measure",
+                        "shape": "string"
+                    }
+                ]
+            }
+        },
+        {
+            "displayName": "Historical Data",
+            "description": "Historical Data For Components",
+            "dataSourceName": "getHistoricalData",
+            "definition": {
+                "timeframes": false,
+                "name": "Historical Data",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "rowType": {
+                    "name": "HistoricalData"
+                }
+            },
+            "template": [
+                {
+                    "name": "componentType",
+                    "type": "autocomplete",
+                    "label": "Component Type",
+                    "title": "Component Type",
+                    "help": "Select the Component Type",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Component Type",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getComponentsListByType",
+                        "dataSourceConfig": {}
+                    }
+                },
+                {
+                    "name": "componentName",
+                    "type": "autocomplete",
+                    "label": "Component Name",
+                    "title": "Component Name",
+                    "help": "Select the Component Name",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Component Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getUserComponentsListForType",
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
+                    }
+                },
+                {
+                    "name": "test",
+                    "type": "autocomplete",
+                    "label": "Test Name",
+                    "title": "Test Name",
+                    "help": "Select the Test Name",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Test Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getTestListForType",
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
+                    }
+                },
+                {
+                    "name": "measure",
+                    "type": "autocomplete",
+                    "label": "Measure",
+                    "title": "Measure",
+                    "help": "Select the Measure Name",
+                    "validation": { "required": true },
+                    "placeholder": "Select the measure Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getMeasureListForTest",
+                        "dataSourceConfig": {
+                            "componentType": { "fieldName": "componentType", "required": true },
+                            "test": { "fieldName": "test", "required": true }
+                        }
+                    }
+                },
+                {
+                    "name": "timeline",
+                    "type": "autocomplete",
+                    "label": "Timeline",
+                    "title": "Timeline",
+                    "help": "Select the Timeline",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Timeline",
+                    "isMulti": false,
+                    "allowCustomValues": false,
+                    "data": {
+                        "source": "fixed",
+                        "values": [
+                            { "label": "1 hour", "value": "1 hour" },
+                            { "label": "2 hours", "value": "2 hours" },
+                            { "label": "4 hours", "value": "4 hours" },
+                            { "label": "6 hours", "value": "6 hours" },
+                            { "label": "8 hours", "value": "8 hours" },
+                            { "label": "10 hours", "value": "10 hours" },
+                            { "label": "12 hours", "value": "12 hours" },
+                            { "label": "1 day", "value": "1 day" },
+                            { "label": "2 days", "value": "2 days" },
+                            { "label": "4 days", "value": "4 days" },
+                            { "label": "6 days", "value": "6 days" },
+                            { "label": "1 week", "value": "1 week" },
+                            { "label": "2 weeks", "value": "2 weeks" },
+                            { "label": "4 weeks", "value": "4 weeks" }
+                        ]
+                    }
+                   
+                }
+            ]
+        },
+        {
+            "displayName": "Alarms",
+            "description": "Current Status",
+            "dataSourceName": "getAlarmCount",
+            "definition": {
+                "timeframes": false,
+                "name": "Alarms",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "rowType": {
+                    "name": "Alarms"
+                }
+            }
+        },
+        {
+            "displayName": "Alerts",
+            "description": "Infrastructure Health",
+            "dataSourceName": "getAlerts",
+            "definition": {
+                "name": "Alerts",
+                "dataSourceConfig": {},
+                "timeframes": false,
+                "rowPath": [],
+                "matches": "none",
+                "rowType": {
+                    "name": "Alerts"
+                }
+            }
+        },
+
+        {
+            "displayName": "Components By State",
+            "description": "Reporting and Non-reporting Components",
+            "dataSourceName": "getComponentsByState",
+
+            "definition": {
+                "name": "Components By State",
+
+                "timeframes": false,
+                "rowPath": [],
+                "matches": "none",
+                "dataSourceConfig": {},
+                "rowType": {
+                    "name": "ComponentsState"
+                }
+            }
+        }
+    ]
+}
