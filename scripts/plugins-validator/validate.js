@@ -2164,26 +2164,26 @@ const testPlugin = async () => {
 
     // Dump mermaid
     const source = mermaidForImportObjects(importedGraph).join('\n');
-    // console.log(
-    //     '=========================== Mermaid Source ==================================================================='
-    // );
-    // console.log(source);
-    // console.log(
-    //     '=========================== Copy/Paste the above into https://mermaid.live/edit =============================='
-    // );
-    // const mmUrl = `https://mermaid.ink/img/${Buffer.from(source).toString('base64')}`;
-    // console.log(`...or visit: ${mmUrl}`);
+    console.log(
+        '=========================== Mermaid Source ==================================================================='
+    );
+    console.log(source);
+    console.log(
+        '=========================== Copy/Paste the above into https://mermaid.live/edit =============================='
+    );
+    const mmUrl = `https://mermaid.ink/img/${Buffer.from(source).toString('base64')}`;
+    console.log(`...or visit: ${mmUrl}`);
 
-    // const mmAnswer = await inquirer.prompt([
-    //     {
-    //         name: 'showMmd',
-    //         type: 'confirm',
-    //         message: 'visit Mermaid URL now (opens in default browser)?'
-    //     }
-    // ]);
-    // if (mmAnswer.showMmd) {
-    //     open(mmUrl);
-    // }
+    const mmAnswer = await inquirer.prompt([
+        {
+            name: 'showMmd',
+            type: 'confirm',
+            message: 'visit Mermaid URL now (opens in default browser)?'
+        }
+    ]);
+    if (mmAnswer.showMmd) {
+        open(mmUrl);
+    }
 
     // Test data streams
     console.log('\nTesting readDataSource()');

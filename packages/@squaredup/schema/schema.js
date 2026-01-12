@@ -591,7 +591,7 @@ export const dataStreamsSchema = {
                     },
                     provides: {
                         type: 'string',
-                        enum: ['health', 'templateData','componentType']
+                        enum: ['health', 'templateData']
                     },
                     definition: {
                         type: 'object',

@@ -566,8 +566,8 @@
                             { "label": "2 weeks", "value": "2 weeks" },
                             { "label": "4 weeks", "value": "4 weeks" }
                         ]
-                    },
-                    "defaultValue": "1 hour"
+                    }
+                   
                 }
             ]
         },

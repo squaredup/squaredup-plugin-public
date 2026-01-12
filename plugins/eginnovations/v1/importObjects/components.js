@@ -70,7 +70,7 @@ export async function stageComponents(context) {
 /**
  * Creates a vertex for SquaredUp graph.
  */
-async function addVertexForApp(context, appObject) {
+ function addVertexForApp(context, appObject) {
     const vertex = {
         sourceName: 'eG Enterprise',
         name: appObject.appName,
