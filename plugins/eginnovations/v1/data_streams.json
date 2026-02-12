@@ -249,14 +249,14 @@
         },
         {
             "name": "getAlarmCount",
-            "displayName": "alarms",
-            "description": "Current Status",
+            "displayName": "Alarms Count",
+            "description": "Count of Alarms",
             "supportedScope": "none"
         },
         {
             "name": "getAlerts",
-            "displayName": "Alerts",
-            "description": "Infrastructure Health",
+            "displayName": "Open Alarms",
+            "description": "List of Alarms",
             "supportedScope": "none"
         },
 
@@ -572,8 +572,8 @@
             ]
         },
         {
-            "displayName": "Alarms",
-            "description": "Current Status",
+            "displayName": "Alarms Count",
+            "description": "Count of Alarms",
             "dataSourceName": "getAlarmCount",
             "definition": {
                 "timeframes": false,
@@ -587,8 +587,8 @@
             }
         },
         {
-            "displayName": "Alerts",
-            "description": "Infrastructure Health",
+            "displayName": "Open Alarms",
+            "description": "List of Alarms",
             "dataSourceName": "getAlerts",
             "definition": {
                 "name": "Alerts",
