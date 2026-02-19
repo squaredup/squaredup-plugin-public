@@ -18,7 +18,8 @@ export async function getHistoricalData(context) {
         timeline: context.dataSourceConfig.timeline,//'1 hour',
         componentName:context.dataSourceConfig.componentName, //'172.16.8.112:7077',
         componentType: context.dataSourceConfig.componentType, //'eG Manager',
-        test: context.dataSourceConfig.test, //'Network',
+        test: context.dataSourceConfig.test, 
+        info:context.dataSourceConfig.descriptor,//'Network',
         measure: context.dataSourceConfig.measure,//'Packet Loss',
         from: 'squaredup'
     };
