@@ -12,7 +12,7 @@
                 {
                     "name": "count",
                     "displayName": "Count",
-                    "shape": ["number",{"decimalPlaces": 0}],
+                    "shape": ["number", { "decimalPlaces": 0 }],
                     "role": "value"
                 }
             ]
@@ -38,7 +38,7 @@
                     "shape": "string",
                     "role": "label"
                 },
-                 {
+                {
                     "name": "test",
                     "displayName": "Test",
                     "shape": "string",
@@ -198,14 +198,6 @@
                     "shape": "string",
                     "role": "label"
                 },
-                
-                {
-                    "name": "value",
-                    "displayName": "Value",
-                    "shape": "string",
-                    "role": "label"
-                },
-
                 {
                     "name": "lastMeasurementTime",
                     "displayName": "Last Measure Time",
@@ -222,6 +214,12 @@
                 {
                     "name": "componentType",
                     "displayName": "Component Type",
+                    "shape": "string",
+                    "role": "label"
+                },
+                 {
+                    "name": "value",
+                    "displayName": "Value",
                     "shape": "string",
                     "role": "label"
                 }
@@ -279,6 +277,18 @@
             "supportedScope": "none"
         },
         {
+            "name": "getDescriptorForComponentTestLive",
+            "displayName": "Descriptor",
+            "description": "Descriptor for Live Measure",
+            "supportedScope": "none"
+        },
+        {
+            "name": "getDescriptorForComponentTestHistorical",
+            "displayName": "Descriptor",
+            "description": "Descriptor for Historical Data",
+            "supportedScope": "none"
+        },
+        {
             "name": "getMeasureForTest",
             "displayName": "Measure Name",
             "description": "Measure Name",
@@ -292,87 +302,7 @@
         }
     },
     "dataStreams": [
-        {
-            "displayName": "Live Measure",
-            "description": "Live Measure For Components",
-            "dataSourceName": "getLiveMeasure",
-            "definition": {
-                "timeframes": false,
-                "name": "Live Measure",
-                "dataSourceConfig": {},
-                "rowPath": [],
-                "matches": "none",
-                "rowType": {
-                    "name": "LiveMeasure"
-                }
-            },
-            "template": [
-                {
-                    "name": "componentType",
-                    "type": "autocomplete",
-                    "label": "Component Type",
-                    "title": "Component Type",
-                    "help": "Select the Component Type",
-                    "validation": { "required": true },
-                    "placeholder": "Select the Component Type",
-                    "isMulti": false,
-                    "data": {
-                        "source": "dataStream",
-                        "dataStreamName": "getComponentsListByType",
-                        "dataSourceConfig": {}
-                    }
-                },
-                {
-                    "name": "componentName",
-                    "type": "autocomplete",
-                    "label": "Component Name",
-                    "title": "Component Name",
-                    "help": "Select the Component Name",
-                    "validation": { "required": true },
-                    "placeholder": "Select the Component Name",
-                    "isMulti": false,
-                    "data": {
-                        "source": "dataStream",
-                        "dataStreamName": "getUserComponentsListForType",
-                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
-                    }
-                },
-                {
-                    "name": "test",
-                    "type": "autocomplete",
-                    "label": "Test Name",
-                    "title": "Test Name",
-                    "help": "Select the Test Name",
-                    "validation": { "required": true },
-                    "placeholder": "Select the Test Name",
-                    "isMulti": false,
-                    "data": {
-                        "source": "dataStream",
-                        "dataStreamName": "getTestListForType",
-                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
-                    }
-                },
-                {
-                    "name": "measure",
-                    "type": "autocomplete",
-                    "label": "Measure",
-                    "title": "Measure",
-                    "help": "Select the Measure Name",
-                    "validation": { "required": true },
-                    "placeholder": "Select the measure Name",
-                    "isMulti": false,
-                    "data": {
-                        "source": "dataStream",
-                        "dataStreamName": "getMeasureListForTest",
-                        "dataSourceConfig": {
-                            "componentType": { "fieldName": "componentType", "required": true },
-                            "test": { "fieldName": "test", "required": true }
-                        }
-                    }
-                }
-            ]
-        },
-        {
+         {
             "displayName": "Components Type",
             "description": "Select the components type",
             "dataSourceName": "getComponentsByType",
@@ -439,6 +369,50 @@
             }
         },
         {
+            "displayName": "Descriptor",
+            "description": "Select the Descriptor for Live Measure",
+            "dataSourceName": "getDescriptorForComponentTestLive",
+            "definition": {
+                "name": "getDescriptorListForComponentTestLive",
+                "timeframes": false,
+                "provides": "templateData",
+                "options": { "noMatch": true },
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "metadata": [
+                    {
+                        "name": "descriptor",
+                        "role": "value",
+                        "displayName": "Descriptor",
+                        "shape": "string"
+                    }
+                ]
+            }
+        },
+         {
+            "displayName": "Descriptor",
+            "description": "Select the Descriptor for Historical Data",
+            "dataSourceName": "getDescriptorForComponentTestHistorical",
+            "definition": {
+                "name": "getDescriptorListForComponentTestHistorical",
+                "timeframes": false,
+                "provides": "templateData",
+                "options": { "noMatch": true },
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "metadata": [
+                    {
+                        "name": "descriptor",
+                        "role": "value",
+                        "displayName": "Descriptor",
+                        "shape": "string"
+                    }
+                ]
+            }
+        },
+        {
             "displayName": "Measure Name",
             "description": "Select the Measure Name",
             "dataSourceName": "getMeasureForTest",
@@ -460,6 +434,106 @@
                 ]
             }
         },
+        {
+            "displayName": "Live Measure",
+            "description": "Live Measure For Components",
+            "dataSourceName": "getLiveMeasure",
+            "definition": {
+                "timeframes": false,
+                "name": "Live Measure",
+                "dataSourceConfig": {},
+                "rowPath": [],
+                "matches": "none",
+                "rowType": {
+                    "name": "LiveMeasure"
+                }
+            },
+            "template": [
+                {
+                    "name": "componentType",
+                    "type": "autocomplete",
+                    "label": "Component Type",
+                    "title": "Component Type",
+                    "help": "Select the Component Type",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Component Type",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getComponentsListByType",
+                        "dataSourceConfig": {}
+                    }
+                },
+                {
+                    "name": "componentName",
+                    "type": "autocomplete",
+                    "label": "Component Name",
+                    "title": "Component Name",
+                    "help": "Select the Component Name",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Component Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getUserComponentsListForType",
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
+                    }
+                },
+                {
+                    "name": "test",
+                    "type": "autocomplete",
+                    "label": "Test Name",
+                    "title": "Test Name",
+                    "help": "Select the Test Name",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Test Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getTestListForType",
+                        "dataSourceConfig": { "componentType": { "fieldName": "componentType", "required": true } }
+                    }
+                },
+                {
+                    "name": "descriptor",
+                    "type": "autocomplete",
+                    "label": "Descriptor",
+                    "title": "Descriptor",
+                    "help": "Select the Descriptor",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Descriptor",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getDescriptorListForComponentTestLive",
+                        "dataSourceConfig": {
+                            "componentType": { "fieldName": "componentType", "required": true },
+                            "componentName": { "fieldName": "componentName", "required": true },
+                            "test": { "fieldName": "test", "required": true }
+                        }
+                    }
+                },
+                {
+                    "name": "measure",
+                    "type": "autocomplete",
+                    "label": "Measure",
+                    "title": "Measure",
+                    "help": "Select the Measure Name",
+                    "validation": { "required": true },
+                    "placeholder": "Select the measure Name",
+                    "isMulti": false,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getMeasureListForTest",
+                        "dataSourceConfig": {
+                            "componentType": { "fieldName": "componentType", "required": true },
+                            "test": { "fieldName": "test", "required": true }
+                        }
+                    }
+                }
+            ]
+        },
+       
         {
             "displayName": "Historical Data",
             "description": "Historical Data For Components",
@@ -521,6 +595,25 @@
                     }
                 },
                 {
+                    "name": "descriptor",
+                    "type": "autocomplete",
+                    "label": "Descriptor",
+                    "title": "Descriptor",
+                    "help": "Select the Descriptor",
+                    "validation": { "required": true },
+                    "placeholder": "Select the Descriptor",
+                    "isMulti": true,
+                    "data": {
+                        "source": "dataStream",
+                        "dataStreamName": "getDescriptorListForComponentTestHistorical",
+                        "dataSourceConfig": {
+                            "componentType": { "fieldName": "componentType", "required": true },
+                            "componentName": { "fieldName": "componentName", "required": true },
+                            "test": { "fieldName": "test", "required": true }
+                        }
+                    }
+                },
+                {
                     "name": "measure",
                     "type": "autocomplete",
                     "label": "Measure",
@@ -567,7 +660,6 @@
                             { "label": "4 weeks", "value": "4 weeks" }
                         ]
                     }
-                   
                 }
             ]
         },

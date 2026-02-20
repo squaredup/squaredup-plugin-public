@@ -39,6 +39,7 @@ export async function getAlerts(context) {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+       
 
         // Check if response is JSON
         const contentType = response.headers.get('content-type');

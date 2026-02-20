@@ -2,33 +2,23 @@
 import https from 'https';
 import fetch from 'node-fetch';
 
-export async function getLiveMeasure(context) {
+export async function getDescriptorForComponentTestHistorical(context) {
     const serverUrl = context.pluginConfig.serverUrl;
-    const url = `${serverUrl}/api/eg/analytics/getLiveMeasure`;
-    var info = '';
+    const url = `${serverUrl}/api/eg/analytics/getDescriptorForComponentTest`;
     context.log.info(url);
-
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
-
-    if (context.dataSourceConfig.descriptor != 'All' && context.dataSourceConfig.descriptor != 'Not Applicable') {
-        info = context.dataSourceConfig.descriptor;
-    }else{
-        info = '';
-    }
 
     // Define the body of the request
     const body = {
         componentName: context.dataSourceConfig.componentName, //'172.16.8.112:7077',
         componentType: context.dataSourceConfig.componentType,
         test: context.dataSourceConfig.test,
-        measure: context.dataSourceConfig.measure,
-        info: info, //'eG Manager'
-        from: 'squaredup'
+        from: 'squaredup',
+        dataMode:'historical'
     };
     context.log.info(JSON.stringify(context.dataSourceConfig));
-    context.log.info(JSON.stringify(body));
     const headers = {
         'Content-Type': 'application/json',
         user: context.pluginConfig.user,
@@ -62,7 +52,7 @@ export async function getLiveMeasure(context) {
         return data;
     } catch (error) {
         // Catch and log any errors
-        context.log.error(`Error in getLiveMeasure: ${error.message}`);
+        context.log.error(`Error in getDescriptorForComponentTestHistorical: ${error.message}`);
         throw new Error(`HTTP error! status: ${error.message}`);
     }
 }

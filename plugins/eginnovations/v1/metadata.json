@@ -1,7 +1,7 @@
 {
     "name": "eGInnovations",
     "displayName": "eG Enterprise",
-    "version": "1.1.6",
+    "version": "1.1.8",
     "author": "eG Innovations Pvt Ltd",
     "description": "Monitor key application metrics from your eG environment",
     "category": "APM",
@@ -72,6 +72,17 @@
             "connector": "nodejs",
             "version": "2.0.0",
             "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getDescriptorForComponentTestLive": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
+        },
+        "getDescriptorForComponentTestHistorical": {
+            "connector": "nodejs",
+            "version": "2.0.0",
+            "config": { "scriptPath": "handler.js", "entryPoint": "readDataSource" }
         }
+        
     }
 }
