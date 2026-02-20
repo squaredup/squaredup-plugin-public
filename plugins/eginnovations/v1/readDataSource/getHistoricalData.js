@@ -4,25 +4,31 @@ import fetch from 'node-fetch';
 
 export async function getHistoricalData(context) {
     const serverUrl = context.pluginConfig.serverUrl;
+    var info = '';
     const url = `${serverUrl}/api/eg/analytics/getHistoricalData`;
     context.log.info(url);
     context.log.info(JSON.stringify(context.dataSourceConfig));
+
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
-
-
+    if (context.dataSourceConfig.descriptor != 'Not Applicable') {
+        info = context.dataSourceConfig.descriptor;
+    } else {
+        info = '';
+    }
 
     // Define the body of the request
     const body = {
-        timeline: context.dataSourceConfig.timeline,//'1 hour',
-        componentName:context.dataSourceConfig.componentName, //'172.16.8.112:7077',
+        timeline: context.dataSourceConfig.timeline, //'1 hour',
+        componentName: context.dataSourceConfig.componentName, //'172.16.8.112:7077',
         componentType: context.dataSourceConfig.componentType, //'eG Manager',
-        test: context.dataSourceConfig.test, 
-        info:context.dataSourceConfig.descriptor,//'Network',
-        measure: context.dataSourceConfig.measure,//'Packet Loss',
+        test: context.dataSourceConfig.test,
+        info: info, //'Network',
+        measure: context.dataSourceConfig.measure, //'Packet Loss',
         from: 'squaredup'
     };
+    context.log.info(JSON.stringify(body));
 
     const headers = {
         'Content-Type': 'application/json',

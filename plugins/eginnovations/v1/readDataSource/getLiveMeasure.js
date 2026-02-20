@@ -12,7 +12,7 @@ export async function getLiveMeasure(context) {
         rejectUnauthorized: false
     });
 
-    if (context.dataSourceConfig.descriptor != 'All') {
+    if (context.dataSourceConfig.descriptor != 'All' && context.dataSourceConfig.descriptor != 'Not Applicable') {
         info = context.dataSourceConfig.descriptor;
     }else{
         info = '';
@@ -28,6 +28,7 @@ export async function getLiveMeasure(context) {
         from: 'squaredup'
     };
     context.log.info(JSON.stringify(context.dataSourceConfig));
+    context.log.info(JSON.stringify(body));
     const headers = {
         'Content-Type': 'application/json',
         user: context.pluginConfig.user,
