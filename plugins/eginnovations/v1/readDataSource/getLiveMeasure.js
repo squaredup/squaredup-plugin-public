@@ -5,7 +5,7 @@ import fetch from 'node-fetch';
 export async function getLiveMeasure(context) {
     const serverUrl = context.pluginConfig.serverUrl;
     const url = `${serverUrl}/api/eg/analytics/getLiveMeasure`;
-    const info = '';
+    var info = '';
     context.log.info(url);
 
     const agent = new https.Agent({
