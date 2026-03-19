@@ -5,21 +5,30 @@ import fetch from 'node-fetch';
 export async function getLiveMeasure(context) {
     const serverUrl = context.pluginConfig.serverUrl;
     const url = `${serverUrl}/api/eg/analytics/getLiveMeasure`;
+    var info = '';
     context.log.info(url);
 
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
 
+    if (context.dataSourceConfig.descriptor != 'All' && context.dataSourceConfig.descriptor != 'Not Applicable') {
+        info = context.dataSourceConfig.descriptor;
+    }else{
+        info = '';
+    }
+
     // Define the body of the request
     const body = {
         componentName: context.dataSourceConfig.componentName, //'172.16.8.112:7077',
         componentType: context.dataSourceConfig.componentType,
         test: context.dataSourceConfig.test,
-        measure: context.dataSourceConfig.measure, //'eG Manager'
+        measure: context.dataSourceConfig.measure,
+        info: info, //'eG Manager'
         from: 'squaredup'
     };
     context.log.info(JSON.stringify(context.dataSourceConfig));
+    context.log.info(JSON.stringify(body));
     const headers = {
         'Content-Type': 'application/json',
         user: context.pluginConfig.user,

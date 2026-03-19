@@ -5,7 +5,7 @@ export async function getAlarmCount(context) {
     const serverUrl = context.pluginConfig.serverUrl;
     const url = `${serverUrl}/api/eg/analytics/getAlarmCount`;
     context.log.info(url);
-
+    
     const agent = new https.Agent({
         rejectUnauthorized: false
     });

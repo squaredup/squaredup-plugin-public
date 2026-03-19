@@ -4,24 +4,38 @@ import fetch from 'node-fetch';
 
 export async function getHistoricalData(context) {
     const serverUrl = context.pluginConfig.serverUrl;
+    var info = '';
     const url = `${serverUrl}/api/eg/analytics/getHistoricalData`;
     context.log.info(url);
     context.log.info(JSON.stringify(context.dataSourceConfig));
+
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
-
-
+    if (context.dataSourceConfig.descriptor != 'Not Applicable') {
+        if (Array.isArray(context.dataSourceConfig.descriptor)) {
+            info =
+                context.dataSourceConfig.descriptor.length > 0
+                    ? context.dataSourceConfig.descriptor.join(',') // or [0]
+                    : '';
+        } else {
+            info = context.dataSourceConfig.descriptor;
+        }
+    } else {
+        info = '';
+    }
 
     // Define the body of the request
     const body = {
-        timeline: context.dataSourceConfig.timeline,//'1 hour',
-        componentName:context.dataSourceConfig.componentName, //'172.16.8.112:7077',
+        timeline: context.dataSourceConfig.timeline, //'1 hour',
+        componentName: context.dataSourceConfig.componentName, //'172.16.8.112:7077',
         componentType: context.dataSourceConfig.componentType, //'eG Manager',
-        test: context.dataSourceConfig.test, //'Network',
-        measure: context.dataSourceConfig.measure,//'Packet Loss',
+        test: context.dataSourceConfig.test, //'HTTP',
+        info: info, //'HomePage',
+        measure: context.dataSourceConfig.measure, //'web availability',
         from: 'squaredup'
     };
+    context.log.info(JSON.stringify(body));
 
     const headers = {
         'Content-Type': 'application/json',
@@ -52,9 +66,8 @@ export async function getHistoricalData(context) {
         }
 
         let data = await response.json();
-        const dynamicKey = Object.keys(data)[0];
-        context.log.info(dynamicKey);
-        return data[dynamicKey];
+
+        return data.data;
     } catch (error) {
         // Catch and log any errors
         context.log.error(`Error in getHistoricalData: ${error.message}`);

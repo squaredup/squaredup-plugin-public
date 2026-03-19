@@ -10,6 +10,8 @@ import { getLiveMeasure } from './readDataSource/getLiveMeasure.js';
 import { getMeasureForTest } from './readDataSource/getMeasureForTest.js';
 import { getTestForType } from './readDataSource/getTestForType.js';
 import { getUserComponentsForType } from './readDataSource/getUserComponentsForType.js';
+import { getDescriptorForComponentTestLive } from './readDataSource/getDescriptorForComponentTestLive.js';
+import { getDescriptorForComponentTestHistorical } from './readDataSource/getDescriptorForComponentTestHistorical.js';
 
 // ============================================================================
 
@@ -165,5 +167,7 @@ export const dataSourceFns = {
     getComponentsByType,
     getUserComponentsForType,
     getTestForType,
-    getMeasureForTest
+    getMeasureForTest,
+    getDescriptorForComponentTestLive,
+    getDescriptorForComponentTestHistorical
 };
