@@ -1,5 +1,5 @@
 # No longer used - due to be archived
-Please use https://github.com/squaredup/plugins for community plugin development using our Low Code plugin framework.
+Please use [squaredup/plugins](https://github.com/squaredup/plugins) for community plugin development using our Low Code plugin framework.
 
 
 ---
