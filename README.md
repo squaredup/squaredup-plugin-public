@@ -1,4 +1,10 @@
-# SquaredUp Community Plugins Repository
+# No longer used - due to be archived
+Please use [squaredup/plugins](https://github.com/squaredup/plugins) for community plugin development using our Low Code plugin framework.
+
+
+---
+
+## SquaredUp Community Plugins Repository
 
 This repository contains third-party/community plugins for [SquaredUp](https://squaredup.com).
 
