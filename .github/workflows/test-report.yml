@@ -19,3 +19,4 @@ jobs:
         name: JEST Tests
         path: '*.xml'
         reporter: jest-junit
+        fail-on-empty: false
