@@ -67,7 +67,11 @@ export async function getHistoricalData(context) {
 
         let data = await response.json();
 
-        return data.data;
+        // return data.data;
+         return data.data.map((component) => ({
+            ...component,
+            legend: `${component.componentType} / ${component.componentName} / ${component.test}/ ${component.descriptor}/ ${component.measure}`
+        }));
     } catch (error) {
         // Catch and log any errors
         context.log.error(`Error in getHistoricalData: ${error.message}`);
