@@ -9,7 +9,7 @@
                         {
                             "map": {
                                 "unmonitored": [],
-                                "unknown": [],
+                                "unknown": ["unknown"],
                                 "error": ["critical"],
                                 "warning": ["major"],
                                 "success": ["minor"]
@@ -35,6 +35,7 @@
         {
             "name": "HistoricalData",
             "metadata": [
+                { "name": "legend", "displayName": "Legend", "shape": "string", "role": "label" },
                 {
                     "name": "date",
                     "displayName": "Date",
@@ -88,7 +89,7 @@
                         {
                             "map": {
                                 "unmonitored": [],
-                                "unknown": [],
+                                "unknown": ["Unknown"],
                                 "error": ["Critical"],
                                 "warning": ["Major"],
                                 "success": ["Minor"]
@@ -174,10 +175,10 @@
                         "state",
                         {
                             "map": {
-                                "unmonitored": ["Minor"],
+                                "unmonitored": [],
                                 "unknown": ["Unknown"],
-                                "error": ["Critical"],
-                                "warning": ["Major"],
+                                "error": ["Critical", "Major"],
+                                "warning": ["Minor"],
                                 "success": ["Normal"]
                             }
                         }
@@ -220,14 +221,15 @@
                             "map": {
                                 "unmonitored": [],
                                 "unknown": ["Unknown"],
-                                "error": ["Critical"],
-                                "warning": ["Major"],
+                                "error": ["Critical", "Major"],
+                                "warning": ["Minor"],
                                 "success": ["Normal"]
                             }
                         }
                     ],
                     "name": "priority"
                 },
+                { "name": "legend", "displayName": "Legend", "shape": "string", "role": "label" },
                 {
                     "name": "priority",
                     "displayName": "Priority",

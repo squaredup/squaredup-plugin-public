@@ -14,7 +14,7 @@ export async function getLiveMeasure(context) {
 
     if (context.dataSourceConfig.descriptor != 'All' && context.dataSourceConfig.descriptor != 'Not Applicable') {
         info = context.dataSourceConfig.descriptor;
-    }else{
+    } else {
         info = '';
     }
 
@@ -59,7 +59,11 @@ export async function getLiveMeasure(context) {
 
         let data = await response.json();
 
-        return data;
+        // return data;
+        return data.map((component) => ({
+            ...component,
+            legend: `${component.componentType} / ${component.componentName} / ${component.test}/ ${component.descriptor}/ ${component.measure}`
+        }));
     } catch (error) {
         // Catch and log any errors
         context.log.error(`Error in getLiveMeasure: ${error.message}`);
