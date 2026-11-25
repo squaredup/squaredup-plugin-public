@@ -5,3 +5,8 @@ packages:
   - 'packages/**'
 
 injectWorkspacePackages: true
+
+allowBuilds:
+  '@swc/core': true
+  esbuild: true
+  oxc-resolver: true
